@@ -1,0 +1,96 @@
+<?php
+  $escape = $this->plugin('escapeHtml');
+  $url = '';
+  $siteTitle = $block->page()->site()->title();
+  if($attachments):
+    $media = $attachments[0]->media();
+
+    $url = '';
+    if($media):
+      $url = $media->thumbnailUrl('large');
+      $url = str_replace('http:', '', $url);
+    endif;
+  endif;
+?>
+<header>
+<?php if($url):?>
+<section class="hero is-primary is-bold" style="background:url(<?php echo $url;?>) no-repeat center center;background-size: cover;">
+<?php else:?>
+<section class="hero is-primary is-bold">
+<?php endif;?>
+  <div class="hero-overlay">
+    <div class="hero-head">
+      <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="container">
+        <div class="navbar-brand">
+          <!--<a class="navbar-item site-title" href="<?php echo $block->page()->site()->url(); ?>">
+            <?php echo $escape($siteTitle); ?>
+          </a>-->
+          <a class="navbar-item" href="https://kuleuven.be">
+            <?php if ($this->themeSetting('logo')): ?>
+                <img src="<?php echo $this->themeSettingAssetUrl('logo'); ?>" alt="<?php echo $escape($siteTitle); ?>" />
+            <?php else: ?>
+                <?php echo $escape($siteTitle); ?>
+            <?php endif; ?>
+          </a>
+          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+          </a>
+        </div>
+        <div class="navbar-menu">
+          <div class="navbar-start">
+
+          </div>
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <?php
+                echo $block->page()->site()->publicNav()->menu()->renderMenu(null, [
+                    'maxDepth' => $this->themeSetting('nav_depth') - 1
+                ]);
+              ?>
+            </div>
+            <div class="navbar-item">
+               <button class="button is-primary" id="showSearch">
+                  <span class="icon is-small">
+                    <i class="fas fa-search"></i>
+                  </span>
+                </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    </div>
+    <div class="hero-body">
+      <div class="container">
+        <div class="columns">
+          <div class="column is-offset-1">
+            <?php if($block->dataValue('sec_title')):?>
+               <h2 class="subtitle is-size-6"><?php echo $block->dataValue('sec_title');?></h2>
+            <?php endif;?>
+            <h1 class="title is-family-secondary is-1"><?php echo $block->dataValue('title');?></h1>
+            <div class="hero-text is-size-6">
+              <div class="content">
+                <?php echo $block->dataValue('text');?>
+                <div class="link">
+                  <a class="button is-outline is-primary" href="<?php echo $block->dataValue('link');?>">
+                    <span><?php echo $block->dataValue('link_text');?></span>
+                    <span class="icon is-small">
+                      <i class="fas fa-angle-right"></i>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+     </div>
+   </div>
+ </section>
+
+ </header>

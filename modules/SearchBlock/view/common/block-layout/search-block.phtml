@@ -1,0 +1,155 @@
+<?php $siteurl = 'https://blendeff.be/s/nl';?>
+<?php
+$translate = $this->plugin('translate');
+?>
+<div class="section search-block">
+  <div class="container">
+    <div class="browse-text">
+      <form class="has-icons-right" action="https://blendeff.be/s/nl/objecten" id="search-form">
+        <div class="columns" style="margin-bottom:0;">
+            <div class="column is-6">
+                <div class="field has-addons">
+                    <div class="control">
+                      <input class="input" type="text" name="q" id="q" placeholder="Zoek naar objecten in de collecties" aria-label="">
+                    </div>
+                    <div class="control">
+                      <button type="submit" class="button is-primary">
+                        <span class="icon is-large">
+                          <i class="fas fa-search"></i>
+                        </span>
+                      </button>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+              <?php //echo $this->hyperlink($translate('Advanced search'), $this->url(null, ['action' => 'search'], true), ['class' => 'button is-outlined is-primary']); ?>
+              <button class="button is-outlined is-primary advanced-switch">
+                <span><?php echo $translate('Advanced search');?></span>
+                <span class="icon is-small">
+                  <i class="fas fa-angle-right"></i>
+                </span>
+              </button>
+              <a class="button is-primary" href="<?php echo $siteurl;?>/<?php echo $block->dataValue('type');?>">Toon alles</a>
+            </div>
+        </div>
+        <div class="columns advanced-search closed">
+            <div class="column is-7">
+              <div class="field is-horizontal">
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control is-expanded">
+                        <select class="selectize" placeholder="Titel" name="facet[dcterms:title][0]">
+                          <option value=""></option>
+                          
+                      <?php foreach($titels as $key=>$value):?>
+                      
+                        <option value="<?php echo $value['val'];?>">
+                          <?php echo $value['val'];?>
+                        </option>
+                      <?php endforeach;?>
+                    </select>
+                    </p>
+                  </div>
+                  <div class="field">
+                    <p class="control is-expanded">
+                      <select class="selectize" placeholder="Datering" name="facet[dcterms:date][0]">
+                        <option value=""></option>
+                      <?php foreach($datums as $key=>$value):?>
+                        <?php 
+                            $datum = explode(' / ',$value['val']);
+                            if(isset($datum[1])):
+                                if($datum[1] != $datum[0]):
+                                    $date = $datum[0].' - '.$datum[1];
+                                else:
+                                    $date = $datum[0];   
+                                endif;
+                            else:
+                                $date = $datum[0];    
+                            endif;  
+                        ?>
+                        <option value="<?php echo $value['val'];?>">
+                          <?php echo $date;?>
+                        </option>
+                      <?php endforeach;?>
+                     </select>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="field is-horizontal">
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control is-expanded">
+                      <select class="selectize" placeholder="Objectnaam" name="facet[dcterms:alternative][0]">
+                        <option value=""></option>
+                      <?php foreach($objectnamen as $key=>$value):?>
+                        <option value="<?php echo $value['val'];?>">
+                          <?php echo $value['val'];?>
+                        </option>
+                      <?php endforeach;?>
+                      </select>
+                    </p>
+                  </div>
+                  <div class="field">
+                    <p class="control is-expanded">
+                      <select class="selectize" placeholder="Personen en instellingen" name="facet[dcterms:creator][0]">
+                        <option value=""></option>
+                      <?php foreach($personen as $key=>$value):?>
+                        <option value="<?php echo $value['val'];?>">
+                          <?php echo $value['val'];?>
+                        </option>
+                      <?php endforeach;?>
+                      </select>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="field is-horizontal">
+                <div class="field-body">
+                  <div class="field">
+                    <p class="control is-expanded">
+                      <select class="selectize" placeholder="Materiaal" name="facet[dcterms:medium][0]">
+                        <option value=""></option>
+                      <?php foreach($materials as $key=>$value):?>
+                        <option value="<?php echo $value['val'];?>">
+                          <?php echo $value['val'];?>
+                        </option>
+                      <?php endforeach;?>
+                      </select>
+                    </p>
+                  </div>
+                </div>
+              </div>
+          </div>
+          <div class="column">
+            <button type="submit" class="button is-primary is-outlined">
+              <span class="icon is-large">
+                <i class="fas fa-search"></i>
+              </span>
+            </button>
+            <button class="button is-outlined is-primary advanced-close">
+              <span class="icon is-small">
+                <i class="fas fa-times"></i>
+              </span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+    <script>
+    $(document).ready(function() {
+      // Check for click events on the navbar burger icon
+      $(".advanced-switch").unbind('click').bind('click', function (e) {
+        e.preventDefault();
+        $("div.advanced-search").toggleClass("closed open");
+      });
+      $(".advanced-close").unbind('click').bind('click', function (e) {
+        e.preventDefault();
+        $("div.advanced-search").toggleClass("closed open");
+      });
+
+      $('.selectize').selectize([create = false,multiple = true,selectOnTab = true]);
+    });
+    </script>
+</div>

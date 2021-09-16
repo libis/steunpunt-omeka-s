@@ -1,0 +1,315 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$this->htmlElement('body')->appendAttribute('class', 'item resource show');
+$embedMedia = $this->siteSetting('item_media_embed', false);
+$itemMedia = $item->media();
+$template = $item->resourceTemplate();
+if($template):
+  $type = $template->label();
+else:
+  $type = "";
+endif;
+?>
+<section class="section breadcrumb-section">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+      <ul>
+        <li><a href="<?php echo $site->url();?>">Home</a></li>
+        <?php if($type == 'Nieuws'):?>
+        <li><a href="<?php echo $site->url()."/item/browse?resource_template_id=2";?>">Nieuws</a></li>
+        <?php else:?>
+          <li><a href="<?php echo $site->url()."/page/collectie";?>">Collectie</a></li>
+          <?php if(isset($_SERVER['HTTP_REFERER'])):?>
+            <?php if(strpos($_SERVER['HTTP_REFERER'],'objecten?') !== false):?>
+              <li><a href="<?php echo $_SERVER['HTTP_REFERER'];?>">Objecten</a></li>
+            <?php else:?> 
+              <li><a href="https://blendeff.be/s/nl/objecten">Objecten</a></li>
+            <?php endif;?>
+          <?php else:?> 
+            <li><a href="https://blendeff.be/s/nl/objecten">Objecten</a></li>  
+          <?php endif;?>  
+        <?php endif;?>
+        <li><?php echo $item->displayTitle(); ?></li>
+      </ul>
+    </nav>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <h1 class="title is-2 is-family-secondary"><?php echo $item->displayTitle(); ?></h1>
+    <?php if($type == 'Nieuws'):?>
+      <!--<h2 class="subtitle is-6"><?php echo date('d-m-Y',strtotime($item->value('dcterms:date'))); ?></h2>-->
+    <?php endif;?>
+  </div>
+</section>
+
+<?php
+  $viewerlink = '';
+  $relations = $item->value('dcterms:relation', array('all' => true));
+  if($relations):
+    foreach($relations as $relation):
+      if(strpos($relation->asHtml(),'resolver') !== false):
+        $viewerlink = $relation->asHtml();
+      endif;  
+    endforeach;  
+  endif;
+?>
+
+<?php if($type == 'Nieuws'):?>
+  <section class="section">
+    <div class="container">
+      <div class="columns">
+        <?php if (!$embedMedia && $itemMedia): ?>
+          <div class="column is-4">
+            <?php if(sizeof($itemMedia) > 1):?>
+              <div class="slider-for">
+                <?php foreach($itemMedia as $media):?>
+                  <div class="has-text-centered">
+                    <?php $url = str_replace('http:', '', $media->thumbnailUrl('large'));?>
+                      <img src="<?php echo $url;?>">
+                    <?php if($media->value('dcterms:title')):?>
+                      <figcaption>
+                        <?php echo $media->value('dcterms:title');?>
+                      </figcaption>
+                    <?php endif;?>
+                  </div>
+                <?php endforeach;?>
+              </div>
+            <?php else: ?>
+              <div class="beeld">
+                <?php $url = str_replace('http:', '', $itemMedia[0]->thumbnailUrl('large'));?>
+                <img src="<?php echo $url;?>">
+                <?php if($itemMedia[0]->value('dcterms:title')):?>
+                  <figcaption>
+                    <?php echo $itemMedia[0]->value('dcterms:title');?>
+                </figcaption>
+                <?php endif;?>
+              </div>
+            <?php endif;?>
+          </div>
+         <?php endif; ?>
+         <div class="column is-7">
+           <div class="text-box content">
+           <?php $date =  $item->value('dcterms:date');?>
+           <?php if($date):?>
+            <?php $date = new DateTime($date->asHtml());?>
+            <div style="margin-bottom:0.6rem;color:#666;">
+              <?php echo $date->format('m-d-Y');?>
+            </div>            
+           <?php endif;?> 
+             <?php $descs =  $item->value('dcterms:description', array('all' => true));?>
+             <?php if($descs):?>
+                 <?php foreach($descs as $desc):?>
+                   <div style="margin-top:0.6rem;">
+                     <?php if ($res = $desc->valueResource()) {?>    
+                      <div style="background:#eee;padding:0.5rem;font-size:0.9rem;">     
+                        <?php if($res->getControllerName() == 'item'): ?>
+                            <span>Object</span>                          
+                        <?php else:?>   
+                            <span>Collectie</span>
+                        <?php endif;?> 
+                      </div>
+                      <div style="background:#fafafa;padding:1rem;">                  
+                        <?php echo $desc->asHtml();?>
+                      </div>                      
+                     <?php }elseif($desc->type() == 'uri'){ ?>                      
+                        <?php if (strpos($desc->asHtml(), 'blendeff') !== false): ?>
+                          <div style="background:#eee;padding:0.5rem;font-size:0.9rem;">
+                            <span>Verhaal</span>              
+                          </div>  
+                        <?php endif;?> 
+                     
+                      <div style="background:#fafafa;padding:1rem;">   
+                       <div class="icon-text">
+                          <span class="icon">
+                            <i class="fas fa-chevron-right"></i>
+                          </span>
+                          <span><?php echo $desc->asHtml();?></span>
+                       </div>
+                      </div>
+                     <?php }else{ ?>
+                          
+                          <?php echo $desc->asHtml();?>
+                     <?php } ?>
+                   </div>
+                <?php endforeach;?>
+             <?php endif;?>
+           </div>
+         </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<?php else:?>
+  <section class="section">
+    <div class="container" style="margin-bottom:1.5rem;">
+      <div class="columns">
+        <?php if (!$embedMedia && $itemMedia): ?>
+          <div class="column is-4">
+            <div class="slide-wrap">
+               <div class="slider-for">
+                 <?php foreach($itemMedia as $media):?>
+                   <div class="has-text-centered">
+                     <?php $url = str_replace('http:', '', $media->thumbnailUrl('medium'));?>
+                     <?php $link = $url;?>
+                     <?php if($viewerlink):?>
+                        <?php $link = $viewerlink;?>
+                     <?php endif;?> 
+                     <a target="_blank" href="<?php echo $link;?>"><img src="<?php echo $url;?>"></a>
+                   </div>
+                 <?php endforeach;?>
+               </div>
+               <?php if(sizeof($itemMedia) > 1):?>
+               <div class="slider-nav" role="toolbar">
+                  <?php foreach($itemMedia as $media):?>
+                    <div class="beeld-nav">
+                      <?php $url = str_replace('http:', '', $media->thumbnailUrl('square')); ?>
+                      <img src="<?php echo $url;?>">
+                    </div>
+                  <?php endforeach;?>
+               </div>               
+               <?php endif;?>
+            </div>
+          
+            <?php if($item->value('dcterms:isVersionOf') && $type == "Object KP"):?>
+                  <figcaption>
+                    <?php echo $item->value('dcterms:isVersionOf');?>
+                  </figcaption>
+            <?php endif;?>    
+         </div>
+       <?php endif;?>
+       <div class="column">
+         <div class="text-box" style="height:100%;margin-bottom:0;">
+           <?php echo $item->displayValues(); ?>
+           <?php $itemSets = $item->itemSets(); ?>
+           <?php if (count($itemSets) > 0): ?>
+             <div class="columns">
+               <div class="column is-3" style="padding-top:0.3rem;padding-bottom:0.3rem;">
+                 <h4 class="title is-6" style="font-size:0.9rem;">Collectie</h4>
+               </div>
+               <div class="column" style="padding-top:0.3rem;padding-bottom:0.3rem;">
+                 <?php foreach ($itemSets as $itemSet): ?>
+                 <div class="value" style="font-size:0.9rem;"><a href="<?php echo $escape($itemSet->url()); ?>"><?php echo $itemSet->displayTitle(); ?></a></div>
+                 <?php endforeach; ?>
+               </div>
+             </div>
+           <?php endif; ?>
+           <?php if ($viewerlink): ?>
+            <br>
+            <a target="_blank" title="persistente uri" class="button is-primary" href="<?php echo $viewerlink;?>">
+              <span class="icon">
+                <i class="fas fa-images"></i>
+              </span>
+              <span>Bekijk het object in de viewer</span>
+            </a>
+           <?php endif; ?>
+           <hr>
+           <div style="text-align:right;">
+              <a target="_blank" class="button is-text is-small" href="https://blendeff.be/nl/item/<?php echo $item->value('dcterms:identifier');?>">
+              <span class="icon">
+                  <i class="fas fa-link"></i>
+              </span>
+              <span>https://blendeff.be/nl/item/<?php echo $item->value('dcterms:identifier');?></span>
+              </a>
+           </div> 
+         </div>
+       </div>
+     </div>
+   </div>
+   <?php $refs =  $item->value('dcterms:references', array('all' => true)); ?>
+   <?php $descs =  $item->value('dcterms:description', array('all' => true)); ?>
+   <?php if($refs || $descs):?>
+   <div class="container">
+     <div class="columns">
+       <div class="column is-12">
+         <div class="text-box" >
+           
+           <?php if($descs):?>
+               <?php foreach($descs as $desc):?>
+                 <div style="margin-bottom:0.3rem;">
+                   <?php if ($res = $desc->valueResource()) {?>
+                     <div class="icon-text">
+                        <span class="icon">
+                          <i class="fas fa-chevron-right"></i>
+                        </span>
+                        <span><?php echo $res->link($res->displayTitle());?></span>
+                     </div>
+                   <?php }elseif($desc->type() == 'uri'){ ?>
+                     <div class="icon-text">
+                        <span class="icon">
+                          <i class="fas fa-chevron-right"></i>
+                        </span>
+                        <span><?php echo $desc->asHtml();?></span>
+                     </div>
+                   <?php }else{ ?>
+                        <?php echo $desc->asHtml();?>
+                   <?php } ?>
+                 </div>
+              <?php endforeach;?>
+           <?php endif;?>
+           
+           <?php if($refs):?>
+             <hr />
+             <?php foreach($refs as $ref):?>
+               <?php $ref_e = explode("$$",$ref->__toString());?>
+               <?php //var_dump($ref_e);?>
+               <?php if($ref_e[0] != ", "):?>
+                 <?php if(substr( $ref_e[0],0, 2 ) === ", "):?>
+                  <?php $ref_e[0] = substr( $ref_e[0],2 );?>
+                 <?php endif;?>
+                 <div style="margin-bottom:0.3rem;">
+                   <?php if($ref_e[1]):?>
+                     <a target="_blank" href="<?php echo $ref_e[1]; ?>"><?php echo $ref_e[0]; ?></a>
+                   <?php else:?>
+                     <?php echo $ref_e[0]; ?>
+                   <?php endif;?>
+                 </div>
+               <?php endif;?>
+             <?php endforeach;?>
+           <?php endif;?>
+          </div>
+        </div>
+      </div>
+    <?php endif;?>                
+      <?php
+$plugins = $this->getHelperPluginManager();
+$hasNext = $plugins->has('previousResource');
+?>
+<?php if ($hasNext): ?>
+<div class="previous-next-items">
+    <?php if ($previous = $this->previousResource($resource)): ?>
+    <?= $previous->link($translate('Previous item'), null, ['class' => 'previous-item']) ?>
+    <?php endif; ?>
+    <?php if ($next = $this->nextResource($resource)): ?>
+    <?= $next->link($translate('Next item'), null, ['class' => 'next-item']) ?>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
+    </div>
+</section>
+<?php endif;?>
+<?php
+$page = $this->params()->fromQuery('page', 1);
+$property = $this->params()->fromQuery('property');
+$subjectValues = $item->subjectValues();
+?>
+
+<?php $this->trigger('view.show.after'); ?>
+<script>
+  $(document).ready(function(){
+    $('.slider-for').slick({
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      arrows: false,
+      fade: true,
+      centerMode: true
+    });
+    $('.slider-nav').slick({
+      slidesToShow: 10,
+      slidesToScroll: 1,
+      asNavFor: '.slider-for',
+      focusOnSelect: true
+    });
+  });
+</script>

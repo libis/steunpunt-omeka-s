@@ -1,0 +1,46 @@
+<?php
+$translate = $this->plugin('translate');
+?>
+<section class="section browse-block">
+  <div class="container">
+    <?php if ($this->heading): ?>
+      <h2 class="title is-3 is-family-secondary"><?php echo $this->heading; ?></h2>
+    <?php endif; ?>
+
+    <?php if($this->values):?>
+    <div class="columns is-multiline">
+      <?php
+      $i = 0;
+      foreach ($this->values["o:references"] as $key=>$value):
+      ?>
+      <div class="column is-3">
+        <?php
+        $url = '';
+        if(isset($attachments[$i])):
+          $media = $attachments[$i]->media();
+          if($media):
+              $url = $media->thumbnailUrl('medium');
+              $url = str_replace('http:', '', $url);
+          endif;
+        endif;
+        ?>
+        <div class="card equal-height">
+            <a class="card-link-wrapper" href="<?php echo $block->page()->site()->url();?>/item-set?property%5B0%5D%5Bproperty%5D=dcterms%3Atype&property%5B0%5D%5Btype%5D=eq&property%5B0%5D%5Btext%5D=<?php echo $value['val'];?>">
+              <div class="card-bg card-bg-img-2"
+                style="background:url(<?php echo $url;?>) no-repeat center 20%;background-color:#45aab4;background-size: cover;"
+                >
+              </div>
+              <header class="card-header">
+                <p class="card-header-title title is-5 is-family-secondary thema-header">
+                    <span><?php echo str_replace('collectie','collecties',$value['val']);?></span>
+                </p>
+              </header>
+            </a>
+        </div>
+      </div>
+      <?php $i++;?>
+    <?php endforeach; ?>
+    </div>
+    <?php endif;?>
+  </div>
+</section>

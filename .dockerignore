@@ -1,0 +1,13 @@
+*/files*
+*/config*
+*/.git*
+.git
+.cache
+node_modules
+npm-debug.log
+*.md
+!README*.md
+README-secret.md
+/files
+files
+build&push.bat

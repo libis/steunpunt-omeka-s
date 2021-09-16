@@ -1,0 +1,14 @@
+<div class="section section--default image-only">
+    <div class="container">
+      <div class="columns is-gapless">
+        <div class="column is-two-thirds">
+        <?php if($attachments):
+            $media = $attachments[0]->media();
+            echo $this->thumbnail($media, 'large');
+          ?>
+          <figcaption><?php echo $attachments[0]->caption();?></figcaption>
+        <?php endif;?>
+        </div>
+      </div>
+    </div>
+</div>

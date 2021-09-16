@@ -1,4 +1,5 @@
 <?php
+use Laminas\Http\Client;
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $this->htmlElement('body')->appendAttribute('class', 'item resource show');
@@ -45,12 +46,35 @@ endif;
 </section>
 
 <?php
-  $viewerlink = '';
+  $viewerlink = '';$fls=[];
   $relations = $item->value('dcterms:relation', array('all' => true));
   if($relations):
     foreach($relations as $relation):
       if(strpos($relation->asHtml(),'resolver') !== false):
         $viewerlink = $relation->asHtml();
+        // Set the configuration parameters
+        $config = [
+          'adapter'      => Client\Adapter\Socket::class,
+          'ssltransport' => 'tls',
+        ];
+        $listlink = str_replace('representation','list',$viewerlink);
+        // Instantiate a client object
+        $client = new Client($listlink, $config);
+        // The following request will be sent over a TLS secure connection.
+        $response = $client->send();
+        if($response->getContent()):
+          $list = json_decode($response->getContent(),true);
+          foreach($list as $ie):
+            foreach($ie as $fl):
+              if($fl["usage_type"] == "VIEW" && $fl["representation_code"] == "LOW"):
+                $fl = $fl["content"];  
+                foreach($fl as $key=>$value):                  
+                  $fls[$key] = $key;  
+                endforeach;  
+              endif;                          
+            endforeach;  
+          endforeach;          
+        endif;
       endif;  
     endforeach;  
   endif;
@@ -149,27 +173,49 @@ endif;
           <div class="column is-4">
             <div class="slide-wrap">
                <div class="slider-for">
-                 <?php foreach($itemMedia as $media):?>
-                   <div class="has-text-centered">
-                     <?php $url = str_replace('http:', '', $media->thumbnailUrl('medium'));?>
-                     <?php $link = $url;?>
-                     <?php if($viewerlink):?>
-                        <?php $link = $viewerlink;?>
-                     <?php endif;?> 
-                     <a target="_blank" href="<?php echo $link;?>"><img src="<?php echo $url;?>"></a>
-                   </div>
-                 <?php endforeach;?>
-               </div>
-               <?php if(sizeof($itemMedia) > 1):?>
-               <div class="slider-nav" role="toolbar">
+                 <?php if(!$fls):?>
                   <?php foreach($itemMedia as $media):?>
-                    <div class="beeld-nav">
-                      <?php $url = str_replace('http:', '', $media->thumbnailUrl('square')); ?>
-                      <img src="<?php echo $url;?>">
+                    <div class="has-text-centered">
+                      <?php $url = str_replace('http:', '', $media->thumbnailUrl('medium'));?>
+                      <?php $link = $url;?>
+                      <?php if($viewerlink):?>
+                          <?php $link = $viewerlink;?>
+                      <?php endif;?> 
+                      <a target="_blank" href="<?php echo $link;?>"><img src="<?php echo $url;?>"></a>
                     </div>
                   <?php endforeach;?>
-               </div>               
-               <?php endif;?>
+                <?php else:?>
+                  <?php foreach($fls as $fl):?>
+                    <div class="has-text-centered">
+                      <?php $link = "https://resolver.libis.be/".$fl."/stream?quality=LOW";?>   
+                      <a target="_blank" href="<?php echo $viewerlink;?>"><img src="<?php echo $link;?>"></a>
+                    </div>
+                  <?php endforeach;?>
+                <?php endif;?>  
+               </div>
+               <?php if(!$fls):?>
+                  <?php if(sizeof($itemMedia) > 1):?>
+                  <div class="slider-nav" role="toolbar">
+                      <?php foreach($itemMedia as $media):?>
+                        <div class="beeld-nav">
+                          <?php $url = str_replace('http:', '', $media->thumbnailUrl('square')); ?>
+                          <img src="<?php echo $url;?>">
+                        </div>
+                      <?php endforeach;?>
+                  </div>               
+                  <?php endif;?>
+               <?php else:?>
+                <?php if(sizeof($fls) > 1):?>
+                  <div class="slider-nav" role="toolbar">
+                      <?php foreach($fls as $fl):?>
+                        <div class="beeld-nav">
+                          <?php $url = "https://resolver.libis.be/".$fl."/stream?quality=LOW";?>
+                          <img src="<?php echo $url;?>">
+                        </div>
+                      <?php endforeach;?>
+                  </div>               
+                  <?php endif;?>
+               <?php endif;?> 
             </div>
           
             <?php if($item->value('dcterms:isVersionOf') && $type == "Object KP"):?>
@@ -310,6 +356,10 @@ $subjectValues = $item->subjectValues();
       slidesToScroll: 1,
       asNavFor: '.slider-for',
       focusOnSelect: true
+    });
+
+    $('.slide-wrap').on('contextmenu', 'img', function(e){ 
+      return false; 
     });
   });
 </script>

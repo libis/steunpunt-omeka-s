@@ -4,8 +4,7 @@ html{
 }
 
 body{
-  background: #ebe2d5;
-  background: #f6f2eb;
+  background: #fff;
 }
 
 p{
@@ -118,7 +117,7 @@ figcaption{
       }
     }
     a{
-      color:white;
+      color:$primary;
     }
   }
 }
@@ -207,7 +206,7 @@ figcaption{
 //hero
 .hero-overlay{
   background: rgba($primary,0.1);
-  //background: rgba($text,0.3);
+  background: #fdf5df;
   transition: all 400ms ease-out;
 
   &:hover{
@@ -218,13 +217,27 @@ figcaption{
   background: none;
 }
 .hero-head{
+  .logo-text{
+    color: $primary;
+    font-weight: 200;;
+    font-size: 1.5rem;;
+    font-family: $family-primary;
+  }
+
   .navbar{
+    .navbar-item{
+      color: $primary;
+
+      #showSearch{
+        border:none;
+      }
+    }
     //border-bottom: 1px solid $primary;
 
     .navigation{
       li{
         a{
-          color: white;
+          color: $primary;
         }
       }
     }
@@ -250,7 +263,7 @@ figcaption{
   }
 
   .title {
-    color: #fff !important;
+    color: $primary!important;
     max-width: 700px;
     font-weight: 700;
     font-size: 3.5rem;
@@ -264,7 +277,7 @@ figcaption{
 
   .hero-text{
     max-width: 700px;
-    color:white;
+    color:$primary;
     font-weight:500;
     //background: rgba($primary,0.8);
 
@@ -418,23 +431,6 @@ figcaption{
       font-weight: 600;
     }
   }
-}
-
-//text columns
-.text-columns{
-  a{
-    color: white;
-  }
-}
-.box-1,.box-2{
-  color:white;
-}
-.box-1{
-  background: $primary;
-}
-
-.box-2{
-  background: #222222;
 }
 
 .datering{

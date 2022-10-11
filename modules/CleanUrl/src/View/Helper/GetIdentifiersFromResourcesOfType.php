@@ -100,6 +100,9 @@ class GetIdentifiersFromResourcesOfType extends AbstractHelper
         $qb = $this->connection->createQueryBuilder()
             ->from('value', 'value')
             ->leftJoin('value', 'resource', 'resource', 'resource.id = value.resource_id')
+            // An identifier is always literal: it identifies a resource inside
+            // the base. It can't be an external uri or a linked resource.
+            ->where('value.type = "literal"')
             ->andWhere('value.property_id = :property_id')
             ->setParameter('property_id', $this->options[$resourceName]['property'])
             // Only one identifier by resource.
@@ -140,14 +143,14 @@ class GetIdentifiersFromResourcesOfType extends AbstractHelper
         $tempTable = count($resources) > self::CHUNK_RECORDS;
         if ($tempTable) {
             $query = 'DROP TABLE IF EXISTS `temp_resources`;';
-            $stmt = $this->connection->query($query);
+            $stmt = $this->connection->executeQuery($query);
             // TODO Check if the id may be unique.
             // $query = 'CREATE TEMPORARY TABLE `temp_resources` (`id` INT UNSIGNED NOT NULL, PRIMARY KEY(`id`));';
             $query = 'CREATE TEMPORARY TABLE `temp_resources` (`id` INT UNSIGNED NOT NULL);';
-            $stmt = $this->connection->query($query);
+            $stmt = $this->connection->executeQuery($query);
             foreach (array_chunk($resources, self::CHUNK_RECORDS) as $chunk) {
                 $query = 'INSERT INTO `temp_resources` VALUES(' . implode('),(', $chunk) . ');';
-                $stmt = $this->connection->query($query);
+                $stmt = $this->connection->executeQuery($query);
             }
             $qb
                 // No where condition.

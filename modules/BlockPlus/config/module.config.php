@@ -27,6 +27,7 @@ return [
             // Omeka core uses "itemShowCase" instead of "itemShowcase". Won't fix: https://github.com/omeka/omeka-s/pull/1431
             'itemShowCase' => Site\BlockLayout\ItemShowcase::class,
             'itemWithMetadata' => Site\BlockLayout\ItemWithMetadata::class,
+            'links' => Site\BlockLayout\Links::class,
             'listOfSites' => Site\BlockLayout\ListOfSites::class,
             'pageMetadata' => Site\BlockLayout\PageMetadata::class,
             'pageTitle' => Site\BlockLayout\PageTitle::class,
@@ -39,11 +40,13 @@ return [
             'twitter' => Site\BlockLayout\Twitter::class,
         ],
         'factories' => [
-            'assets' => Service\BlockLayout\AssetsFactory::class,
+            'asset' => Service\BlockLayout\AssetFactory::class,
             'externalContent' => Service\BlockLayout\ExternalContentFactory::class,
             'html' => Service\BlockLayout\HtmlFactory::class,
+            'listOfPages' => Service\BlockLayout\ListOfPagesFactory::class,
             'mirrorPage' => Service\BlockLayout\MirrorPageFactory::class,
             'resourceText' => Service\BlockLayout\ResourceTextFactory::class,
+            'showcase' => Service\BlockLayout\ShowcaseFactory::class,
         ],
         'aliases' => [
             'itemShowcase' => 'itemShowCase',
@@ -51,7 +54,9 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
-            Form\AssetsFieldset::class => Form\AssetsFieldset::class,
+            Form\Element\BlockShowTitleSelect::class => Form\Element\BlockShowTitleSelect::class,
+            Form\Element\OptionalRadio::class => Form\Element\OptionalRadio::class,
+            Form\AssetFieldset::class => Form\AssetFieldset::class,
             Form\BlockFieldset::class => Form\BlockFieldset::class,
             Form\BrowsePreviewFieldset::class => Form\BrowsePreviewFieldset::class,
             Form\D3GraphFieldset::class => Form\D3GraphFieldset::class,
@@ -61,6 +66,7 @@ return [
             Form\ItemSetShowcaseFieldset::class => Form\ItemSetShowcaseFieldset::class,
             Form\ItemShowcaseFieldset::class => Form\ItemShowcaseFieldset::class,
             Form\ItemWithMetadataFieldset::class => Form\ItemWithMetadataFieldset::class,
+            Form\ListOfPagesFieldset::class => Form\ListOfPagesFieldset::class,
             Form\ListOfSitesFieldset::class => Form\ListOfSitesFieldset::class,
             Form\MirrorPageFieldset::class => Form\MirrorPageFieldset::class,
             Form\PageTitleFieldset::class => Form\PageTitleFieldset::class,
@@ -69,6 +75,7 @@ return [
             Form\SearchFormFieldset::class => Form\SearchFormFieldset::class,
             Form\SearchResultsFieldset::class => Form\SearchResultsFieldset::class,
             Form\SeparatorFieldset::class => Form\SeparatorFieldset::class,
+            Form\ShowcaseFieldset::class => Form\ShowcaseFieldset::class,
             Form\TableOfContentsFieldset::class => Form\TableOfContentsFieldset::class,
             Form\TreeStructureFieldset::class => Form\TreeStructureFieldset::class,
             Form\TwitterFieldset::class => Form\TwitterFieldset::class,
@@ -92,6 +99,10 @@ return [
             ],
         ],
     ],
+    'js_translate_strings' => [
+        'Class', // @translate
+        'Url (deprecated)', // @translate
+    ],
     'blockplus' => [
         'site_settings' => [
             'blockplus_page_types' => [
@@ -102,17 +113,21 @@ return [
             ],
         ],
         'block_settings' => [
-            'assets' => [
+            // The new source upstream "asset" block stores assets as attachments.
+            'asset' => [
                 'heading' => '',
                 'assets' => [
                     [
-                        'asset' => null,
-                        'title' => '',
+                        'id' => null,
+                        'page' => null,
+                        'alt_link_title' => '',
                         'caption' => '',
                         'url' => '',
                         'class' => '',
                     ],
                 ],
+                'className' => '',
+                'alignment' => 'default',
                 'template' => '',
             ],
             'block' => [
@@ -163,7 +178,7 @@ return [
                 'template' => '',
             ],
             'division' => [
-                'type' => '',
+                'type' => 'start',
                 'tag' => 'div',
                 'class' => 'column',
             ],
@@ -203,6 +218,17 @@ return [
                 'heading' => '',
                 'template' => '',
             ],
+            'links' => [
+                'heading' => '',
+                'links' => [],
+                'template' => '',
+            ],
+            // Use block Menu of module Menu is cleaner.
+            'listOfPages' => [
+                'heading' => '',
+                'pagelist' => '',
+                'template' => '',
+            ],
             'listOfSites' => [
                 'heading' => '',
                 'sort' => 'alpha',
@@ -216,7 +242,11 @@ return [
                 ],
                 'pagination' => false,
                 'summaries' => true,
+                'thumbnails' => true,
                 'template' => '',
+            ],
+            'mirrorPage' => [
+                'page' => null,
             ],
             // Media embed is not available in BlockPlus.
             // 'media' => [],
@@ -264,8 +294,14 @@ return [
             'separator' => [
                 'class' => '',
             ],
-            'mirrorPage' => [
-                'page' => null,
+            'showcase' => [
+                'heading' => '',
+                'html' => '',
+                'entries' => [],
+                'thumbnail_type' => 'square',
+                'show_title_option' => 'item_title',
+                'divclass' => '',
+                'template' => '',
             ],
             'tableOfContents' => [
                 'depth' => null,

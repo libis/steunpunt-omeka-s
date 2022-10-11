@@ -26,11 +26,11 @@ $regexSitePage = SLUG_PAGE
 return [
     'service_manager' => [
         'invokables' => [
-            'CleanUrl\MvcListeners' => Mvc\MvcListeners::class,
+            Mvc\MvcListeners::class => Mvc\MvcListeners::class,
         ],
     ],
     'listeners' => [
-        'CleanUrl\MvcListeners',
+        Mvc\MvcListeners::class,
     ],
     'view_manager' => [
         'controller_map' => [
@@ -87,6 +87,7 @@ return [
                 'child_routes' => SLUG_MAIN_SITE ? [
                     'page-browse' => [
                         'type' => \Laminas\Router\Http\Literal::class,
+                        'priority' => 5,
                         'options' => [
                             'route' => SLUG_PAGE ? rtrim(SLUG_PAGE, '/') : 'page',
                             'defaults' => [
@@ -97,6 +98,8 @@ return [
                     ],
                     'page' => [
                         'type' => \CleanUrl\Router\Http\RegexPage::class,
+                        // The priority avoids to exclude the slug page as a controller in top/resource and top/resource-id.
+                        'priority' => 5,
                         'options' => [
                             'regex' => $regexSitePage,
                             'spec' => SLUG_PAGE . '%page-slug%',
@@ -155,7 +158,7 @@ return [
                 'default' => 'collection/{item_set_identifier}',
                 'short' => '',
                 'paths' => [],
-                'pattern' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                'pattern' => '[a-zA-Z0-9][a-zA-Z0-9_-]*',
                 'pattern_short' => '',
                 // 10 is the hard-coded id of "dcterms:identifier" in default install.
                 'property' => 10,
@@ -169,7 +172,7 @@ return [
                 'default' => 'document/{item_identifier}',
                 'short' => '',
                 'paths' => [],
-                'pattern' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                'pattern' => '[a-zA-Z0-9][a-zA-Z0-9_-]*',
                 'pattern_short' => '',
                 'property' => 10,
                 'prefix' => '',

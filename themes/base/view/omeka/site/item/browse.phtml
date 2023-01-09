@@ -192,7 +192,7 @@ $sortHeadings = [
                     <?php if($date):?>
                       <?php $date = new DateTime($date->asHtml());?>
                       <div style="margin-bottom:0.3rem;color:#666;">
-                        <?php echo $date->format('m-d-Y');?>
+                        <?php echo $date->format('d-m-Y');?>
                       </div>            
                     <?php endif;?> 
                     <?php if ($body): ?>
@@ -220,7 +220,7 @@ $sortHeadings = [
 
       <?php if ($itemSetShow): ?>
         <div class="has-text-right">
-          <a href="<?php echo 'https://blendeff.be/s/nl/objecten?q=&facet[item_set_id][0]='.$itemSet->id();?>" class="button is-primary">
+          <a href="<?php echo 'https://blendeff.be/s/nl/objecten?q=&facet[item_set_ss][0]='.$itemSet->displayTitle();?>" class="button is-primary">
             <span><?php echo "Bekijk alle objecten uit deze collectie";?></span>
             <span class="icon is-small">
               <i class="fas fa-angle-right"></i>

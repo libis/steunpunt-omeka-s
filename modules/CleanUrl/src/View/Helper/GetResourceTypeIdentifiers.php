@@ -52,6 +52,9 @@ class GetResourceTypeIdentifiers extends AbstractHelper
         $qb = $this->connection->createQueryBuilder()
             ->from('value', 'value')
             ->leftJoin('value', 'resource', 'resource', 'resource.id = value.resource_id')
+            // An identifier is always literal: it identifies a resource inside
+            // the base. It can't be an external uri or a linked resource.
+            ->where('value.type = "literal"')
             ->andWhere('value.property_id = :property_id')
             ->setParameter('property_id', $this->options[$resourceName]['property'])
             ->andWhere('resource.resource_type = :resource_type')
@@ -64,28 +67,27 @@ class GetResourceTypeIdentifiers extends AbstractHelper
         if ($lengthPrefix) {
             if ($skipPrefix) {
                 $qb
-                    ->select([
-                        // $qb->expr()->trim($qb->expr()->substring('value.text', $lengthPrefix + 1)),
-                        '(TRIM(SUBSTR(value.value, ' . ($lengthPrefix + 1) . ')))',
-                    ]);
+                    ->select(
+                        // $qb->expr()->trim($qb->expr()->substring('value.text', $lengthPrefix + 1))
+                        '(TRIM(SUBSTR(value.value, ' . ($lengthPrefix + 1) . ')))'
+                    );
             } else {
                 $qb
-                    ->select([
-                        'value.value',
-                    ]);
+                    ->select(
+                        'value.value'
+                    );
             }
             $qb
                 ->andWhere('value.value LIKE :value_value')
                 ->setParameter('value_value', $prefix . '%');
         } else {
             $qb
-                ->select([
-                    'value.value',
-                ]);
+                ->select(
+                    'value.value'
+                );
         }
 
-        $stmt = $this->connection->executeQuery($qb, $qb->getParameters());
-        $result = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        $result = $this->connection->executeQuery($qb, $qb->getParameters())->fetchFirstColumn();
 
         if ($encode) {
             $keepSlash = $this->options[$resourceName]['keep_slash'];

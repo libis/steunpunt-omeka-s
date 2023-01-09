@@ -49,36 +49,43 @@ endif;
   $viewerlink = '';$fls=[];
   $relations = $item->value('dcterms:relation', array('all' => true));
   if($relations):
-    foreach($relations as $relation):
+      $relation = $relations[0];
       if(strpos($relation->asHtml(),'resolver') !== false):
         $viewerlink = $relation->asHtml();
         // Set the configuration parameters
         $config = [
           'adapter'      => Client\Adapter\Socket::class,
           'ssltransport' => 'tls',
+          'timeout'      => 5,
         ];
         $listlink = str_replace('representation','list',$viewerlink);
         // Instantiate a client object
         $client = new Client($listlink, $config);
         // The following request will be sent over a TLS secure connection.
-        $response = $client->send();
-        if($response->getContent()):
-          $list = json_decode($response->getContent(),true);
-          foreach($list as $ie):
-            foreach($ie as $fl):
-              if($fl["usage_type"] == "VIEW" && $fl["representation_code"] == "LOW"):
-                $fl = $fl["content"];  
-                foreach($fl as $key=>$value):                  
-                  $fls[$key] = $key;  
-                endforeach;  
-              endif;                          
-            endforeach;  
-          endforeach;          
-        endif;
+        /*try{
+          $response = $client->send();
+          if($response->getContent()):
+            $list = json_decode($response->getContent(),true);
+            foreach($list as $ie):
+              foreach($ie as $fl):
+                if($fl["usage_type"] == "VIEW" && $fl["representation_code"] == "LOW"):
+                  $fl = $fl["content"];  
+                  foreach($fl as $key=>$value):                  
+                    $fls[$key] = $key;  
+                  endforeach;  
+                endif;                          
+              endforeach;  
+            endforeach;          
+          endif;
+        }catch(Exception $e){
+
+        }*/
+        
+        
       endif;  
-    endforeach;  
   endif;
 ?>
+
 
 <?php if($type == 'Nieuws'):?>
   <section class="section">
@@ -119,7 +126,7 @@ endif;
            <?php if($date):?>
             <?php $date = new DateTime($date->asHtml());?>
             <div style="margin-bottom:0.6rem;color:#666;">
-              <?php echo $date->format('m-d-Y');?>
+              <?php echo $date->format('d-m-Y');?>
             </div>            
            <?php endif;?> 
              <?php $descs =  $item->value('dcterms:description', array('all' => true));?>
@@ -361,5 +368,6 @@ $subjectValues = $item->subjectValues();
     $('.slide-wrap').on('contextmenu', 'img', function(e){ 
       return false; 
     });
+
   });
 </script>

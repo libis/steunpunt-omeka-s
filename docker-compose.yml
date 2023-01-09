@@ -1,9 +1,9 @@
-version: '2'
+version: '3'
 
 services:
 
   omeka-s:
-    build: ./
+    image: registry.docker.libis.be/omeka_s_v3:latest
     ports:
       - "9012:80"
     volumes:

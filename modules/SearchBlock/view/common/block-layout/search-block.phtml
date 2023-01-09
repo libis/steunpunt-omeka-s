@@ -38,7 +38,7 @@ $translate = $this->plugin('translate');
                 <div class="field-body">
                   <div class="field">
                     <p class="control is-expanded">
-                        <select class="selectize" placeholder="Titel" name="facet[dcterms_title_txt][0]">
+                        <select class="selectize" placeholder="Titel" name="facet[dcterms:title][0]">
                           <option value=""></option>
                           
                       <?php foreach($titels as $key=>$value):?>
@@ -52,7 +52,7 @@ $translate = $this->plugin('translate');
                   </div>
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="Datering" name="facet[dcterms_date_ss][0]">
+                      <select class="selectize" placeholder="Datering" name="facet[dcterms:date][0]">
                         <option value=""></option>
                       <?php foreach($datums as $key=>$value):?>
                         <?php 
@@ -80,7 +80,7 @@ $translate = $this->plugin('translate');
                 <div class="field-body">
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="Objectnaam" name="facet[dcterms_alternative_ss][0]">
+                      <select class="selectize" placeholder="Objectnaam" name="facet[dcterms:alternative][0]">
                         <option value=""></option>
                       <?php foreach($objectnamen as $key=>$value):?>
                         <option value="<?php echo $value['val'];?>">
@@ -92,7 +92,7 @@ $translate = $this->plugin('translate');
                   </div>
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="Vervaardiger" name="facet[dcterms_creator_ss][0]">
+                      <select class="selectize" placeholder="Personen en instellingen" name="facet[dcterms:creator][0]">
                         <option value=""></option>
                       <?php foreach($personen as $key=>$value):?>
                         <option value="<?php echo $value['val'];?>">
@@ -108,7 +108,7 @@ $translate = $this->plugin('translate');
                 <div class="field-body">
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="Materiaal" name="facet[dcterms_medium_ss][0]">
+                      <select class="selectize" placeholder="Materiaal" name="facet[dcterms:medium][0]">
                         <option value=""></option>
                       <?php foreach($materials as $key=>$value):?>
                         <option value="<?php echo $value['val'];?>">

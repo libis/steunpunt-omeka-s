@@ -25,6 +25,7 @@ class ListOfSitesFieldset extends Fieldset
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Block title', // @translate
+                    'info' => 'Heading for the block, if any.', // @translate
                 ],
             ])
             ->add([
@@ -85,16 +86,6 @@ class ListOfSitesFieldset extends Fieldset
                 ],
                 'attributes' => [
                     'id' => 'list-of-sites-summaries',
-                ],
-            ])
-            ->add([
-                'name' => 'o:block[__blockIndex__][o:data][thumbnails]',
-                'type' => Element\Checkbox::class,
-                'options' => [
-                    'label' => 'Show thumbnails', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'list-of-sites-thumbnails',
                 ],
             ])
             ->add([

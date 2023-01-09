@@ -1,5 +1,4 @@
 <?php declare(strict_types=1);
-
 namespace BlockPlus\Form;
 
 use BlockPlus\Form\Element\TemplateSelect;
@@ -16,16 +15,13 @@ class HtmlFieldset extends Fieldset
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Block title', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'html-heading',
+                    'info' => 'Heading for the block, if any.', // @translate
                 ],
             ])
             ->add([
                 'name' => 'o:block[__blockIndex__][o:data][html]',
                 'type' => Element\Textarea::class,
                 'attributes' => [
-                    'id' => 'html-html',
                     'class' => 'block-html full wysiwyg',
                 ],
             ])
@@ -35,9 +31,6 @@ class HtmlFieldset extends Fieldset
                 'options' => [
                     'label' => 'Class', // @translate
                     'info' => 'Optional CSS class for styling HTML.', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'html-divclass',
                 ],
             ])
             ->add([
@@ -49,7 +42,6 @@ class HtmlFieldset extends Fieldset
                     'template' => 'common/block-layout/html',
                 ],
                 'attributes' => [
-                    'id' => 'html-template',
                     'class' => 'chosen-select',
                 ],
             ]);

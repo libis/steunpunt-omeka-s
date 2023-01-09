@@ -21,15 +21,13 @@
         "theme",
         "admin",
         "gallery",
-        "tree structure",
-        "footnotes"
+        "tree structure"
     ],
     "require": {
         "oomphinc/composer-installers-extender": "^2.0",
         "asset/thumbnail-grid-expanding-preview": "0.1",
         "d3/d3": "3.5.17",
-        "thetechy/jslists": "0.4.5",
-        "andykirk/ckeditor-footnotes": "1.0.10"
+        "thetechy/jslists": "0.4.5"
     },
     "replace": {
         "jsor/jcarousel": "*"
@@ -53,7 +51,7 @@
                 "version": "0.1",
                 "dist": {
                     "type": "zip",
-                    "reference": "0.1",
+                    "reference": "",
                     "url": "https://github.com/Daniel-KM/ThumbnailGridExpandingPreview/archive/0.1.zip"
                 }
             }
@@ -66,7 +64,7 @@
                 "version": "3.5.17",
                 "dist": {
                     "type": "file",
-                    "reference": "3.5.17",
+                    "reference": "",
                     "url": "https://d3js.org/d3.v3.min.js"
                 }
             }
@@ -79,7 +77,7 @@
                 "version": "0.3.9",
                 "dist": {
                     "type": "zip",
-                    "reference": "0.3.9",
+                    "reference": "",
                     "url": "https://github.com/jsor/jcarousel/archive/refs/heads/master.zip"
                 }
             }
@@ -94,19 +92,6 @@
                     "type": "zip",
                     "reference": "",
                     "url": "https://github.com/TheTechy/jslists/archive/refs/heads/master.zip"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "andykirk/ckeditor-footnotes",
-                "version": "1.0.10",
-                "type": "omeka-addon-asset",
-                "dist": {
-                    "type": "tar",
-                    "reference": "",
-                    "url": "https://github.com/Daniel-KM/Omeka-S-module-BlockPlus/releases/download/3.3.14.0/ckeditor-footnotes-1.0.10-omeka.tar.gz"
                 }
             }
         }
@@ -137,11 +122,5 @@
             "@php -r '@rmdir(__DIR__ . \"/asset/vendor/ThumbnailGridExpandingPreview/vendor\");'",
             "@php -r 'shell_exec(\"rm -rf ./asset/vendor/thumbnail-grid-expanding-preview\");'"
         ]
-    },
-    "config": {
-        "allow-plugins": {
-            "composer/installers": true,
-            "oomphinc/composer-installers-extender": true
-        }
     }
 }

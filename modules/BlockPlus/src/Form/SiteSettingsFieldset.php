@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
-
 namespace BlockPlus\Form;
 
+use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
-use Omeka\Form\Element as OmekaElement;
 
 class SiteSettingsFieldset extends Fieldset
 {
@@ -14,11 +13,10 @@ class SiteSettingsFieldset extends Fieldset
         $this
             ->add([
                 'name' => 'blockplus_page_types',
-                'type' => OmekaElement\ArrayTextarea::class,
+                'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Page types', // @translate
                     'info' => 'Specify the list of types that will be available to build specific pages.', // @translate
-                    'as_key_value' => true,
                 ],
                 'attributes' => [
                     'id' => 'blockplus_page_types',

@@ -17,7 +17,7 @@ $this->htmlElement('body')->appendAttribute('class', 'index search');
 </section>
 <section class="section">
   <div class="container">
-    <h1 class="title is-2 is-family-secondary"><?php echo sprintf($this->translate('Search results for “%s”'), htmlspecialchars($query)); ?></h1>
+    <h1 class="title is-2 is-family-secondary"><?php echo sprintf($this->translate('Search results for “%s”'), $query); ?></h1>
     
     <?php if (empty($results)): ?>
         <p><?php echo $translate('No result found'); ?></p>

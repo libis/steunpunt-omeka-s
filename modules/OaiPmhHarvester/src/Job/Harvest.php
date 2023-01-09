@@ -298,18 +298,14 @@ class Harvest extends AbstractJob
         $query = [];
         $query['property'][0] = array(
           'property' => 10,
-          'text' => $id.'',
+          'text' => $id,
           'type' => 'eq',
           'joiner' => 'and'
         );
-        $query["site_id"] = 1;
-        $query["is_open"] = true;
 
         $results = '';
         $response = $this->api->search('item_sets',$query);
         $results = $response->getContent();
-
-        $this->logger->info(sizeof($results));
 
         foreach($results as $result):
           if($result):
@@ -325,7 +321,7 @@ class Harvest extends AbstractJob
         $query = [];
         $query['property'][0] = array(
           'property' => 1,
-          'text' => $id.'',
+          'text' => $id,
           'type' => 'eq',
           'joiner' => 'and'
         );

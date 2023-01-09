@@ -13,14 +13,12 @@
  - as a whole: $params
  - as a decoded json: $this->blockMetadata('params_json', $block)
  - as a list of keys-values: $this->blockMetadata('params_key_value', $block)
- - as a list of array: $this->blockMetadata('params_key_value_array', $block)
  - a specific key of the list of keys-values: $this->blockMetadata('my_key', $block)
 
  Warning: check security of any user input.
  */
 
-$plugins = $this->getHelperPluginManager();
-$escape = $plugins->get('escapeHtml');
+$escape = $this->plugin('escapeHtml');
 ?>
 
 <div class="block block-simple">

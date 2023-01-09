@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /*
- * Copyright Daniel Berthereau, 2018-2022
+ * Copyright Daniel Berthereau, 2018-2020
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -77,18 +77,11 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         }
         if (!$this->checkAllResourcesToInstall()) {
             $message = new Message(
-                $translator->translate('This module has resources that cannot be installed.') // @translate
+                $translator->translate('This module has resources that connot be installed.') // @translate
             );
             throw new ModuleCannotInstallException((string) $message);
         }
-        $sqlFile = $this->modulePath() . '/data/install/schema.sql';
-        if (!$this->checkNewTablesFromFile($sqlFile)) {
-            $message = new Message(
-                $translator->translate('This module cannot install its tables, because they exist already. Try to remove them first.') // @translate
-            );
-            throw new ModuleCannotInstallException((string) $message);
-        }
-        $this->execSqlFromFile($sqlFile);
+        $this->execSqlFromFile($this->modulePath() . '/data/install/schema.sql');
         $this
             ->installAllResources()
             ->manageConfig('install')
@@ -123,32 +116,25 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         }
     }
 
-    public function getInstallResources(): ?InstallResources
-    {
-        if (!class_exists(\Generic\InstallResources::class)) {
-            // Use the module file first, since it must be present with the
-            // right version, even if AbstractModule is older in another module.
-            if (file_exists($filepath = OMEKA_PATH . '/modules/' . static::NAMESPACE . '/src/Generic/InstallResources.php')) {
-                require_once $filepath;
-            } elseif (file_exists($filepath = dirname(__DIR__, 3) . '/Generic/InstallResources.php')) {
-                require_once $filepath;
-            } elseif (file_exists($filepath = __DIR__ . '/InstallResources.php')) {
-                require_once $filepath;
-            } else {
-                return null;
-            }
-        }
-        $services = $this->getServiceLocator();
-        return new \Generic\InstallResources($services);
-    }
-
+    /**
+     * @return bool
+     */
     public function checkAllResourcesToInstall(): bool
     {
-        $installResources = $this->getInstallResources();
-        return $installResources
-            ? $installResources->checkAllResources(static::NAMESPACE)
-            // Nothing to install.
-            : true;
+        if (!class_exists(\Generic\InstallResources::class)) {
+            if (file_exists(dirname(__DIR__, 3) . '/Generic/InstallResources.php')) {
+                require_once dirname(__DIR__, 3) . '/Generic/InstallResources.php';
+            } elseif (file_exists(__DIR__ . '/InstallResources.php')) {
+                require_once __DIR__ . '/InstallResources.php';
+            } else {
+                // Nothing to install.
+                return true;
+            }
+        }
+
+        $services = $this->getServiceLocator();
+        $installResources = new \Generic\InstallResources($services);
+        return $installResources->checkAllResources(static::NAMESPACE);
     }
 
     /**
@@ -156,11 +142,19 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
      */
     public function installAllResources(): AbstractModule
     {
-        $installResources = $this->getInstallResources();
-        if (!$installResources) {
-            // Nothing to install.
-            return $this;
+        if (!class_exists(\Generic\InstallResources::class)) {
+            if (file_exists(dirname(__DIR__, 3) . '/Generic/InstallResources.php')) {
+                require_once dirname(__DIR__, 3) . '/Generic/InstallResources.php';
+            } elseif (file_exists(__DIR__ . '/InstallResources.php')) {
+                require_once __DIR__ . '/InstallResources.php';
+            } else {
+                // Nothing to install.
+                return $this;
+            }
         }
+
+        $services = $this->getServiceLocator();
+        $installResources = new \Generic\InstallResources($services);
         $installResources->createAllResources(static::NAMESPACE);
         return $this;
     }
@@ -187,7 +181,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
             return '';
         }
 
-        $form = $formManager->get($formClass);
+        $form = $services->get('FormElementManager')->get($formClass);
         $form->init();
         $form->setData($data);
         $form->prepare();
@@ -255,6 +249,9 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         }
     }
 
+    /**
+     * @return string
+     */
     protected function modulePath(): string
     {
         return OMEKA_PATH . '/modules/' . static::NAMESPACE;
@@ -277,86 +274,26 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
     }
 
     /**
-     * Check if new tables can be installed and remove empty existing tables.
-     *
-     * If a new table exists and is empty, it is removed, because it is probably
-     * related to a broken installation.
-     */
-    protected function checkNewTablesFromFile(string $filepath): bool
-    {
-        if (!file_exists($filepath) || !filesize($filepath) || !is_readable($filepath)) {
-            return true;
-        }
-
-        /** @var \Doctrine\DBAL\Connection $connection */
-        $services = $this->getServiceLocator();
-        $connection = $services->get('Omeka\Connection');
-
-        // Get the list of all tables.
-        $tables = $connection->executeQuery('SHOW TABLES;')->fetchFirstColumn();
-
-        $dropTables = [];
-
-        // Use single statements for execution.
-        // See core commit #2689ce92f.
-        $sql = file_get_contents($filepath);
-        $sqls = array_filter(array_map('trim', explode(";\n", $sql)));
-        foreach ($sqls as $sql) {
-            if (mb_strtoupper(mb_substr($sql, 0, 13)) !== 'CREATE TABLE ') {
-                continue;
-            }
-            $table = trim(strtok(mb_substr($sql, 13), '('), "\"`' \n\r\t\v\0");
-            if (!in_array($table, $tables)) {
-                continue;
-            }
-            $result = $connection->executeQuery("SELECT * FROM `$table` LIMIT 1;")->fetchOne();
-            if ($result !== false) {
-                return false;
-            }
-            $dropTables[] = $table;
-        }
-
-        if (count($dropTables)) {
-            // No check: if a table cannot be removed, an exception will be
-            // thrown later.
-            foreach ($dropTables as $table) {
-                $connection->executeStatement("DROP TABLE `$table`;");
-            }
-
-            $translator = $services->get('MvcTranslator');
-            $message = new \Omeka\Stdlib\Message(
-                $translator->translate('The module removed tables "%s" from a previous broken install.'), // @translate
-                implode('", "', $dropTables)
-            );
-            $messenger = new \Omeka\Mvc\Controller\Plugin\Messenger();
-            $messenger->addWarning($message);
-        }
-
-        return true;
-    }
-
-    /**
      * Execute a sql from a file.
      *
      * @param string $filepath
      * @return int|null
      */
-    protected function execSqlFromFile(string $filepath): ?int
+    protected function execSqlFromFile($filepath)
     {
         if (!file_exists($filepath) || !filesize($filepath) || !is_readable($filepath)) {
             return null;
         }
-
-        /** @var \Doctrine\DBAL\Connection $connection */
         $services = $this->getServiceLocator();
+        /** @var \Doctrine\DBAL\Connection $connection */
         $connection = $services->get('Omeka\Connection');
+        $sql = file_get_contents($filepath);
 
         // Use single statements for execution.
         // See core commit #2689ce92f.
-        $sql = file_get_contents($filepath);
         $sqls = array_filter(array_map('trim', explode(";\n", $sql)));
         foreach ($sqls as $sql) {
-            $result = $connection->executeStatement($sql);
+            $result = $connection->exec($sql);
         }
 
         return $result;
@@ -629,10 +566,10 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
             $stmt = $connection->executeQuery($sql, ['target_id' => $id]);
         } else {
             $sql = sprintf('SELECT id, value FROM %s', $settings->getTableName());
-            $stmt = $connection->executeQuery($sql);
+            $stmt = $connection->query($sql);
         }
 
-        $currentSettings = $stmt->fetchAllKeyValue();
+        $currentSettings = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
         $defaultSettings = $config[$space][$settingsType];
         // Skip settings that are arrays, because the fields "multi-checkbox"
         // and "multi-select" are removed when no value are selected, so it's
@@ -705,65 +642,6 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
     {
         return empty($this->dependencies)
             || $this->areModulesActive($this->dependencies);
-    }
-
-    /**
-     * Check the version of a module and return a boolean or throw an exception.
-     *
-     * @throws \Omeka\Module\Exception\ModuleCannotInstallException
-     */
-    protected function checkModuleAvailability(string $moduleName, ?string $version = null, bool $required = false, bool $exception = false): bool
-    {
-        $services = $this->getServiceLocator();
-        $module = $services->get('Omeka\ModuleManager')->getModule($moduleName);
-        if (!$module || !$this->isModuleActive($moduleName)) {
-            if (!$required) {
-                return true;
-            }
-            if (!$exception) {
-                return false;
-            }
-            // Else throw message below (required module with a version or not).
-        } elseif (!$version || version_compare($module->getIni('version') ?? '', $version, '>=')) {
-            return true;
-        } elseif (!$exception) {
-            return false;
-        }
-        $translator = $services->get('MvcTranslator');
-        if ($version) {
-            $message = new \Omeka\Stdlib\Message(
-                $translator->translate('This module requires the module "%1$s", version %2$s or above.'), // @translate
-                $moduleName, $version
-            );
-        } else {
-            $message = new \Omeka\Stdlib\Message(
-                $translator->translate('This module requires the module "%s".'), // @translate
-                $moduleName
-            );
-        }
-        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
-    }
-
-    /**
-     * Check the version of a module.
-     *
-     * It is recommended to use checkModuleAvailability(), that manages the fact
-     * that the module may be required or not.
-     */
-    protected function isModuleVersionAtLeast(string $module, string $version): bool
-    {
-        $services = $this->getServiceLocator();
-        /** @var \Omeka\Module\Manager $moduleManager */
-        $moduleManager = $services->get('Omeka\ModuleManager');
-        $module = $moduleManager->getModule($module);
-        if (!$module) {
-            return false;
-        }
-
-        $moduleVersion = $module->getIni('version');
-        return $moduleVersion
-            ? version_compare($moduleVersion, $version, '>=')
-            : false;
     }
 
     /**

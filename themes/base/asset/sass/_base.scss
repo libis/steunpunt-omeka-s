@@ -420,6 +420,23 @@ figcaption{
   }
 }
 
+//text columns
+.text-columns{
+  a{
+    color: white;
+  }
+}
+.box-1,.box-2{
+  color:white;
+}
+.box-1{
+  background: $primary;
+}
+
+.box-2{
+  background: #222222;
+}
+
 .datering{
   font-size: 0.9rem;
   margin-bottom: 0.5rem !important;
@@ -478,14 +495,12 @@ figcaption{
       padding:1rem;
     }
 
+    figcaption{
+      display: none;
+    }
+
     .column{
       line-height: 0;
-    }
-    
-    figcaption{
-      padding-left:1rem;
-      margin-top: -0.8rem;
-      line-height: 1.1;
     }
   }
 

@@ -18,10 +18,21 @@ class GetResourcesFromIdentifiers extends AbstractHelper
      */
     protected $options;
 
-    public function __construct(Connection $connection, array $options)
+    /**
+     * @param bool
+     */
+    protected $supportAnyValue;
+
+    /**
+     * @param \Doctrine\DBAL\Connection $connection
+     * @param array $options
+     * @param bool $supportAnyValue
+     */
+    public function __construct(Connection $connection, array $options, bool $supportAnyValue)
     {
         $this->connection = $connection;
         $this->options = $options;
+        $this->supportAnyValue = $supportAnyValue;
     }
 
     /**
@@ -41,7 +52,7 @@ class GetResourcesFromIdentifiers extends AbstractHelper
      *   not found. Note: the number of found resources may be lower than the
      *   identifiers in case of duplicate identifiers.
      */
-    public function __invoke(array $identifiers, ?string $resourceName = null): array
+    public function __invoke(array $identifiers, $resourceName = null): array
     {
         // Identifiers are flipped to prepare result.
         // Even if keys are strings, they may be integers because of automatic
@@ -71,22 +82,30 @@ class GetResourcesFromIdentifiers extends AbstractHelper
 
         $qb = $this->connection->createQueryBuilder();
         $expr = $qb->expr();
+        if ($this->supportAnyValue) {
+            $qb
+                ->select([
+                    $isCaseSensitive
+                        ? 'ANY_VALUE(value.value) AS "identifier"'
+                        : "LOWER(ANY_VALUE(value.value)) AS 'identifier'",
+                    'ANY_VALUE(value.resource_id) AS "id"',
+                ]);
+        } else {
+            $qb
+                ->select([
+                    $isCaseSensitive
+                        ? 'value.value AS "identifier"'
+                        : 'LOWER(value.value) AS "identifier"',
+                    'value.resource_id AS "id"',
+                ]);
+        }
+
         $qb
-            ->select(
-                // MIN is a way to fix mysql "only_full_group_by" issue without "ANY_VALUE".
-                $isCaseSensitive
-                    ? 'MIN(value.value) AS "identifier"'
-                    : 'LOWER(MIN(value.value)) AS "identifier"',
-                'MIN(value.resource_id) AS "id"'
-            )
             ->from('value', 'value')
             ->leftJoin('value', 'resource', 'resource', 'value.resource_id = resource.id')
-            // "identifier" with double quotes were not accepted in old versions.
-            ->addGroupBy('"identifier"' . $collation)
+            ->addGroupBy('value.value' . $collation)
             ->addOrderBy('"id"', 'ASC')
-            // An identifier is always literal: it identifies a resource inside
-            // the base. It can't be an external uri or a linked resource.
-            ->where('value.type = "literal"')
+            ->addOrderBy('value.id', 'ASC')
             ->andWhere($expr->eq('value.property_id', ':property_id'));
         $parameters['property_id'] = (int) $this->options[$resourceName]['property'];
 
@@ -121,9 +140,9 @@ class GetResourcesFromIdentifiers extends AbstractHelper
         // and with or without space. Nevertheless, the check is quick.
 
         // A quick check for performance.
-        if (count($identifiers) === 1 && $noPrefix) {
+        if (count($identifiers) === 1 && ($noPrefix)) {
             $identifier = (string) key($identifiers);
-            $parameters['identifier'] = $isCaseSensitive ? $identifier : mb_strtolower((string) $identifier);
+            $parameters['identifier'] = $isCaseSensitive ? $identifier : mb_strtolower($identifier);
             $variants[$parameters['identifier']] = $identifier;
             $qb
                 ->andWhere($expr->eq('value.value' . $collation, ':identifier'));
@@ -152,7 +171,7 @@ class GetResourcesFromIdentifiers extends AbstractHelper
                 else {
                     foreach (array_keys($identifiers) as $identifier) {
                         if (mb_strpos((string) $identifier, $prefix) === 0) {
-                            $variants[mb_strtolower((string) $identifier)] = $identifier;
+                            $variants[mb_strtolower($identifier)] = $identifier;
                         } else {
                             $variants[mb_strtolower($prefix . $identifier)] = $identifier;
                             $variants[mb_strtolower($prefix . ' ' . $identifier)] = $identifier;
@@ -188,7 +207,11 @@ class GetResourcesFromIdentifiers extends AbstractHelper
                 ->andWhere($expr->in('value.value' . $collation, $placeholders));
         }
 
-        $result = $this->connection->executeQuery($qb, $parameters)->fetchAllKeyValue();
+        $qb
+            ->setParameters($parameters);
+
+        $stmt = $this->connection->executeQuery($qb, $qb->getParameters());
+        $result = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
 
         // Get representations and check numeric identifiers as resource id.
         // It allows to check rights too (currently, Connection is used, not EntityManager).
@@ -203,48 +226,16 @@ class GetResourcesFromIdentifiers extends AbstractHelper
 
         // Check remaining numeric identifiers, for example when some resources
         // don't have an identifier and the id is used instead of.
-        $identifiers = $this->appendResourcesFromNumeric($identifiers, $resourceName);
-
-        return $identifiers;
-    }
-
-    /**
-     * Complete an array of resources by id.
-     *
-     * @param array $identifiers The keys are the id.
-     */
-    protected function appendResourcesFromNumeric(array $identifiers, string $resourceName): array
-    {
-        $ids = array_keys(array_filter($identifiers, function ($v, $k) {
-            // Check only missing resources with a integer key.
-            return is_null($v)
-                && is_numeric($k)
-                && $k == (int) $k;
+        $remainingNumeric = array_keys(array_filter($identifiers, function ($v, $k) {
+            return is_null($v) && is_numeric($k) && ($k = (int) $k);
         }, ARRAY_FILTER_USE_BOTH));
-        if (!count($ids)) {
-            return $identifiers;
-        }
-
-        // Omeka doesn't allow search() for "resources", so do a direct query.
-        /** @see \Omeka\Api\Adapter\ResourceAdapter::search() */
-        $api = $this->view->api();
-
-        if ($resourceName !== 'resources') {
-            $resources = $api->search($resourceName, ['id' => $ids])->getContent();
-            foreach ($resources as $resource) {
-                $identifiers[$resource->id()] = $resource;
-            }
-            return $identifiers;
-        }
-
-        // TODO Improve performance of search resources by id.
-        foreach ($ids as $id) {
-            try {
-                $resource = $api->read($resourceName, ['id' => $id])->getContent();
-                $identifiers[$resource->id()] = $resource;
-            } catch (NotFoundException $e) {
+        if (count($remainingNumeric)) {
+            $remainingNumeric = $api->search($resourceName, ['id' => $remainingNumeric])->getContent();
+            foreach ($remainingNumeric as $remaining) {
+                $identifiers[$remaining->id()] = $remaining;
             }
         }
+
         return $identifiers;
     }
 

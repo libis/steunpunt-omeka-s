@@ -1,10 +1,8 @@
 <?php
-
 namespace Composer\Installers;
 
 class MoodleInstaller extends BaseInstaller
 {
-    /** @var array<string, string> */
     protected $locations = array(
         'mod'                => 'mod/{$name}/',
         'admin_report'       => 'admin/report/{$name}/',

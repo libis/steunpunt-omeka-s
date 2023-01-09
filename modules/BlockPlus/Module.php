@@ -1,5 +1,4 @@
 <?php declare(strict_types=1);
-
 namespace BlockPlus;
 
 if (!class_exists(\Generic\AbstractModule::class)) {
@@ -16,7 +15,7 @@ use Omeka\Module\Exception\ModuleCannotInstallException;
 /**
  * BlockPlus
  *
- * @copyright Daniel Berthereau, 2018-2021
+ * @copyright Daniel Berthereau, 2018-2020
  * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
  */
 class Module extends AbstractModule
@@ -29,7 +28,7 @@ class Module extends AbstractModule
         if (!file_exists($js)) {
             $services = $this->getServiceLocator();
             $t = $services->get('MvcTranslator');
-            throw new \Omeka\Module\Exception\ModuleCannotInstallException(
+            throw new ModuleCannotInstallException(
                 sprintf(
                     $t->translate('The library "%s" should be installed.'), // @translate
                     'javascript'
@@ -40,75 +39,103 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
+        // Order blocks alphabetically (translated), except html.
         $sharedEventManager->attach(
-            'Omeka\Controller\SiteAdmin\Page',
-            'view.edit.before',
-            [$this, 'handleSitePageEditBefore']
+            \Omeka\Site\BlockLayout\Manager::class,
+            'service.registered_names',
+            [$this, 'handleRegisteredNamesBlockLayout']
         );
-        $sharedEventManager->attach(
-            \Omeka\Stdlib\HtmlPurifier::class,
-            'htmlpurifier_config',
-            [$this, 'handleHtmlPurifier']
-        );
-        $sharedEventManager->attach(
-            \Omeka\Form\SettingForm::class,
-            'form.add_elements',
-            [$this, 'handleMainSettings']
-        );
+
         $sharedEventManager->attach(
             \Omeka\Form\SiteSettingsForm::class,
             'form.add_elements',
             [$this, 'handleSiteSettings']
         );
+        $sharedEventManager->attach(
+            \Omeka\Form\SiteSettingsForm::class,
+            'form.add_input_filters',
+            [$this, 'handleSiteSettingsFilters']
+        );
     }
 
-    public function handleSitePageEditBefore(Event $event): void
+    public function handleSiteSettings(Event $event): void
     {
-        $view = $event->getTarget();
-        $assetUrl = $view->plugin('assetUrl');
-        $view->headLink()
-            ->appendStylesheet($assetUrl('css/block-plus-admin.css', 'BlockPlus'));
+        parent::handleSiteSettings($event);
+
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings\Site');
+
+        $fieldset = $event
+            ->getTarget()
+            ->get('blockplus');
+
+        $pageTypes = $settings->get('blockplus_page_types') ?: [];
+        $value = '';
+        foreach ($pageTypes as $name => $label) {
+            $value .= $name . ' = ' . $label . "\n";
+        }
+        $fieldset
+            ->get('blockplus_page_types')
+            ->setValue($value);
     }
 
-    public function handleHtmlPurifier(Event $event): void
+    public function handleSiteSettingsFilters(Event $event): void
     {
-        // CKEditor footnotes uses `<section class="footnotes">` and some other
-        // elements and attributes, but they are not in the default config, designed for html 4.
-        // The same for HTML Purifier, that is based on html 4, and won't be
-        // updated to support html 5.
-        // @see https://github.com/ezyang/htmlpurifier/issues/160
+        $inputFilter = $event->getParam('inputFilter');
+        $inputFilter->get('blockplus')
+            ->add([
+                'name' => 'blockplus_page_types',
+                'required' => false,
+                'filters' => [
+                    [
+                        'name' => \Laminas\Filter\Callback::class,
+                        'options' => [
+                            'callback' => [$this, 'stringToKeyValuesPlusDefault'],
+                        ],
+                    ],
+                ],
+            ])
+        ;
+    }
 
-        /** @var \HTMLPurifier_Config $config */
-        $config = $event->getParam('config');
+    public function stringToKeyValuesPlusDefault($string)
+    {
+        $result = [];
+        $list = $this->stringToList($string);
+        foreach ($list as $keyValue) {
+            list($key, $value) = array_map('trim', explode('=', $keyValue, 2));
+            if ($key !== '') {
+                $result[$key] = mb_strlen($value) ? $value : $key;
+            }
+        }
 
-        $config->set('Attr.EnableID', true);
-        $config->set('HTML.AllowedAttributes', [
-            'a.id',
-            'a.rel',
-            'a.href',
-            'a.target',
-            'li.id',
-            'li.data-footnote-id',
-            'section.class',
-            'sup.data-footnote-id',
-        ]);
+        $defaults = [
+            'home' => 'Home', // @translate
+            'exhibit' => 'Exhibit', // @translate
+            'exhibit_page' => 'Exhibit page', // @translate
+            'simple' => 'Simple page', // @translate
+        ];
 
-        $config->set('HTML.TargetBlank', true);
+        return $result + $defaults;
+    }
 
-        $def = $config->getHTMLDefinition(true);
+    public function handleRegisteredNamesBlockLayout(Event $event): void
+    {
+        $services = $this->getServiceLocator();
+        $manager = $services->get('Omeka\BlockLayoutManager');
+        $translator = $services->get('MvcTranslator');
+        $registeredNames = $event->getParam('registered_names');
 
-        $def->addElement('article', 'Block', 'Flow', 'Common');
-        $def->addElement('section', 'Block', 'Flow', 'Common');
-        $def->addElement('header', 'Block', 'Flow', 'Common');
-        $def->addElement('footer', 'Block', 'Flow', 'Common');
+        $result = [];
+        foreach ($registeredNames as $registeredName) {
+            $result[$registeredName] = $translator->translate($manager->get($registeredName)->getLabel());
+        }
+        natcasesort($result);
 
-        $def->addAttribute('sup', 'data-footnote-id', 'ID');
-        // This is the same id than sup, but Html Purifier ID should be unique
-        // among all the submitted html ids, so use Class.
-        $def->addAttribute('li', 'data-footnote-id', 'Class');
+        // Keep configured names prepended.
+        $prepended = $services->get('Config')['block_layouts']['sorted_names'];
+        $result = array_keys(array_flip($prepended) + $result);
 
-        $def->addAttribute('a', 'target', new \HTMLPurifier_AttrDef_Enum(['_blank', '_self', '_target', '_top']));
-
-        $event->setParam('config', $config);
+        $event->setParam('registered_names', $result);
     }
 }

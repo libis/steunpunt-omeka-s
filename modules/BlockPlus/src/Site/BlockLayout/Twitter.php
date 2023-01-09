@@ -546,13 +546,11 @@ class Twitter extends AbstractBlockLayout
             'x-twitter-client-language' => $view ? ($view->siteSetting('locale') ?: $view->setting('locale')) : 'en',
         ];
         $response = ClientStatic::get($url, $query, $headers);
-        if (!$response->isSuccess()) {
-            return [];
-        }
         $body = $response->getBody();
         if (empty($body)) {
             return [];
         }
+
         $body = json_decode($body, true);
         if (isset($body['error'])) {
             $this->error = $body['error'];
@@ -621,7 +619,6 @@ class Twitter extends AbstractBlockLayout
         $data = $block->getData();
         $data['cache'] = $messages;
         $block->setData($data);
-        $entityManager->persist($block);
-        $entityManager->flush();
+        $entityManager->flush($block);
     }
 }

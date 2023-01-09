@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
-
 namespace BlockPlus\Form;
 
-use BlockPlus\Form\Element as BlockPlusElement;
+use BlockPlus\Form\Element\TemplateSelect;
+use BlockPlus\Form\Element\ThumbnailTypeSelect;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
 
@@ -18,40 +18,28 @@ class ItemShowcaseFieldset extends Fieldset
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Block title', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'item-showcase-heading',
+                    'info' => 'Heading for the block, if any.', // @translate
                 ],
             ])
             ->add([
                 'name' => 'o:block[__blockIndex__][o:data][thumbnail_type]',
-                'type' => BlockPlusElement\ThumbnailTypeSelect::class,
+                'type' => ThumbnailTypeSelect::class,
                 'options' => [
                     'label' => 'Thumbnail type', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'item-showcase-thumbnail-type',
-                    'class' => 'chosen-select',
-                ],
-            ])
-            ->add([
-                'name' => 'o:block[__blockIndex__][o:data][show_title_option]',
-                'type' => BlockPlusElement\BlockShowTitleSelect::class,
-                'attributes' => [
-                    'id' => 'item-showcase-show-title-option',
                     'class' => 'chosen-select',
                 ],
             ])
             ->add([
                 'name' => 'o:block[__blockIndex__][o:data][template]',
-                'type' => BlockPlusElement\TemplateSelect::class,
+                'type' => TemplateSelect::class,
                 'options' => [
                     'label' => 'Template to display', // @translate
                     'info' => 'Templates are in folder "common/block-layout" of the theme and should start with "item-showcase".', // @translate
                     'template' => 'common/block-layout/item-showcase',
                 ],
                 'attributes' => [
-                    'id' => 'item-showcase-template',
                     'class' => 'chosen-select',
                 ],
             ]);

@@ -1,5 +1,4 @@
 <?php declare(strict_types=1);
-
 namespace BlockPlus\View\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
@@ -15,7 +14,7 @@ class PagesMetadata extends AbstractHelper
      * @param string|array $pageType
      * @return \Omeka\Api\Representation\SitePageBlockRepresentation[]
      */
-    public function __invoke($pageType): array
+    public function __invoke($pageType)
     {
         $pageTypes = is_array($pageType) ? $pageType : [$pageType];
 
@@ -39,7 +38,7 @@ class PagesMetadata extends AbstractHelper
 
     protected function currentSite(): ?\Omeka\Api\Representation\SiteRepresentation
     {
-        return $this->view->site ?? $this->view->site = $this->view
+        return $this->view->site ?? $this->view
             ->getHelperPluginManager()
             ->get('Laminas\View\Helper\ViewModel')
             ->getRoot()

@@ -41,8 +41,10 @@ class PageTitle extends AbstractBlockLayout
         $fieldset = $formElementManager->get($blockFieldset);
         $fieldset->populateValues($dataForm);
 
-        return $view->escapeHtml($page->title())
-            . $view->formCollection($fieldset, false);
+        $html = $page->title();
+        $html .= $view->formCollection($fieldset, false);
+
+        return $html;
     }
 
     public function render(PhpRenderer $view, SitePageBlockRepresentation $block)

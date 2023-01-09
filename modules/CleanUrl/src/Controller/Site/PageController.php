@@ -13,10 +13,10 @@ class PageController extends \Omeka\Controller\Site\PageController
         $site = $this->currentSite();
 
         // @see \Omeka\Controller\Site\PageController::indexAction()
-        $slug = $this->params('page-slug');
-        if ($slug) {
+        $pageSlug = $this->params('page-slug');
+        if ($pageSlug) {
             $page = $this->api()->read('site_pages', [
-                'slug' => $slug,
+                'slug' => $pageSlug,
                 'site' => $site->id(),
             ])->getContent();
         }
@@ -39,18 +39,11 @@ class PageController extends \Omeka\Controller\Site\PageController
 
         // Copy of parent method.
 
-        if ($slug) {
-          $pageBodyClass = 'page site-page-' . preg_replace('([^a-zA-Z0-9\-])', '-', $slug);
-        } else {
-          $pageBodyClass = 'page site-page';
-        }
-
         $this->viewHelpers()->get('sitePagePagination')->setPage($page);
 
         $view
             ->setVariable('site', $site)
             ->setVariable('page', $page)
-            ->setVariable('pageBodyClass', $pageBodyClass)
             ->setVariable('displayNavigation', true);
 
         $contentView = clone $view;

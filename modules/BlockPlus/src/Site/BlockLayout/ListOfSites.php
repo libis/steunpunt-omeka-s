@@ -59,8 +59,7 @@ class ListOfSites extends AbstractBlockLayout
         $sort = $block->dataValue('sort', 'alpha');
         $limit = $block->dataValue('limit');
         $pagination = $limit && $block->dataValue('pagination', false);
-        $summaries = (bool) $block->dataValue('summaries', true);
-        $thumbnails = (bool) $block->dataValue('thumbnails', true);
+        $summaries = $block->dataValue('summaries', true);
         // Support of default settings in case of an update.
         $exclude = $block->dataValue('exclude', $block->dataValue('exclude_current', true) ? ['current'] : []);
 
@@ -112,7 +111,6 @@ class ListOfSites extends AbstractBlockLayout
             'sites' => $sites,
             'pagination' => $pagination,
             'summaries' => $summaries,
-            'thumbnails' => $thumbnails,
             'currentSite' => $block->page()->site(),
         ];
         $template = $block->dataValue('template', self::PARTIAL_NAME);

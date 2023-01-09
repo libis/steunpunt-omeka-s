@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
-
 namespace BlockPlus\Form;
 
 use BlockPlus\Form\Element\TemplateSelect;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
-use Omeka\Form\Element as OmekaElement;
+use Omeka\Form\Element\PropertySelect;
+use Omeka\Form\Element\ResourceTemplateSelect;
 
 class SearchResultsFieldset extends Fieldset
 {
@@ -17,9 +17,10 @@ class SearchResultsFieldset extends Fieldset
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Block title', // @translate
+                    'info' => 'Heading for the block, if any.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'search-results-heading',
+                    'id' => 'browse-preview-heading',
                 ],
             ])
             ->add([
@@ -34,21 +35,20 @@ class SearchResultsFieldset extends Fieldset
                     ],
                 ],
                 'attributes' => [
-                    'id' => 'search-results-resource-type',
+                    'id' => 'browse-preview-resource-type',
                     'class' => 'chosen-select',
                 ],
             ])
             ->add([
                 'name' => 'o:block[__blockIndex__][o:data][query]',
-                'type' => OmekaElement\Query::class,
+                'type' => Element\Text::class,
                 'options' => [
-                    'label' => 'Search pool query', // @translate
-                    'info' => 'Used to restrict resources to search, for example on an item set.', // @translate
-                    'query_resource_type' => null,
-                    'query_partial_excludelist' => ['common/advanced-search/site'],
+                    'label' => 'Query', // @translate
+                    'info' => 'Used to restrict resources, for example on an item set. Let empty for none, use "=" for any resource in the site.', // @translate
+                    'documentation' => 'https://omeka.org/s/docs/user-manual/sites/site_pages/#browse-preview',
                 ],
                 'attributes' => [
-                    'id' => 'search-results-query',
+                    'id' => 'browse-preview-query',
                 ],
             ])
             ->add([
@@ -59,7 +59,7 @@ class SearchResultsFieldset extends Fieldset
                     'info' => 'Maximum number of resources to display in the preview.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'search-results-limit',
+                    'id' => 'browse-preview-limit',
                 ],
             ])
             ->add([
@@ -70,12 +70,12 @@ class SearchResultsFieldset extends Fieldset
                     'info' => 'Show pagination to browse all resources on the same page.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'search-results-pagination',
+                    'id' => 'browse-preview-pagination',
                 ],
             ])
             ->add([
                 'name' => 'o:block[__blockIndex__][o:data][sort_headings]',
-                'type' => OmekaElement\PropertySelect::class,
+                'type' => PropertySelect::class,
                 'options' => [
                     'label' => 'Sort headings', // @translate
                     'info' => 'Display sort links for the list of results.', // @translate
@@ -86,7 +86,7 @@ class SearchResultsFieldset extends Fieldset
                     ],
                 ],
                 'attributes' => [
-                    'id' => 'search-results-sort-headings',
+                    'id' => 'browse-preview-sort-headings',
                     'class' => 'chosen-select',
                     'multiple' => true,
                     'data-placeholder' => 'Select properties', // @translate
@@ -94,14 +94,14 @@ class SearchResultsFieldset extends Fieldset
             ])
             ->add([
                 'name' => 'o:block[__blockIndex__][o:data][resource_template]',
-                'type' => OmekaElement\ResourceTemplateSelect::class,
+                'type' => ResourceTemplateSelect::class,
                 'options' => [
                     'label' => 'Resource template for sort headings', // @translate
                     'info' => 'If set, the alternative labels of this resource template will be used to display the sort headings.', // @translate
                     'empty_option' => '',
                 ],
                 'attributes' => [
-                    'id' => 'search-results-resource-template',
+                    'id' => 'browse-preview-resource-template',
                     'class' => 'chosen-select',
                     'multiple' => false,
                     'data-placeholder' => 'Select resource template…', // @translate
@@ -116,7 +116,7 @@ class SearchResultsFieldset extends Fieldset
                     'template' => 'common/block-layout/search-results',
                 ],
                 'attributes' => [
-                    'id' => 'search-results-template',
+                    'id' => 'browse-preview-template',
                     'class' => 'chosen-select',
                 ],
             ])

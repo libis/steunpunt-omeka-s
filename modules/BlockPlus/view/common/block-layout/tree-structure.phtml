@@ -23,17 +23,14 @@ $resourceNames = [
     'media' => 'media',
 ];
 
-$filterLocale = (bool) $this->siteSetting('filter_locale_values');
-$lang = $filterLocale ? $this->lang() : null;
-
-$treeMenu = function ($resource, $level = 0) use (&$treeMenu, $term, $api, $escape, $expanded, $maxLevel, $url, $resourceNames, $lang) {
+$treeMenu = function ($resource, $level = 0) use (&$treeMenu, $term, $api, $escape, $expanded, $maxLevel, $url, $resourceNames) {
     if (!$resource || $level > $maxLevel):
         return;
     endif;
 
-    $title = $resource->displayTitle(null, $lang);
+    $title = $resource->displayTitle();
 
-    // Omeka doesn't allow to search multiple type once ('resource', 'resource:item', 'resource:media', 'resource:itemset').
+    // Omeka doesn't allow to search multiple type once ('resource', 'resource:item', 'resource:media', 'resource:item-set').
     $children = $resource->value($term, ['all' => true]) ?: [];
     foreach ($children as $key => $child):
         if (substr($child->type(), 0, 8) !== 'resource'):

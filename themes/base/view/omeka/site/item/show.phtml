@@ -48,7 +48,7 @@ endif;
   $viewerlink = '';
   $relations = $item->value('dcterms:relation', array('all' => true));
   if($relations):
-      $relation = $relations[0];
+    foreach($relations as $relation):
       if(strpos($relation->asHtml(),'resolver') !== false):
         $viewerlink = $relation->asHtml();
 <<<<<<< HEAD
@@ -56,12 +56,12 @@ endif;
         $config = [
           'adapter'      => Client\Adapter\Socket::class,
           'ssltransport' => 'tls',
-          'timeout'      => 5,
         ];
         $listlink = str_replace('representation','list',$viewerlink);
         // Instantiate a client object
         $client = new Client($listlink, $config);
         // The following request will be sent over a TLS secure connection.
+<<<<<<< HEAD
         /*try{
           $response = $client->send();
           if($response->getContent()):
@@ -84,10 +84,26 @@ endif;
         
 =======
 >>>>>>> parent of 209401c (show FL-images)
+=======
+        $response = $client->send();
+        if($response->getContent()):
+          $list = json_decode($response->getContent(),true);
+          foreach($list as $ie):
+            foreach($ie as $fl):
+              if($fl["usage_type"] == "VIEW" && $fl["representation_code"] == "LOW"):
+                $fl = $fl["content"];  
+                foreach($fl as $key=>$value):                  
+                  $fls[$key] = $key;  
+                endforeach;  
+              endif;                          
+            endforeach;  
+          endforeach;          
+        endif;
+>>>>>>> parent of edf0f2e (update to php 8 and advanced search)
       endif;  
+    endforeach;  
   endif;
 ?>
-
 
 <?php if($type == 'Nieuws'):?>
   <section class="section">
@@ -128,7 +144,7 @@ endif;
            <?php if($date):?>
             <?php $date = new DateTime($date->asHtml());?>
             <div style="margin-bottom:0.6rem;color:#666;">
-              <?php echo $date->format('d-m-Y');?>
+              <?php echo $date->format('m-d-Y');?>
             </div>            
            <?php endif;?> 
              <?php $descs =  $item->value('dcterms:description', array('all' => true));?>
@@ -349,8 +365,11 @@ $subjectValues = $item->subjectValues();
     $('.slide-wrap').on('contextmenu', 'img', function(e){ 
       return false; 
     });
+<<<<<<< HEAD
 
 =======
 >>>>>>> parent of 209401c (show FL-images)
+=======
+>>>>>>> parent of edf0f2e (update to php 8 and advanced search)
   });
 </script>

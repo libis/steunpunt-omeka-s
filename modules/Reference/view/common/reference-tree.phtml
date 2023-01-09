@@ -5,49 +5,34 @@
  * @var array $options
  */
 
-if (!count($references)) return;
+if (count($references)):
+    $hyperlink = $this->plugin('hyperlink');
+    $url = $this->plugin('url');
+    $siteSlug = $this->params()->fromRoute('site-slug');
+    $term = $options['term'];
+    $resourceName = $options['resource_name'];
+    // $api = $this->api();
 
-$hyperlink = $this->plugin('hyperlink');
-$url = $this->plugin('url');
-$siteSlug = $this->params()->fromRoute('site-slug');
-$term = $options['term'];
-$resourceName = $options['resource_name'];
-$query = $options['query'] ?? [];
-// $api = $this->api();
+    $this->headLink()->appendStylesheet($this->assetUrl('vendor/jquery-simplefolders/main.css', 'Reference'));
+    $this->headScript()->appendFile($this->assetUrl('vendor/jquery-simplefolders/main.js', 'Reference'), 'text/javascript', ['defer' => 'defer']);
 
-$this->headLink()->appendStylesheet($this->assetUrl('vendor/jquery-simplefolders/main.css', 'Reference'));
-$this->headScript()->appendFile($this->assetUrl('vendor/jquery-simplefolders/main.js', 'Reference'), 'text/javascript', ['defer' => 'defer']);
+    $this->headStyle()->appendStyle('.tree .no-resource { font-style: italic; }');
 
-$this->headStyle()->appendStyle('.tree .no-resource { font-style: italic; }');
+    $mapResourcesControllers = ['resources' => 'resource', 'items' => 'item', 'item_sets' => 'item-set', 'media' => 'media'];
+    $controllerName = $mapResourcesControllers[$resourceName];
 
-$mapResourcesControllers = ['resources' => 'resource', 'items' => 'item', 'item_sets' => 'item-set', 'media' => 'media'];
-$controllerName = $mapResourcesControllers[$resourceName];
-
-// Set default values if needed.
-$options += [
-    'query_type' => 'eq',
-    'link_to_single' => true,
-    'total' => true,
-    'raw' => false,
-    'expanded' => true,
-    'custom_url' => false,
-];
-$options['custom_url'] = $options['custom_url'] && $options['link_to_single'];
-if (!$options['custom_url']):
-    $tempPlaceholder = '00999999990999999001';
-    $templateUrlSingle = str_replace($tempPlaceholder, '{reference}',
-        $url('site/resource-id', ['site-slug' => $siteSlug, 'controller' => $controllerName, 'id' => $tempPlaceholder], false));
-    $query['property'][] = [
-        'joiner' => 'and',
-        'property' => $term,
-        'type' => $options['query_type'],
-        'text' => $tempPlaceholder,
-    ];
-    $templateUrl = str_replace($tempPlaceholder, '{reference}',
-        $url('site/resource', ['site-slug' => $siteSlug, 'controller' => $controllerName], ['query' => $query], false));
-endif;
-?>
-
+    // Set default values if needed.
+    $options += ['query_type' => 'eq', 'link_to_single' => true, 'total' => true, 'raw' => false, 'expanded' => true, 'custom_url' => false];
+    $options['custom_url'] = $options['custom_url'] && $options['link_to_single'];
+    if (!$options['custom_url']):
+        $tempPlaceholder = '00999999990999999001';
+        $templateUrlSingle = str_replace($tempPlaceholder, '{reference}',
+            $url('site/resource-id', ['site-slug' => $siteSlug, 'controller' => $controllerName, 'id' => $tempPlaceholder], false));
+        $query = ['property' => [['property' => $term, 'type' => $options['query_type'], 'text' => $tempPlaceholder]]];
+        $templateUrl = str_replace($tempPlaceholder, '{reference}',
+            $url('site/resource', ['site-slug' => $siteSlug, 'controller' => $controllerName], ['query' => $query], false));
+        endif;
+    ?>
 <div id="reference-headings">
     <ul class="tree">
         <?php
@@ -126,3 +111,4 @@ endif;
         ?>
     </ul>
 </div>
+<?php endif;

@@ -2,8 +2,7 @@ Clean Url (module for Omeka S)
 ==============================
 
 > __New versions of this module and support for Omeka S version 3.0 and above
-> are available on [GitLab], which seems to respect users and privacy better
-> than the previous repository.__
+> are available on [GitLab], which seems to respect users and privacy better.__
 
 [Clean Url] is a module for [Omeka S] that creates clean, readable and search
 engine optimized URLs like `https://example.com/my_item_set/dc:identifier`
@@ -81,8 +80,6 @@ to avoid issues.
 Simply set an identifier for each record in a field. The recommended field is
 `Dublin Core:Identifier`.
 
-- An identifier is always literal: it identifies a resource inside the base. It
-  can't be an external uri or a linked resource.
 - Identifiers can be any strings with any characters. Identifier are url-encoded
   according to the standard, but it is recommended to avoid characters like "%"
   or "$".
@@ -229,7 +226,7 @@ altered, and that no provisions are either added or removed herefrom.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2012-2021 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2012-2020 (see [Daniel-KM] on GitLab)
 * Copyright BibLibre, 2016-2017
 
 First version of this plugin has been built for [École des Ponts ParisTech].

@@ -2,18 +2,13 @@
 namespace HeroBlock\Site\BlockLayout;
 
 use Omeka\Site\BlockLayout\AbstractBlockLayout;
-
-use Omeka\Api\Exception as ApiException;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Api\Representation\SitePageBlockRepresentation;
-use Omeka\Entity\SitePageBlock;
-use Laminas\Form\Element\Select;
-use Laminas\Form\Form;
 use Omeka\Stdlib\HtmlPurifier;
 use Omeka\Stdlib\ErrorStore;
-use Laminas\Form\Element\Textarea;
-use Laminas\View\Renderer\PhpRenderer;
+use Zend\Form\Element\Textarea;
+use Zend\View\Renderer\PhpRenderer;
 
 /**
  * The block layout class encapsulates everything about your custom block.
@@ -34,36 +29,59 @@ class HeroBlock extends AbstractBlockLayout
         return 'Libis - Hero'; // @translate
     }
 
-    public function onHydrate(SitePageBlock $block, ErrorStore $errorStore)
-    {
-        $data = $block->getData();
-        $block->setData($data);
-        
-    }
-
+    /**
+     * The form() method is where the form for your block is defined.
+     *
+     * You can use the following helpers here for some common pieces of
+     * the block form interface:
+     *
+     * - $view->blockAttachmentsForm($block) (to select items and media)
+     * - $view->blockThumbnailTypeSelect($block) (to select the "size" of images to show)
+     * - $view->blockShowTitleSelect($block) (to select where displayed attachment titles should come from)
+     *
+     * You can use form elements more or less as usual here, but you'll
+     * want to take care with the names of your form elements: the form
+     * expects all your custom elements to have names starting with the
+     * following prefix:
+     *
+     * `o:block[__blockIndex__][o:data]`
+     *
+     * Anything starting with that prefix will automatically be saved to
+     * the block's `data` property.
+     *
+     * @return string
+     */
     public function form(PhpRenderer $view, SiteRepresentation $site,
         SitePageRepresentation $page = null, SitePageBlockRepresentation $block = null
     ) {
-        $siteId = $site->id();
-        $apiUrl = $site->apiUrl();
-        $blockData = ($block) ? $block->data() : '';
         //$data = $block ? $block->data() : [];
         return $view->partial('common/block-layout/hero-block-form', [
-            'block' => $blockData,
-            'blockAll' => $block,
-            'apiUrl' => $apiUrl,
-            'siteId' => $siteId,
+            'block' => $block,
         ]);
     }
 
+    /**
+     * render() is pretty much the opposite of form(): it's where you
+     * define the output of the block for the public side.
+     *
+     * This is the heart of a block layout: everything you collect on
+     * form will get used here for the display.
+     *
+     * You'll generally be working with $block here, the block's API
+     * representation, which gives you access to all the saved data
+     * about the block. In particular, you might use:
+     *
+     * `$block->attachments()` (returns all attached items/media from the form)
+     * `$block->dataValue($key)` (get a saved custom data value)
+     *
+     * @return string
+     */
     public function render(PhpRenderer $view, SitePageBlockRepresentation $block)
-    {      
-        $blockData = ($block) ? $block->data() : '';
-        $site = $view->site;
-         
-        return $view->partial('common/block-layout/hero-block', [
-        'block' => $blockData,
-        'blockAll' => $block,
+    {
+
+      return $view->partial('common/block-layout/hero-block', [
+        'block' => $block,
+        'attachments' => $block->attachments()
       ]);
     }
 }

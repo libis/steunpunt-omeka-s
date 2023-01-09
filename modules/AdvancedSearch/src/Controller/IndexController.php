@@ -2,11 +2,7 @@
 
 /*
  * Copyright BibLibre, 2016-2017
-<<<<<<< HEAD
  * Copyright Daniel Berthereau, 2017-2022
-=======
- * Copyright Daniel Berthereau, 2017-2021
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -105,32 +101,20 @@ class IndexController extends AbstractActionController
             switch ($defaultResults) {
                 case 'none':
                     $defaultQuery = '';
-<<<<<<< HEAD
                     $defaultQueryPost = '';
                     break;
                 case 'query':
                     $defaultQuery = $searchConfig->subSetting('search', 'default_query') ?: '';
                     $defaultQueryPost = $searchConfig->subSetting('search', 'default_query_post') ?: '';
-=======
-                    break;
-                case 'query':
-                    $defaultQuery = $searchConfig->subSetting('search', 'default_query') ?: '';
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                     break;
                 case 'default':
                 default:
                     // "*" means the default query managed by the search engine.
                     $defaultQuery = '*';
-<<<<<<< HEAD
                     $defaultQueryPost = $searchConfig->subSetting('search', 'default_query_post') ?: '';
                     break;
             }
             if ($defaultQuery === '' && $defaultQueryPost === '') {
-=======
-                    break;
-            }
-            if ($defaultQuery === '') {
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 if ($isJsonQuery) {
                     return new JsonModel([
                         'status' => 'error',
@@ -140,7 +124,6 @@ class IndexController extends AbstractActionController
                 return $view;
             }
             $parsedQuery = [];
-<<<<<<< HEAD
             if ($defaultQuery) {
                 parse_str($defaultQuery, $parsedQuery);
             }
@@ -152,12 +135,6 @@ class IndexController extends AbstractActionController
             // and facets), but append default args if not set in request.
             // It allows user to sort the default query.
             $request = $parsedQuery + $request + $parsedQueryPost;
-=======
-            parse_str($defaultQuery, $parsedQuery);
-            // Keep the other arguments of the request (mainly pagination, sort,
-            // and facets).
-            $request = $parsedQuery + $request;
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         }
 
         $result = $this->searchRequestToResponse($request, $searchConfig, $site);

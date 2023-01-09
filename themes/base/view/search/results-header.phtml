@@ -1,16 +1,46 @@
 <?php
 /**
- * @var \Laminas\View\Renderer\PhpRenderer $this
- * @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation $searchPage
- * @var \AdvancedSearch\Query $query
- * @var \AdvancedSearch\Response $response
- * @var \Omeka\Api\Representation\ItemSetRepresentation $itemSet
- * @var string $resultPart
- * @var int $documentCount
- * @var string $pagination
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Search\Query $query
+ * @var \Search\Response $response
+ * @var array $sortOptions
  */
 
-// Kept for compatibility with old themes.
+$translate = $this->plugin('translate');
+?>
 
-$this->vars()->offsetSet('resultPart', 'header');
-echo $this->partial('search/results-header-footer');
+<div class="level" style="margin-bottom:0.5rem;">
+  <div class="level-left">
+
+  </div>
+  <div class="level-right">
+    <div class="level-item">
+        <form class="sort-form">
+            <?php
+            if ($sortOptions):
+                $sortOptions = array_map([$this, 'translate'], $sortOptions);
+                $sortSelect = new Zend\Form\Element\Select('sort');
+                $sortSelect
+                    ->setValueOptions($sortOptions)
+                    ->setValue($query->getSort())
+                    ->setLabel($translate('Sort by'));
+            endif;
+            ?>
+            <?php if (!empty($sortSelect)): ?>
+            <?= $this->formLabel($sortSelect) ?>
+            <?= $this->formSelect($sortSelect) ?>
+            <?php endif; ?>
+        </form>
+    </div>
+    <div class="level-item">
+        <a class="button search-view-type search-view-type-list" href="#">
+          <span class="icon is-small">
+            <i class="fas fa-list"></i>
+          </span></a>
+
+        <a class="button search-view-type search-view-type-grid" href="#"><span class="icon is-small">
+          <i class="fas fa-th"></i>
+        </span></a>
+    </div>
+  </div>
+</div>

@@ -6,10 +6,7 @@ use Composer\Composer;
 use Composer\Installer\BinaryInstaller;
 use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
-<<<<<<< HEAD
 use Composer\Package\Package;
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Util\Filesystem;
@@ -17,7 +14,6 @@ use React\Promise\PromiseInterface;
 
 class Installer extends LibraryInstaller
 {
-<<<<<<< HEAD
     /**
      * Package types to installer class map
      *
@@ -25,16 +21,6 @@ class Installer extends LibraryInstaller
      */
     private $supportedTypes = array(
         'akaunting'    => 'AkauntingInstaller',
-=======
-
-    /**
-     * Package types to installer class map
-     *
-     * @var array
-     */
-    private $supportedTypes = array(
-        'aimeos'       => 'AimeosInstaller',
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'asgard'       => 'AsgardInstaller',
         'attogram'     => 'AttogramInstaller',
         'agl'          => 'AglInstaller',
@@ -48,10 +34,6 @@ class Installer extends LibraryInstaller
         'cockpit'      => 'CockpitInstaller',
         'codeigniter'  => 'CodeIgniterInstaller',
         'concrete5'    => 'Concrete5Installer',
-<<<<<<< HEAD
-=======
-        'craft'        => 'CraftInstaller',
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'croogo'       => 'CroogoInstaller',
         'dframe'       => 'DframeInstaller',
         'dokuwiki'     => 'DokuWikiInstaller',
@@ -70,21 +52,11 @@ class Installer extends LibraryInstaller
         'tastyigniter' => 'TastyIgniterInstaller',
         'imagecms'     => 'ImageCMSInstaller',
         'itop'         => 'ItopInstaller',
-<<<<<<< HEAD
         'kanboard'     => 'KanboardInstaller',
         'known'	       => 'KnownInstaller',
         'kodicms'      => 'KodiCMSInstaller',
         'kohana'       => 'KohanaInstaller',
         'lms'          => 'LanManagementSystemInstaller',
-=======
-        'joomla'       => 'JoomlaInstaller',
-        'kanboard'     => 'KanboardInstaller',
-        'kirby'        => 'KirbyInstaller',
-        'known'	       => 'KnownInstaller',
-        'kodicms'      => 'KodiCMSInstaller',
-        'kohana'       => 'KohanaInstaller',
-        'lms'      => 'LanManagementSystemInstaller',
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'laravel'      => 'LaravelInstaller',
         'lavalite'     => 'LavaLiteInstaller',
         'lithium'      => 'LithiumInstaller',
@@ -92,10 +64,7 @@ class Installer extends LibraryInstaller
         'majima'       => 'MajimaInstaller',
         'mantisbt'     => 'MantisBTInstaller',
         'mako'         => 'MakoInstaller',
-<<<<<<< HEAD
         'matomo'       => 'MatomoInstaller',
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'maya'         => 'MayaInstaller',
         'mautic'       => 'MauticInstaller',
         'mediawiki'    => 'MediaWikiInstaller',
@@ -111,10 +80,6 @@ class Installer extends LibraryInstaller
         'osclass'      => 'OsclassInstaller',
         'pxcms'        => 'PxcmsInstaller',
         'phpbb'        => 'PhpBBInstaller',
-<<<<<<< HEAD
-=======
-        'pimcore'      => 'PimcoreInstaller',
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'piwik'        => 'PiwikInstaller',
         'plentymarkets'=> 'PlentymarketsInstaller',
         'ppi'          => 'PPIInstaller',
@@ -135,18 +100,9 @@ class Installer extends LibraryInstaller
         'starbug'      => 'StarbugInstaller',
         'sydes'        => 'SyDESInstaller',
         'sylius'       => 'SyliusInstaller',
-<<<<<<< HEAD
         'tao'          => 'TaoInstaller',
         'thelia'       => 'TheliaInstaller',
         'tusk'         => 'TuskInstaller',
-=======
-        'symfony1'     => 'Symfony1Installer',
-        'tao'          => 'TaoInstaller',
-        'thelia'       => 'TheliaInstaller',
-        'tusk'         => 'TuskInstaller',
-        'typo3-cms'    => 'TYPO3CmsInstaller',
-        'typo3-flow'   => 'TYPO3FlowInstaller',
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'userfrosting' => 'UserFrostingInstaller',
         'vanilla'      => 'VanillaInstaller',
         'whmcs'        => 'WHMCSInstaller',
@@ -160,39 +116,17 @@ class Installer extends LibraryInstaller
     );
 
     /**
-<<<<<<< HEAD
      * Disables installers specified in main composer extra installer-disable
      * list
-=======
-     * Installer constructor.
-     *
-     * Disables installers specified in main composer extra installer-disable
-     * list
-     *
-     * @param IOInterface          $io
-     * @param Composer             $composer
-     * @param string               $type
-     * @param Filesystem|null      $filesystem
-     * @param BinaryInstaller|null $binaryInstaller
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      */
     public function __construct(
         IOInterface $io,
         Composer $composer,
-<<<<<<< HEAD
         string $type = 'library',
         ?Filesystem $filesystem = null,
         ?BinaryInstaller $binaryInstaller = null
     ) {
         parent::__construct($io, $composer, $type, $filesystem, $binaryInstaller);
-=======
-        $type = 'library',
-        Filesystem $filesystem = null,
-        BinaryInstaller $binaryInstaller = null
-    ) {
-        parent::__construct($io, $composer, $type, $filesystem,
-            $binaryInstaller);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         $this->removeDisabledInstallers();
     }
 
@@ -213,16 +147,12 @@ class Installer extends LibraryInstaller
         $class = 'Composer\\Installers\\' . $this->supportedTypes[$frameworkType];
         $installer = new $class($package, $this->composer, $this->getIO());
 
-<<<<<<< HEAD
         $path = $installer->getInstallPath($package, $frameworkType);
         if (!$this->filesystem->isAbsolutePath($path)) {
             $path = getcwd() . '/' . $path;
         }
 
         return $path;
-=======
-        return $installer->getInstallPath($package, $frameworkType);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     }
 
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
@@ -265,16 +195,9 @@ class Installer extends LibraryInstaller
     /**
      * Finds a supported framework type if it exists and returns it
      *
-<<<<<<< HEAD
      * @return string|false
      */
     protected function findFrameworkType(string $type)
-=======
-     * @param  string       $type
-     * @return string|false
-     */
-    protected function findFrameworkType($type)
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     {
         krsort($this->supportedTypes);
 
@@ -290,7 +213,6 @@ class Installer extends LibraryInstaller
     /**
      * Get the second part of the regular expression to check for support of a
      * package type
-<<<<<<< HEAD
      */
     protected function getLocationPattern(string $frameworkType): string
     {
@@ -309,32 +231,6 @@ class Installer extends LibraryInstaller
     }
 
     private function getIO(): IOInterface
-=======
-     *
-     * @param  string $frameworkType
-     * @return string
-     */
-    protected function getLocationPattern($frameworkType)
-    {
-        $pattern = false;
-        if (!empty($this->supportedTypes[$frameworkType])) {
-            $frameworkClass = 'Composer\\Installers\\' . $this->supportedTypes[$frameworkType];
-            /** @var BaseInstaller $framework */
-            $framework = new $frameworkClass(null, $this->composer, $this->getIO());
-            $locations = array_keys($framework->getLocations());
-            $pattern = $locations ? '(' . implode('|', $locations) . ')' : false;
-        }
-
-        return $pattern ? : '(\w+)';
-    }
-
-    /**
-     * Get I/O object
-     *
-     * @return IOInterface
-     */
-    private function getIO()
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     {
         return $this->io;
     }
@@ -347,15 +243,8 @@ class Installer extends LibraryInstaller
      *  - true, "all", and "*" - disable all installers.
      *  - false - enable all installers (useful with
      *     wikimedia/composer-merge-plugin or similar)
-<<<<<<< HEAD
      */
     protected function removeDisabledInstallers(): void
-=======
-     *
-     * @return void
-     */
-    protected function removeDisabledInstallers()
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     {
         $extra = $this->composer->getPackage()->getExtra();
 
@@ -378,7 +267,6 @@ class Installer extends LibraryInstaller
         if (!empty($intersect)) {
             // Disable all installers
             $this->supportedTypes = array();
-<<<<<<< HEAD
             return;
         }
 
@@ -386,14 +274,6 @@ class Installer extends LibraryInstaller
         foreach ($disable as $key => $installer) {
             if (is_string($installer) && key_exists($installer, $this->supportedTypes)) {
                 unset($this->supportedTypes[$installer]);
-=======
-        } else {
-            // Disable specified installers
-            foreach ($disable as $key => $installer) {
-                if (is_string($installer) && key_exists($installer, $this->supportedTypes)) {
-                    unset($this->supportedTypes[$installer]);
-                }
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             }
         }
     }

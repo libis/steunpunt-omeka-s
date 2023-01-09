@@ -48,11 +48,7 @@ main-site
 /s/main-site/page/about
 /s/other-site/item/3
 asset/1
-<<<<<<< HEAD
 https://example.org = assetId = Title = Caption = Body
-=======
-https://example.org Example title
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 ',
                 ],
             ])

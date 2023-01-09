@@ -1,10 +1,6 @@
 /*
  * Copyright BibLibre, 2016
-<<<<<<< HEAD
  * Copyright Daniel Berthereau, 2017-2022
-=======
- * Copyright Daniel Berthereau, 2017-2021
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -34,12 +30,8 @@ var Search = (function() {
     var self = {};
 
     self.setViewType = function(viewType) {
-<<<<<<< HEAD
         // In some themes, the mode for resource list is set with a different class.
         var resourceLists = document.querySelectorAll('.search-results .resource-list, .search-results .resources-list-content');
-=======
-        var resourceLists = document.querySelectorAll('.search-results .resource-list');
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         for (var i = 0; i < resourceLists.length; i++) {
             var resourceItem = resourceLists[i];
             resourceItem.className = resourceItem.className.replace(' grid', '').replace(' list', '')
@@ -141,7 +133,6 @@ $(document).ready(function() {
         // $('#search-form [name=q]').focus();
     });
 
-<<<<<<< HEAD
     /* Results tools (sort, pagination, per-page) */
 
     $('.as-url select, select.as-url').on('change', function(e) {
@@ -154,10 +145,6 @@ $(document).ready(function() {
     /* Per-page selector links (depending if server or client build) */
     /* @deprecated Kept for old themes: use ".as-url" instead */
     $('.search-results-per-page:not(.as-url) select').on('change', function(e) {
-=======
-    /* Per-page selector links (depending if server or client build) */
-    $('.search-results-per-page select').on('change', function(e) {
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         // Per-page fields don't look like a url.
         e.preventDefault();
         var perPage = $(this).val();
@@ -174,12 +161,8 @@ $(document).ready(function() {
     });
 
     /* Sort selector links (depending if server or client build) */
-<<<<<<< HEAD
     /* @deprecated Kept for old themes: use ".as-url" instead. */
     $('.search-sort:not(.as-url) select').on('change', function(e) {
-=======
-    $('.search-sort select').on('change', function(e) {
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         // Sort fields don't look like a url.
         e.preventDefault();
         var sort = $(this).val();
@@ -194,11 +177,8 @@ $(document).ready(function() {
         }
     });
 
-<<<<<<< HEAD
     /* Facets. */
 
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     $('.search-facets-active a').on('click', function(e) {
         // Reload with the link when there is no button to apply facets.
         if (!$('.apply-facets').length) {
@@ -228,17 +208,12 @@ $(document).ready(function() {
     });
 
     $('.search-facets').on('change', 'input[type=checkbox]', function() {
-<<<<<<< HEAD
         if (!$('.apply-facets').length && $(this).data('url')) {
-=======
-        if (!$('.apply-facets').length) {
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             window.location = $(this).data('url');
         }
     });
 
     $('.search-facets').on('change', 'select', function() {
-<<<<<<< HEAD
         if (!$('#apply-facets').length) {
             // Replace the current select args by new ones.
             // Names in facets may have no index in array ("[]") when it is a multiple one.
@@ -264,15 +239,6 @@ $(document).ready(function() {
             let selectName = $(this).prop('name');
             url.searchParams.delete(selectName);
             selectValues.forEach((element, index) => {
-=======
-        if (!$('.apply-facets').length) {
-            // Replace the current select args by new ones.
-            // Names in facets have no index in array ("[]").
-            let url = new URL(window.location.href);
-            let selectName = $(this).prop('name');
-            url.searchParams.delete(selectName);
-            $(this).val().forEach((element, index) => {
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 url.searchParams.set(selectName.substring(0, selectName.length - 2) + '[' + index + ']', element);
             });
             window.location = url.toString();
@@ -331,11 +297,7 @@ $(document).ready(function() {
     function disableQueryTextInput(queryType) {
         var queryText = queryType.siblings('.query-text');
         queryText.prop('disabled',
-<<<<<<< HEAD
             ['ex', 'nex', 'exs', 'nexs', 'exm', 'nexm', 'lex', 'nlex', 'tpl', 'ntpl', 'tpr', 'ntpr', 'tpu', 'ntpu'].includes(queryType.val()));
-=======
-            ['ex', 'nex', 'lex', 'nlex'].indexOf(queryType.val()) !== -1);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     };
     $(document).on('change', '.query-type', function () {
          disableQueryTextInput($(this));
@@ -345,7 +307,6 @@ $(document).ready(function() {
          disableQueryTextInput($(this));
     });
 
-<<<<<<< HEAD
     /**
      * Avoid to select "All properties" in the advanced search form by default.
      * It should be done on load for empty request and on append for new fields.
@@ -368,6 +329,4 @@ $(document).ready(function() {
         selectProperty.trigger('chosen:updated');
     });
 
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 });

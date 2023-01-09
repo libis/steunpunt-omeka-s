@@ -2,13 +2,9 @@
 
 namespace AdvancedSearch\View\Helper;
 
-<<<<<<< HEAD
 use AdvancedSearch\Adapter\AdapterInterface;
 use AdvancedSearch\Api\Representation\SearchConfigRepresentation;
 use AdvancedSearch\Api\Representation\SearchEngineRepresentation;
-=======
-use AdvancedSearch\Api\Representation\SearchConfigRepresentation;
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 use Laminas\Form\Form;
 use Laminas\View\Helper\AbstractHelper;
 
@@ -45,11 +41,7 @@ class SearchForm extends AbstractHelper
      * @param bool $skipFormAction Don't set form action, so use the current page.
      * @return \AdvancedSearch\View\Helper\SearchForm
      */
-<<<<<<< HEAD
     public function __invoke(?SearchConfigRepresentation $searchConfig = null, $partial = null, $skipFormAction = false): self
-=======
-    public function __invoke(SearchConfigRepresentation $searchConfig = null, $partial = null, $skipFormAction = false): self
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     {
         $this->initSearchForm($searchConfig, $partial, $skipFormAction);
         return $this;
@@ -62,11 +54,7 @@ class SearchForm extends AbstractHelper
      * @param string $partial Specific partial for the search form.
      * @param bool $skipFormAction Don't set form action, so use the current page.
      */
-<<<<<<< HEAD
     protected function initSearchForm(?SearchConfigRepresentation $searchConfig = null, $partial = null, $skipFormAction = false): void
-=======
-    protected function initSearchForm(SearchConfigRepresentation $searchConfig = null, $partial = null, $skipFormAction = false): void
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     {
         $plugins = $this->getView()->getHelperPluginManager();
         $isAdmin = $plugins->get('status')->isAdminRequest();
@@ -115,13 +103,7 @@ class SearchForm extends AbstractHelper
     }
 
     /**
-<<<<<<< HEAD
      * Get the specified search config.
-=======
-     * Get the specified search config or the default one.
-     *
-     * @return \AdvancedSearch\Api\Representation\SearchConfigRepresentation|null
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      */
     public function getSearchConfig(): ?SearchConfigRepresentation
     {
@@ -129,7 +111,6 @@ class SearchForm extends AbstractHelper
     }
 
     /**
-<<<<<<< HEAD
      * Get the specified search engine.
      */
     public function getSearchEngine(): ?SearchEngineRepresentation
@@ -147,8 +128,6 @@ class SearchForm extends AbstractHelper
     }
 
     /**
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      * Get the form of the search config.
      *
      * @return \Laminas\Form\Form|null

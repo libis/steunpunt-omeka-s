@@ -76,17 +76,10 @@ class SearchRequestToResponse extends AbstractPlugin
 
         $searchFormSettings = $searchConfigSettings['form'] ?? [];
 
-<<<<<<< HEAD
         $this->searchEngine = $searchConfig->engine();
         $searchAdapter = $this->searchEngine ? $this->searchEngine->adapter() : null;
         if ($searchAdapter) {
             $availableFields = $searchAdapter->setSearchEngine($this->searchEngine)->getAvailableFields();
-=======
-        $searchEngine = $searchConfig->engine();
-        $searchAdapter = $searchEngine ? $searchEngine->adapter() : null;
-        if ($searchAdapter) {
-            $availableFields = $searchAdapter->setSearchEngine($searchEngine)->getAvailableFields();
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             // Include the specific fields to simplify querying with main form.
             $searchFormSettings['available_fields'] = $availableFields;
             $specialFieldsToInputFields = [
@@ -133,7 +126,6 @@ class SearchRequestToResponse extends AbstractPlugin
         /** @var \AdvancedSearch\Query $query */
         $query = $formAdapter->toQuery($request, $searchFormSettings);
 
-<<<<<<< HEAD
         // Append hidden query if any (filter, date range filter, filter query).
         $hiddenFilters = $searchConfigSettings['search']['hidden_query_filters'] ?? [];
         if ($hiddenFilters) {
@@ -144,11 +136,6 @@ class SearchRequestToResponse extends AbstractPlugin
 
         // Add global parameters.
 
-=======
-        // Add global parameters.
-
-        $this->searchEngine = $searchConfig->engine();
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         $engineSettings = $this->searchEngine->settings();
 
         $user = $plugins->get('identity')();
@@ -197,7 +184,6 @@ class SearchRequestToResponse extends AbstractPlugin
 
         $hasFacets = !empty($searchConfigSettings['facet']['facets']);
         if ($hasFacets) {
-<<<<<<< HEAD
             // Set the settings for facets.
             // TODO Store facets with the right keys in config form and all keys directly to avoid to rebuild it each time.
             // TODO Set all the settings of the form one time (move process into Query, and other keys).
@@ -220,20 +206,6 @@ class SearchRequestToResponse extends AbstractPlugin
                 $facets[$facetField] = $facet;
             }
             $query->setFacets($facets);
-=======
-            // Set the settings.
-            // TODO Set all the settings of the form one time (move process into Query, and other keys).
-            $query->addFacetFields(array_keys($searchConfigSettings['facet']['facets']));
-            if (!empty($searchConfigSettings['facet']['limit'])) {
-                $query->setFacetLimit((int) $searchConfigSettings['facet']['limit']);
-            }
-            if (!empty($searchConfigSettings['facet']['order'])) {
-                $query->setFacetOrder($searchConfigSettings['facet']['order']);
-            }
-            if (!empty($searchConfigSettings['facet']['languages'])) {
-                $query->setFacetLanguages($searchConfigSettings['facet']['languages']);
-            }
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         }
 
         $eventManager = $services->get('Application')->getEventManager();

@@ -2,11 +2,7 @@
 
 namespace BlockPlus\Form;
 
-<<<<<<< HEAD
 use BlockPlus\Form\Element as BlockPlusElement;
-=======
-use BlockPlus\Form\Element\OptionalRadio;
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
 
@@ -19,11 +15,7 @@ class DivisionFieldset extends Fieldset
         $this
             ->add([
                 'name' => 'o:block[__blockIndex__][o:data][type]',
-<<<<<<< HEAD
                 'type' => BlockPlusElement\OptionalRadio::class,
-=======
-                'type' => OptionalRadio::class,
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 'options' => [
                     'label' => 'Type', // @translate
                     'value_options' => [
@@ -40,11 +32,7 @@ class DivisionFieldset extends Fieldset
             ])
             ->add([
                 'name' => 'o:block[__blockIndex__][o:data][tag]',
-<<<<<<< HEAD
                 'type' => BlockPlusElement\OptionalRadio::class,
-=======
-                'type' => OptionalRadio::class,
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 'options' => [
                     'label' => 'Tag', // @translate
                     'value_options' => [

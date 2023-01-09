@@ -456,7 +456,6 @@ class InstallResources
             $members = array_intersect(
                 array_intersect_key($vocabularyData['replace'][$name], $membersByLocalName[$name]),
                 array_flip($membersByLocalName[$name])
-<<<<<<< HEAD
             );
             if (empty($members)) {
                 continue;
@@ -510,61 +509,6 @@ SQL;
             $message = new Message('The following "%1$s" of the vocabulary "%2$s" were replaced: %3$s', // @translate
                 $name, $vocabularyData['vocabulary']['o:label'], json_encode($members, 448)
             );
-=======
-            );
-            if (empty($members)) {
-                continue;
-            }
-            foreach ($members as $oldLocalName => $newLocalName) {
-                if ($oldLocalName === $newLocalName
-                    || empty($membersByLocalName[$name][$oldLocalName])
-                    || empty($membersByLocalName[$name][$newLocalName])
-                ) {
-                    continue;
-                }
-                $oldMemberId = $membersByLocalName[$name][$oldLocalName];
-                $newMemberId = $membersByLocalName[$name][$newLocalName];
-                // Update all places that uses the old name with new name, then
-                // remove the old member.
-                if ($name === 'resource_classes') {
-                    $sqls = <<<SQL
-UPDATE `resource`
-SET `resource_class_id` = $newMemberId
-WHERE `resource_class_id` = $oldMemberId;
-
-UPDATE `resource_template`
-SET `resource_class_id` = $newMemberId
-WHERE `resource_class_id` = $oldMemberId;
-
-DELETE FROM `resource_class`
-WHERE `id` = $oldMemberId;
-
-SQL;
-                } else {
-                    $sqls = <<<SQL
-UPDATE `value`
-SET `property_id` = $newMemberId
-WHERE `property_id` = $oldMemberId;
-
-UPDATE `resource_template_property`
-SET `property_id` = $newMemberId
-WHERE `property_id` = $oldMemberId;
-
-DELETE FROM `property`
-WHERE `id` = $oldMemberId;
-
-SQL;
-                }
-                foreach (array_filter(explode(";\n", $sqls)) as $sql) {
-                    $connection->executeQuery($sql);
-                }
-            }
-            $hasReplace = true;
-            // TODO Ideally, anywhere this option is used in the setting should be updated too.
-            $message = new Message('The following "%1$s" of the vocabulary "%2$s" were replaced: %3$s', // @translate
-                $name, $vocabularyData['vocabulary']['o:label'], json_encode($members, 448)
-            );
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             $messenger->addWarning($message);
         }
         if ($hasReplace) {
@@ -593,14 +537,9 @@ SQL;
 
         // Check if the resource template exists, so it is not replaced.
         $label = $data['o:label'] ?? '';
-<<<<<<< HEAD
 
         $resourceTemplate = $this->api->searchOne('resource_templates', ['label' => $label])->getContent();
         if ($resourceTemplate) {
-=======
-        try {
-            $resourceTemplate = $this->api->searchOne('resource_templates', ['label' => $label])->getContent();
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             $message = new Message(
                 'The resource template named "%s" is already available and is skipped.', // @translate
                 $label

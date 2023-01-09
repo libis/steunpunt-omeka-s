@@ -22,11 +22,7 @@
     "require": {
         "php": ">=7.1",
         "composer-plugin-api": "^1.1 || ^2.0",
-<<<<<<< HEAD
         "composer/installers": "^1.0 || ^2.0"
-=======
-        "composer/installers": "^1.0"
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     },
     "require-dev": {
         "composer/composer": "^2.0",

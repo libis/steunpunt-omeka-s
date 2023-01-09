@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 <?php declare(strict_types=1);
-=======
-<?php
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 namespace AdvancedSearch\Form\View\Helper;
 

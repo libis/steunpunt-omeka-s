@@ -2,7 +2,6 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \AdvancedSearch\Query $query
-<<<<<<< HEAD
  * @var \Laminas\Form\Element\Select $select
  * @var array $options
  * @var bool $asUrl
@@ -14,17 +13,4 @@ if (count($options) <= 1) return;
 <div class="search-sort<?= $asUrl ? ' as-url' : '' ?>">
     <?= $this->formLabel($select) ?>
     <?= $this->formSelect($select) ?>
-=======
- * @var array $sortOptions
- * @var ?\Laminas\Form\Element\Select $sortSelect
- * @var bool $asSortUrls
- */
-
-if (empty($sortSelect)) return;
-?>
-
-<div class="search-sort<?= $asSortUrls ? ' search-sort-urls' : '' ?>">
-    <?= $this->formLabel($sortSelect) ?>
-    <?= $this->formSelect($sortSelect) ?>
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 </div>

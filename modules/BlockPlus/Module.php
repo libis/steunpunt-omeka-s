@@ -40,14 +40,11 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
-<<<<<<< HEAD
         $sharedEventManager->attach(
             'Omeka\Controller\SiteAdmin\Page',
             'view.edit.before',
             [$this, 'handleSitePageEditBefore']
         );
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         $sharedEventManager->attach(
             \Omeka\Stdlib\HtmlPurifier::class,
             'htmlpurifier_config',
@@ -72,7 +69,6 @@ class Module extends AbstractModule
         $view->headLink()
             ->appendStylesheet($assetUrl('css/block-plus-admin.css', 'BlockPlus'));
     }
-<<<<<<< HEAD
 
     public function handleHtmlPurifier(Event $event): void
     {
@@ -115,6 +111,4 @@ class Module extends AbstractModule
 
         $event->setParam('config', $config);
     }
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 }

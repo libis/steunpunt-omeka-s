@@ -150,7 +150,6 @@ class GetIdentifiersFromResourcesOfType extends AbstractHelper
         $tempTable = count($resources) > self::CHUNK_RECORDS;
         if ($tempTable) {
             $query = 'DROP TABLE IF EXISTS `temp_resources`;';
-<<<<<<< HEAD
             $this->connection->executeStatement($query);
             // TODO Check if the id may be unique.
             // $query = 'CREATE TEMPORARY TABLE `temp_resources` (`id` INT UNSIGNED NOT NULL, PRIMARY KEY(`id`));';
@@ -159,16 +158,6 @@ class GetIdentifiersFromResourcesOfType extends AbstractHelper
             foreach (array_chunk($resources, self::CHUNK_RECORDS) as $chunk) {
                 $query = 'INSERT INTO `temp_resources` VALUES(' . implode('),(', $chunk) . ');';
                 $this->connection->executeStatement($query);
-=======
-            $stmt = $this->connection->executeQuery($query);
-            // TODO Check if the id may be unique.
-            // $query = 'CREATE TEMPORARY TABLE `temp_resources` (`id` INT UNSIGNED NOT NULL, PRIMARY KEY(`id`));';
-            $query = 'CREATE TEMPORARY TABLE `temp_resources` (`id` INT UNSIGNED NOT NULL);';
-            $stmt = $this->connection->executeQuery($query);
-            foreach (array_chunk($resources, self::CHUNK_RECORDS) as $chunk) {
-                $query = 'INSERT INTO `temp_resources` VALUES(' . implode('),(', $chunk) . ');';
-                $stmt = $this->connection->executeQuery($query);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             }
             $qb
                 // No where condition.

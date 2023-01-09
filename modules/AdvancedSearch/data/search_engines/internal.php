@@ -291,11 +291,7 @@ return [
                     ],
                 ],
             ],
-<<<<<<< HEAD
         ],
-=======
-        ]
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     ],
     'o:created' => null,
     'o:modified' => null,

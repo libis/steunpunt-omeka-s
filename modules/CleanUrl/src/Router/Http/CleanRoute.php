@@ -151,15 +151,9 @@ class CleanRoute implements RouteInterface
             $regex = $data['regex'];
 
             if (is_null($pathOffset)) {
-<<<<<<< HEAD
                 $result = preg_match('(^' . $regex . '$)', $path, $matches);
             } else {
                 $result = preg_match('(\G' . $regex . '$)', $path, $matches, 0, $pathOffset);
-=======
-                $result = preg_match('(^' . $regex . ')', $path, $matches);
-            } else {
-                $result = preg_match('(\G' . $regex . ')', $path, $matches, 0, $pathOffset);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             }
 
             if (!$result) {
@@ -178,7 +172,7 @@ class CleanRoute implements RouteInterface
             // Check if the resource identifier is a reserved word.
             // They are managed here currently for simplicity.
             $reserved = '|' . SLUGS_CORE . SLUGS_RESERVED . '|';
-            foreach ($params as $key => $value) {               
+            foreach ($params as $key => $value) {
                 if (mb_stripos($reserved, '|' . $value . '|') !== false) {
                     continue 2;
                 }

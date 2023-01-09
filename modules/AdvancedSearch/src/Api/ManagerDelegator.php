@@ -22,26 +22,15 @@ class ManagerDelegator extends \Omeka\Api\Manager
 
     /**
      * Override core api search:
-<<<<<<< HEAD
      * - Allows to override a search when initialize is false.
      * - Execute a search API request with an option to do a quick search.
-=======
-     * - Allows to override a search by property when initialize is false.
-     * - Execute a search API request with an option to do a quick search.
-     * - Fix "is_public" (Omeka < 3.1).
-     * @link https://github.com/omeka/omeka-s/pull/1671 Included in Omeka 3.1.
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      *
      * The quick search is enabled when the argument "index" is true in the
      * options or in the data. It would be better to use the argument "options",
      * but it is not available in the admin user interface, for example in block
      * layouts, neither in the view helper api().
      * @todo Remove "index" from the display if any.
-<<<<<<< HEAD
      * @todo Use a real delegator (with the delegate) to simplify override for property.
-=======
-     * @todo Use a true delegator (with the delegate) to simplify override for property.
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      *
      * {@inheritDoc}
      * @see \Omeka\Api\Manager::search()
@@ -52,18 +41,7 @@ class ManagerDelegator extends \Omeka\Api\Manager
         /** @var \AdvancedSearch\Mvc\Controller\Plugin\ApiSearch $apiSearch */
         static $apiSearch;
 
-<<<<<<< HEAD
         /** @see \AdvancedSearch\Module::onApiSearchPre() */
-=======
-        // Fix https://github.com/omeka/omeka-s/pull/1671 (Omeka < 3.1).
-        if (isset($data['is_public'])
-            && $data['is_public'] === ''
-            && version_compare(\Omeka\Module::VERSION, '3.1', '<')
-        ) {
-            $data['is_public'] = null;
-        }
-
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         if (empty($options['index']) && empty($data['index'])) {
             // Use the standard process when possible.
             if (array_key_exists('initialize', $options)
@@ -75,7 +53,6 @@ class ManagerDelegator extends \Omeka\Api\Manager
                     'annotations',
                     'generations',
                 ])
-<<<<<<< HEAD
             ) {
                 $query = &$data;
 
@@ -150,12 +127,6 @@ class ManagerDelegator extends \Omeka\Api\Manager
                 if ($override) {
                     $options['override'] = $override;
                 }
-=======
-                && !empty($data['property'])
-            ) {
-                $options['override'] = ['property' => $data['property']];
-                unset($data['property']);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             }
             return parent::search($resource, $data, $options);
         }

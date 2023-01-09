@@ -71,18 +71,6 @@ class GetResourcesFromIdentifiers extends AbstractHelper
 
         $qb = $this->connection->createQueryBuilder();
         $expr = $qb->expr();
-<<<<<<< HEAD
-=======
-        $qb
-            ->select([
-                // MIN is a way to fix mysql "only_full_group_by" issue without "ANY_VALUE".
-                $isCaseSensitive
-                    ? 'MIN(value.value) AS "identifier"'
-                    : 'LOWER(MIN(value.value)) AS "identifier"',
-                'MIN(value.resource_id) AS "id"',
-            ]);
-
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         $qb
             ->select(
                 // MIN is a way to fix mysql "only_full_group_by" issue without "ANY_VALUE".
@@ -93,15 +81,9 @@ class GetResourcesFromIdentifiers extends AbstractHelper
             )
             ->from('value', 'value')
             ->leftJoin('value', 'resource', 'resource', 'value.resource_id = resource.id')
-<<<<<<< HEAD
             // "identifier" with double quotes were not accepted in old versions.
             ->addGroupBy('"identifier"' . $collation)
             ->addOrderBy('"id"', 'ASC')
-=======
-            ->addGroupBy('"identifier"' . $collation)
-            ->addOrderBy('"id"', 'ASC')
-            ->addOrderBy('value.id', 'ASC')
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             // An identifier is always literal: it identifies a resource inside
             // the base. It can't be an external uri or a linked resource.
             ->where('value.type = "literal"')
@@ -206,17 +188,7 @@ class GetResourcesFromIdentifiers extends AbstractHelper
                 ->andWhere($expr->in('value.value' . $collation, $placeholders));
         }
 
-<<<<<<< HEAD
         $result = $this->connection->executeQuery($qb, $parameters)->fetchAllKeyValue();
-=======
-        $stmt = $this->connection->executeQuery($qb, $parameters);
-        //$result = $stmt->fetchAllAssociative();
-        $result = [];
-        foreach ($stmt->fetchAllAssociative() as $val) {
-            $result[$val["identifier"]] = $val["id"];
-        }
-
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
         // Get representations and check numeric identifiers as resource id.
         // It allows to check rights too (currently, Connection is used, not EntityManager).

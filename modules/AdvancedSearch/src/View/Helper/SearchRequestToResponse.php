@@ -1,8 +1,5 @@
 <?php declare(strict_types=1);
-<<<<<<< HEAD
 
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 namespace AdvancedSearch\View\Helper;
 
 use AdvancedSearch\Api\Representation\SearchConfigRepresentation;
@@ -39,13 +36,7 @@ class SearchRequestToResponse extends AbstractHelper
         array $request,
         SearchConfigRepresentation $searchConfig,
         SiteRepresentation $site = null
-<<<<<<< HEAD
     ): array {
         return $this->searchRequestToResponse->__invoke($request, $searchConfig, $site);
-=======
-    ) {
-        $searchPlugin = $this->searchRequestToResponse;
-        return $searchPlugin($request, $searchConfig, $site);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     }
 }

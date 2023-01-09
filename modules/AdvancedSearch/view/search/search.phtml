@@ -1,11 +1,7 @@
 <?php
 /*
  * Copyright BibLibre, 2016
-<<<<<<< HEAD
  * Copyright Daniel Berthereau, 2017-2022
-=======
- * Copyright Daniel Berthereau, 2017-2021
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -34,7 +30,6 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
-<<<<<<< HEAD
  * @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation $searchConfig
  * @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation $searchPage
  * @var \AdvancedSearch\Query $query
@@ -45,24 +40,6 @@
  * @var bool $skipFormAction Remove action of the form, so it uses current page.
  */
 
-=======
- * @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation $searchPage
- * @var \AdvancedSearch\Query $query
- * @var \AdvancedSearch\Response $response
- * For block layout:
- * @var string $heading Unused in current template.
- * @var bool $skipFormAction Remove action of the form, so it uses current page.
- */
-
-// Compatibility with old theme for module Search.
-
-if ($this->resolver('search/index/search.phtml')) {
-    $this->logger()->warn('The file "search/index/search.phtml" of your current theme should be moved to "search/search.phtml".');
-    echo $this->partial('search/index/search.phtml', $this->vars());
-    return;
-}
-
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 $plugins = $this->getHelperPluginManager();
 $api = $plugins->get('api');
 $partial = $plugins->get('partial');
@@ -75,7 +52,6 @@ $vars = $this->vars();
 // Used in case of a redirect of item-set/show to search, when used like item/browse.
 $itemSetId = $this->params()->fromRoute('item-set-id');
 // TODO Use site item set ?
-<<<<<<< HEAD
 /** @var \Omeka\Api\Representation\ItemSetRepresentation $itemSet */
 $itemSet = $itemSetId ? $api->searchOne('item_sets', ['id' => $itemSetId])->getContent() : null;
 
@@ -89,12 +65,6 @@ if ($documentCount):
     $displayPartsHeader = array_filter($displayParts, function ($v) { return in_array($v, ['header', 'both']); });
     $displayPartsFooter = array_filter($displayParts, function ($v) { return in_array($v, ['footer', 'both']); });
 endif;
-=======
-$itemSet = $itemSetId ? $api->searchOne('item_sets', ['id' => $itemSetId])->getContent() : null;
-
-$isPartial = !$site;
-$skipFormAction = !empty($skipFormAction);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 $this->headLink()->appendStylesheet($assetUrl('css/search.css', 'AdvancedSearch'));
 $this->headScript()->appendFile($assetUrl('js/search.js', 'AdvancedSearch'), 'text/javascript', ['defer' => 'defer']);
@@ -129,36 +99,17 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'AdvancedSearch'), 'te
 
 <?= $this->searchForm($searchPage, null, $skipFormAction) ?>
 
-<<<<<<< HEAD
 <?php if (isset($response)): ?>
 
 <div class="search-results-wrapper">
     <div class="search-results">
 
         <?php if ($documentCount): ?>
-=======
-<?php if (isset($response)):
-$documentCount = $response->getTotalResults();
-?>
-<div class="search-results-wrapper">
-    <div class="search-results">
-
-        <?php if ($documentCount):
-            $itemSetsCount = $response->getResourceTotalResults('item_sets');
-            $itemsCount = $response->getResourceTotalResults('items');
-            $displayParts = $searchPage->setting('display', []);
-            $displayPartsHeader = array_filter($displayParts, function ($v) { return in_array($v, ['header', 'both']); });
-            $displayPartsFooter = array_filter($displayParts, function ($v) { return in_array($v, ['footer', 'both']); });
-            ?>
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
         <?php if ($displayPartsHeader): ?>
         <div class="search-results-part search-results-header">
             <?= $partial('search/results-header-footer', [
-<<<<<<< HEAD
                 'site' => $site,
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 'searchPage' => $searchPage,
                 'query' => $query,
                 'response' => $response,
@@ -196,10 +147,7 @@ $documentCount = $response->getTotalResults();
         <?php if ($displayPartsFooter): ?>
         <div class="search-results-part search-results-footer">
             <?= $partial('search/results-header-footer', [
-<<<<<<< HEAD
                 'site' => $site,
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 'searchPage' => $searchPage,
                 'query' => $query,
                 'response' => $response,
@@ -232,10 +180,7 @@ $documentCount = $response->getTotalResults();
     </div>
 
     <?= $partial('search/facets', [
-<<<<<<< HEAD
         'site' => $site,
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'searchPage' => $searchPage,
         'query' => $query,
         'response' => $response,

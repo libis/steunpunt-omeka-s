@@ -131,11 +131,7 @@ SQL;
         ->orderBy('search_config.id', 'asc');
     $searchConfigsSettings = $connection->executeQuery($qb)->fetchAllKeyValue();
     foreach ($searchConfigsSettings as $id => $searchConfigSettings) {
-<<<<<<< HEAD
         $searchConfigSettings = json_decode($searchConfigSettings, true) ?: [];
-=======
-        $searchConfigSettings = json_decode($searchConfigSettings,  true) ?: [];
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         foreach ($searchConfigSettings['form']['filters'] ?? [] as $key => $filter) {
             if (in_array($filter['field'], [
                 'site_id',
@@ -174,11 +170,7 @@ SQL;
         ->orderBy('id', 'asc');
     $searchEnginesSettings = $connection->executeQuery($qb)->fetchAllKeyValue();
     foreach ($searchEnginesSettings as $id => $searchEngineSettings) {
-<<<<<<< HEAD
         $searchEngineSettings = json_decode($searchEngineSettings, true) ?: [];
-=======
-        $searchEngineSettings = json_decode($searchEngineSettings,  true) ?: [];
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         $searchEngineSettings['adapter'] = array_replace(
             $defaultAdapterSettings,
             $searchEngineSettings['adapter'] ?? []
@@ -245,7 +237,6 @@ if (version_compare($oldVersion, '3.3.6.9', '<')) {
     );
     $messenger->addWarning($message);
 }
-<<<<<<< HEAD
 
 if (version_compare($oldVersion, '3.3.6.12', '<')) {
     $messenger = new Messenger();
@@ -286,5 +277,3 @@ if (version_compare($oldVersion, '3.3.6.16', '<')) {
     );
     $messenger->addWarning($message);
 }
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28

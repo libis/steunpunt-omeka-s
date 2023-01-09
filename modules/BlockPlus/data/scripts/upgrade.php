@@ -32,11 +32,7 @@ SET
     data = REPLACE(data, '"partial":"common\\/block-layout\\/media-text', '"partial":"common\\/block-layout\\/resource-text')
 WHERE layout = "mediaText";
 SQL;
-<<<<<<< HEAD
     $connection->executeStatement($sql);
-=======
-    $connection->executeQuery($sql);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 }
 
 if (version_compare($oldVersion, '3.0.5', '<')) {
@@ -47,11 +43,7 @@ SET
 WHERE
     layout IN ('block', 'browsePreview', 'column', 'itemShowCase', 'itemWithMetadata', 'listOfSites', 'pageTitle', 'searchForm', 'separator', 'tableOfContents', 'assets', 'embedText', 'html', 'resourceText', 'simplePage');
 SQL;
-<<<<<<< HEAD
     $connection->executeStatement($sql);
-=======
-    $connection->executeQuery($sql);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 }
 
 if (version_compare($oldVersion, '3.3.11.3', '<')) {
@@ -60,31 +52,19 @@ UPDATE site_page_block
 SET layout = "mirrorPage"
 WHERE layout = "simplePage";
 SQL;
-<<<<<<< HEAD
     $connection->executeStatement($sql);
-=======
-    $connection->executeQuery($sql);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     $sql = <<<'SQL'
 UPDATE site_page_block
 SET layout = "externalContent"
 WHERE layout = "embedText";
 SQL;
-<<<<<<< HEAD
     $connection->executeStatement($sql);
-=======
-    $connection->executeQuery($sql);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     $sql = <<<'SQL'
 UPDATE site_page_block
 SET data = REPLACE(data, "/embed-text", "/external-content")
 WHERE layout = "externalContent";
 SQL;
-<<<<<<< HEAD
     $connection->executeStatement($sql);
-=======
-    $connection->executeQuery($sql);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 }
 
 if (version_compare($oldVersion, '3.3.11.4', '<')) {
@@ -93,11 +73,7 @@ UPDATE site_page_block
 SET layout = "division"
 WHERE layout = "column";
 SQL;
-<<<<<<< HEAD
     $connection->executeStatement($sql);
-=======
-    $connection->executeQuery($sql);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 }
 
 if (version_compare($oldVersion, '3.3.11.7', '<')) {
@@ -116,11 +92,7 @@ SET
 WHERE
     layout = "twitter";
 SQL;
-<<<<<<< HEAD
     $connection->executeStatement($sql);
-=======
-    $connection->executeQuery($sql);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 }
 
 if (version_compare($oldVersion, '3.3.11.8', '<')) {
@@ -176,11 +148,7 @@ ON DUPLICATE KEY UPDATE
    comment = "{$property['comment']}"
 ;
 SQL;
-<<<<<<< HEAD
             $connection->executeStatement($sql);
-=======
-            $connection->executeQuery($sql);
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         }
     }
 }
@@ -256,7 +224,6 @@ SQL;
     );
     $messenger->addSuccess($message);
 }
-<<<<<<< HEAD
 
 if (version_compare($oldVersion, '3.3.14.0', '<')) {
     $messenger = new Messenger();
@@ -277,5 +244,3 @@ if (version_compare($oldVersion, '3.3.14.1', '<')) {
 if (version_compare($oldVersion, '3.3.14.2', '<')) {
     require_once __DIR__ . '/upgrade_vocabulary.php';
 }
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28

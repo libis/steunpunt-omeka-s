@@ -1,7 +1,6 @@
 <?php
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
-<<<<<<< HEAD
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation $searchConfig
@@ -15,19 +14,6 @@
 
 $plugins = $this->getHelperPluginManager();
 $escape = $plugins->get('escapeHtml');
-=======
- * @var \Omeka\Api\Representation\SiteRepresentation $site
- * @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation $searchPage
- * @var bool $displayResults Skip form action?
- * @var \AdvancedSearch\Query $query
- * @var \AdvancedSearch\Response $response
- * @var string $heading
- */
-
-$plugins = $this->getHelperPluginManager();
-$escape = $this->plugin('escapeHtml');
-$vars = $this->vars();
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 ?>
 
 <?php if (empty($displayResults) || empty($searchPage)): ?>
@@ -49,12 +35,7 @@ $vars = $this->vars();
 </div>
 <?php endif; ?>
 
-<<<<<<< HEAD
 <?php $this->vars()->offsetUnset('displayResults'); ?>
-=======
-<?php $vars->offsetUnset('displayResults') ?>
-<?php $vars->offsetSet('skipFormAction', true) ?>
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 <?= $this->partial('search/search') ?>
 
 <?php endif; ?>

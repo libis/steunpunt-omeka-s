@@ -1,11 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
-<<<<<<< HEAD
  * Copyright Daniel Berthereau 2018-2022
-=======
- * Copyright Daniel Berthereau 2018-2021
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -107,13 +103,10 @@ class Advanced extends Fieldset
                 'new' => 'does not end with', // @translate
                 'ex' => 'has any value', // @translate
                 'nex' => 'has no values', // @translate
-<<<<<<< HEAD
                 'exs' => 'has a single value', // @translate
                 'nexs' => 'has not a single value', // @translate
                 'exm' => 'has multiple values', // @translate
                 'nexm' => 'has not multiple values', // @translate
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 'res' => 'is resource with ID', // @translate
                 'nres' => 'is not resource with ID', // @translate
                 'lex' => 'is a linked resource', // @translate
@@ -128,11 +121,8 @@ class Advanced extends Fieldset
                     $operators['nsw'],
                     $operators['new'],
                     $operators['nex'],
-<<<<<<< HEAD
                     $operators['nexs'],
                     $operators['nexm'],
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                     $operators['nres'],
                     $operators['nlex'],
                     $operators['nlres']

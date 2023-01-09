@@ -1,23 +1,96 @@
 <?php
   $escape = $this->plugin('escapeHtml');
   $url = '';
-  $site = $blockAll->page()->site();
-  $siteTitle = $blockAll->page()->site()->title();  
+  $siteTitle = $block->page()->site()->title();
+  if($attachments):
+    $media = $attachments[0]->media();
+
+    $url = '';
+    if($media):
+      $url = $media->thumbnailUrl('large');
+      $url = str_replace('http:', '', $url);
+    endif;
+  endif;
 ?>
-<div class="jumbotron2 kuleuven-banner">
-  <div class="card card-banner card-50-50-right">
-    <div class="card-img-right" style="background-image: url(https://services3.libis.be/herkul/files/asset/306da97125ad4ad9e195eafb5fec7c570dc5b9a6.jpg);">&nbsp;</div>
+<header>
+<?php if($url):?>
+<section class="hero is-primary is-bold" style="background:url(<?php echo $url;?>) no-repeat center center;background-size: cover;">
+<?php else:?>
+<section class="hero is-primary is-bold">
+<?php endif;?>
+  <div class="hero-overlay">
+    <div class="hero-head">
+      <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="container">
+        <div class="navbar-brand">
+          <!--<a class="navbar-item site-title" href="<?php echo $block->page()->site()->url(); ?>">
+            <?php echo $escape($siteTitle); ?>
+          </a>-->
+          <a class="navbar-item" href="https://kuleuven.be">
+            <?php if ($this->themeSetting('logo')): ?>
+                <img src="<?php echo $this->themeSettingAssetUrl('logo'); ?>" alt="<?php echo $escape($siteTitle); ?>" />
+            <?php else: ?>
+                <?php echo $escape($siteTitle); ?>
+            <?php endif; ?>
+          </a>
+          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+          </a>
+        </div>
+        <div class="navbar-menu">
+          <div class="navbar-start">
 
-    <div class="card-body">
-      <?php if($blockAll->dataValue('sec_title')):?>
-        <h2><span><?php echo $blockAll->dataValue('sec_title');?></span></h2>
-      <?php endif;?>
-      
-      <h1><?php echo $blockAll->dataValue('title');?></h1>
+          </div>
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <?php
+                echo $block->page()->site()->publicNav()->menu()->renderMenu(null, [
+                    'maxDepth' => $this->themeSetting('nav_depth') - 1
+                ]);
+              ?>
+            </div>
+            <div class="navbar-item">
+               <button class="button is-primary" id="showSearch">
+                  <span class="icon is-small">
+                    <i class="fas fa-search"></i>
+                  </span>
+                </button>
+            </div>
 
-      <p><?php echo $blockAll->dataValue('text');?></p>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-      <p><a class="btn btn-primary" href="<?php echo $blockAll->dataValue('link');?>"> <span><?php echo $blockAll->dataValue('link_text');?></span></a></p>
     </div>
-  </div>
-</div>
+    <div class="hero-body">
+      <div class="container">
+        <div class="columns">
+          <div class="column is-offset-1">
+            <?php if($block->dataValue('sec_title')):?>
+               <h2 class="subtitle is-size-6"><?php echo $block->dataValue('sec_title');?></h2>
+            <?php endif;?>
+            <h1 class="title is-family-secondary is-1"><?php echo $block->dataValue('title');?></h1>
+            <div class="hero-text is-size-6">
+              <div class="content">
+                <?php echo $block->dataValue('text');?>
+                <div class="link">
+                  <a class="button is-outline is-primary" href="<?php echo $block->dataValue('link');?>">
+                    <span><?php echo $block->dataValue('link_text');?></span>
+                    <span class="icon is-small">
+                      <i class="fas fa-angle-right"></i>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+     </div>
+   </div>
+ </section>
+
+ </header>

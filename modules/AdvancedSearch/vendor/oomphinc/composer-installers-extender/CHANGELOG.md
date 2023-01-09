@@ -20,13 +20,10 @@ The format is based on [Keep a Changelog][] and this project adheres to the
 
 ### Security
 
-<<<<<<< HEAD
 ## [2.0.1] - 2021-12-15
 ### Changed
 - Add support for composer/installers 2.x
 
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 ## [2.0.0] - 2020-08-11
 ### Added
 - Add `.editorconfig`, `.gitignore`, `.lando.yml`, `phpcs.xml` and `phpunit.xml`

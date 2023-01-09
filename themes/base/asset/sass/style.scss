@@ -1,16 +1,9 @@
 /* compileCompressed: "../css/$1.min.css", compileExpanded: "../css/$1.css" */
 @charset "utf-8";
 
-$primary : #004070;
-
-@import "extra";
+@import "bulma";
 @import "slick";
-
-.wrapper{
-  .first{
-    margin-top: 2rem;
-  }
-}
+@import "base";
 
 //masonry
 .grid {
@@ -53,19 +46,6 @@ $primary : #004070;
   }
 }
 
-.breadcrumbs{
-  margin-bottom: 1rem !important;
-  font-size: 0.875rem !important;
-}
-
-.breadcrumb-item{
-  float: none !important;
-}
-
-.breadcrumb-item.active{
-  color: #8f8e8e !important;
-}
-
 //fixes
 .section + .section {
     padding-top: 0;
@@ -82,118 +62,4 @@ $primary : #004070;
 }
 .equal-height .card-footer {
    margin-top: auto;
-}
-
-//search
-#form-search{
-  margin-bottom: 1.5rem;
-
-  .field-meta:first-of-type{
-    label{
-      font-family: Source Serif Pro,serif;
-      font-weight: 400;
-      line-height: 1.15;
-      color: #004070;
-      margin-bottom: .8125rem;
-      font-size: 2.5rem;
-    }    
-  }
-
-  input[type="search"] {
-    appearance: none;
-    height: auto !important;
-    border: 1px solid rgba(0,0,0,.15);
-    width: 100%;
-    max-width: 600px;
-    min-height: none !important;
-    margin: 0;
-    padding: 10px 16px !important;
-    border: 1px solid #d8d9da;
-    background-color: #fff;
-    color: #333;
-    line-height: normal;
-    border-radius: 12px;
-    font-family: Source Sans Pro,sans-serif;
-    font-size: 1rem;
-  }
-
-  #search-filters{
-    margin: 1rem 0;
-    max-width: 800px;
-    font-size: 0.9rem;
-
-    legend{
-      font-family: Source Serif Pro,serif;
-      font-weight: 400;
-      line-height: 1.15;
-      font-size: 1.1rem;;
-      color: #004070;
-    }
-  }
-  
-  #search-filters .filter {
-    display: flex;
-    margin-bottom: 0;
-    margin-left: 0%;
-    padding-bottom: 6px;
-    padding-left: 0;
-
-    input[type="text"]{
-      padding:5px 8px;
-    }
-  }
-}
-
-
-.form-search button.search-submit {
-  float: none !important;
-}
-
-.search-results .resource-list.grid .resource-thumbnail {
-  padding: 8px 0 !important;
-}
-
-.search-results .resource-list.grid .resource { 
-  padding-top: 8px !important;
-}
-
-#q{
-  border-radius: 12px 0 0 12px !important;
-}
-
-#submit{
-  border-radius: 0 12px 12px 0;
-  vertical-align: baseline;
-  border: 1px solid #067aac;
-}
-
-#form-facets{
-  font-size: 0.9rem;;
-
-  .apply-facets input{
-    border-color: #004070;
-  }  
-
-  .search-facet{
-    margin-bottom: 0.6rem;
-
-    h4{
-      margin-bottom: 0.2rem;
-      margin-top: 0.3rem;
-      font-size: 1rem;
-    }
-  }
-}
-
-/* collecting */
-.collecting-form{
-  .field{
-    margin-bottom: 1rem;
-  }
-}
-
-select, textarea {
-  padding: 10px 16px;
-  border: 1px solid #d8d9da;
-  border-radius: 12px !important;
 }

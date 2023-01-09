@@ -3,17 +3,13 @@
 namespace AdvancedSearch\View\Helper;
 
 use AdvancedSearch\Api\Representation\SearchConfigRepresentation;
-<<<<<<< HEAD
 use AdvancedSearch\Mvc\Controller\Plugin\SearchResources;
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 use AdvancedSearch\Query;
 use Laminas\View\Helper\AbstractHelper;
 use Omeka\Api\Exception\NotFoundException;
 
 /**
  * View helper for rendering search filters for the advanced search response.
-<<<<<<< HEAD
  */
 class SearchingFilters extends AbstractHelper
 {
@@ -36,23 +32,11 @@ class SearchingFilters extends AbstractHelper
      *
      * Use the core helper searchFilters() in order to append the current config.
      * It allows to get specific arguments used by the form.
-=======
- *
- */
-class SearchingFilters extends AbstractHelper
-{
-    /**
-     * Render filters from advanced search query.
-     *
-     * Wrapper on core helper searchFilters() in order to append the current
-     * config. It allows to get specific arguments used by the form.
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      *
      * @todo Should use the form adapter (but only main form is really used).
      * @see \AdvancedSearch\FormAdapter\AbstractFormAdapter
      *
      * @uses \Omeka\View\Helper\SearchFilters
-<<<<<<< HEAD
      * @return self|string Return self when no config or no query is set, else
      * process search filters and return string via helper SearchFilters.
      */
@@ -62,11 +46,6 @@ class SearchingFilters extends AbstractHelper
             return $this;
         }
 
-=======
-     */
-    public function __invoke(SearchConfigRepresentation $searchConfig, Query $query, array $options = []): string
-    {
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         $view = $this->getView();
         $template = $options['template'] ?? null;
 
@@ -105,7 +84,6 @@ class SearchingFilters extends AbstractHelper
         $request['__searchConfig'] = $searchConfig;
         $request['__searchQuery'] = $query;
 
-<<<<<<< HEAD
         // The search filters trigger event "'view.search.filters", that calls
         // the method filterSearchingFilter(). This process allows to use the
         // standard filters.
@@ -475,8 +453,4 @@ class SearchingFilters extends AbstractHelper
             ? $this->baseUrl . '?' . http_build_query($newQuery, '', '&', PHP_QUERY_RFC3986)
             : $this->baseUrl;
     }
-=======
-        return $view->searchFilters($template, $request);
-    }
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 }

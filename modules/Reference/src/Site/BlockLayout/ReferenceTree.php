@@ -63,7 +63,7 @@ class ReferenceTree extends AbstractBlockLayout
             $data['resource_name'] = 'items';
         }
         $query = [];
-        parse_str(trim(ltrim((string) $data['query'], "? \t\n\r\0\x0B\u{a0}\u{202f}")), $query);
+        parse_str((string) $data['query'], $query);
         $data['query'] = $query;
 
         // Normalize options.
@@ -124,16 +124,12 @@ class ReferenceTree extends AbstractBlockLayout
 
     public function render(PhpRenderer $view, SitePageBlockRepresentation $block)
     {
-        $options = $block->data() + [
-            'heading' => '',
-            'tree' => [],
-            'query' => [],
-        ];
+        $options = $block->data() + ['heading' => '', 'tree' => [], 'query' => []];
 
         $heading = $options['heading'];
         $tree = $options['tree'];
         $query = $options['query'];
-        unset($options['heading'], $options['tree']);
+        unset($options['heading'], $options['tree'], $options['query']);
 
         $template = $options['template'] ?? self::PARTIAL_NAME;
         unset($options['template']);

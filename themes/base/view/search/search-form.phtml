@@ -1,13 +1,10 @@
 <?php
 /**
- * @var \Laminas\View\Renderer\PhpRenderer $this
- * @var \Laminas\Form\Form $form
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Zend\Form\Form $form
  */
 
-$params = $this->params()->fromQuery() ?: [];
-$form
-    ->setData($params)
-    ->prepare();
+$form->prepare();
 ?>
 
 <?= $this->form($form) ?>

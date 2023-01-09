@@ -30,10 +30,7 @@ namespace Generic;
 
 use Laminas\EventManager\Event;
 use Laminas\Mvc\Controller\AbstractController;
-<<<<<<< HEAD
 use Laminas\Mvc\MvcEvent;
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Module\Exception\ModuleCannotInstallException;
@@ -60,7 +57,6 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         return include $this->modulePath() . '/config/module.config.php';
     }
 
-<<<<<<< HEAD
     public function onBootstrap(MvcEvent $event)
     {
         parent::onBootstrap($event);
@@ -74,8 +70,6 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         );
     }
 
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     public function install(ServiceLocatorInterface $services): void
     {
         $this->setServiceLocator($services);
@@ -185,7 +179,6 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         return $this;
     }
 
-<<<<<<< HEAD
     public function checkAddonVersions(Event $event): void
     {
         global $globalCheckAddonVersions;
@@ -206,8 +199,6 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
             ->appendFile($asset, 'text/javascript', ['defer' => 'defer']);
     }
 
-=======
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     public function getConfigForm(PhpRenderer $renderer)
     {
         $services = $this->getServiceLocator();
@@ -775,11 +766,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         $translator = $services->get('MvcTranslator');
         if ($version) {
             $message = new \Omeka\Stdlib\Message(
-<<<<<<< HEAD
                 $translator->translate('This module requires the module "%1$s", version %2$s or above.'), // @translate
-=======
-                $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
->>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 $moduleName, $version
             );
         } else {

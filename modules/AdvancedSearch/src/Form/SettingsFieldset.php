@@ -41,7 +41,10 @@ class SettingsFieldset extends Fieldset
         $selectAllTerms = $this->setting->__invoke('advancedsearch_restrict_used_terms', false);
 
         $this
+<<<<<<< HEAD
             ->setAttribute('id', 'advanced-search')
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             /** @deprecated Since Omeka v3.1 */
             ->add([
                 'name' => 'advancedsearch_restrict_used_terms',

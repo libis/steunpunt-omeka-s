@@ -139,10 +139,14 @@ class IndexSearch extends AbstractJob
         foreach ($resourceNames as $resourceName) {
             if (!$fullClearIndex && $startResourceId <= 0) {
                 $query = new Query();
+<<<<<<< HEAD
                 $query
                     // By default the query process public resources only.
                     ->setIsPublic(false)
                     ->setResources([$resourceName]);
+=======
+                $query->setResources([$resourceName]);
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 $indexer->clearIndex($query);
             }
 

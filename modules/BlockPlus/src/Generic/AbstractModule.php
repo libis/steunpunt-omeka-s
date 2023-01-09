@@ -708,6 +708,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
     }
 
     /**
+<<<<<<< HEAD
      * Check the version of a module and return a boolean or throw an exception.
      *
      * @throws \Omeka\Module\Exception\ModuleCannotInstallException
@@ -749,6 +750,9 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
      *
      * It is recommended to use checkModuleAvailability(), that manages the fact
      * that the module may be required or not.
+=======
+     * Check the version of a module.
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      */
     protected function isModuleVersionAtLeast(string $module, string $version): bool
     {

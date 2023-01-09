@@ -283,7 +283,11 @@ class ApiSearch extends AbstractPlugin
         ];
         $searchFormSettings['resource'] = $resource;
         // Fix to be removed.
+<<<<<<< HEAD
         $searchEngine = $this->searchConfig->engine();
+=======
+        $searchEngine = $searchConfig->engine();
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         $searchAdapter = $searchEngine ? $searchEngine->adapter() : null;
         if ($searchAdapter) {
             $availableFields = $searchAdapter->setSearchEngine($searchEngine)->getAvailableFields();
@@ -428,14 +432,22 @@ class ApiSearch extends AbstractPlugin
     protected function limitQuery(Query $searchQuery, array $query, array $options): void
     {
         if (is_numeric($query['page'])) {
+<<<<<<< HEAD
             $searchPage = $query['page'] > 0 ? (int) $query['page'] : 1;
+=======
+            $searchConfig = $query['page'] > 0 ? (int) $query['page'] : 1;
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             if (is_numeric($query['per_page']) && $query['per_page'] > 0) {
                 $perPage = (int) $query['per_page'];
                 $this->paginator->setPerPage($perPage);
             } else {
                 $perPage = $this->paginator->getPerPage();
             }
+<<<<<<< HEAD
             $searchQuery->setLimitPage($searchPage, $perPage);
+=======
+            $searchQuery->setLimitPage($searchConfig, $perPage);
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             return;
         }
 
@@ -447,8 +459,13 @@ class ApiSearch extends AbstractPlugin
         $offset = $query['offset'] > 0 ? (int) $query['offset'] : null;
         if ($limit && $offset) {
             // TODO Check the formule to convert offset and limit to page and per page (rarely used).
+<<<<<<< HEAD
             $searchPage = $offset > $limit ? 1 + (int) (($offset - 1) / $limit) : 1;
             $searchQuery->setLimitPage($searchPage, $limit);
+=======
+            $searchConfig = $offset > $limit ? 1 + (int) (($offset - 1) / $limit) : 1;
+            $searchQuery->setLimitPage($searchConfig, $limit);
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         } elseif ($limit) {
             $searchQuery->setLimitPage(1, $limit);
         } elseif ($offset) {

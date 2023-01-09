@@ -142,7 +142,10 @@ class Showcase extends AbstractBlockLayout
                 $result[] = $normEntry;
                 continue;
             }
+<<<<<<< HEAD
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             $cleanEntry = trim($entry, '/');
             // Resource?
             if (is_numeric($cleanEntry)) {
@@ -156,6 +159,7 @@ class Showcase extends AbstractBlockLayout
                 continue;
             }
 
+<<<<<<< HEAD
             if (mb_substr($entry, 0, 8) === 'https://' || mb_substr($entry, 0, 7) === 'http://') {
                 [$url, $asset, $title, $caption, $body] = array_map('trim', explode('=', $entry, 5));
                 $normEntry['data'] = [
@@ -165,6 +169,10 @@ class Showcase extends AbstractBlockLayout
                     'caption' => $caption,
                     'body' => $body,
                 ];
+=======
+            // TODO External url: add label, image, description…
+            if (mb_substr($entry, 0, 8) === 'https://' || mb_substr($entry, 0, 7) === 'http://') {
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 $result[] = $normEntry;
                 continue;
             }
@@ -260,6 +268,7 @@ class Showcase extends AbstractBlockLayout
                 try {
                     $entry['site'] = $this->api->read('sites', ['id' => $entry['site']])->getContent();
                 } catch (NotFoundException $e) {
+<<<<<<< HEAD
                     $entry['site'] = null;
                 }
             }
@@ -284,6 +293,23 @@ class Showcase extends AbstractBlockLayout
         }
         unset($entry);
 
+=======
+                    continue;
+                }
+            }
+
+            if (empty($entry['resource_name']) || empty($entry['resource'])) {
+                continue;
+            }
+
+            try {
+                $entry['resource'] = $this->api->read($entry['resource_name'], ['id' => $entry['resource']])->getContent();
+            } catch (NotFoundException $e) {
+                // Something else or private resource.
+            }
+        }
+        unset($entry);
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         return $entries;
     }
 }

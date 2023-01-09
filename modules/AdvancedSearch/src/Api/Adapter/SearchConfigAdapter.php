@@ -2,7 +2,11 @@
 
 /*
  * Copyright BibLibre, 2016
+<<<<<<< HEAD
  * Copyright Daniel Berthereau, 2017-2022
+=======
+ * Copyright Daniel Berthereau, 2017-2021
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -42,6 +46,7 @@ class SearchConfigAdapter extends AbstractEntityAdapter
     protected $sortFields = [
         'id' => 'id',
         'name' => 'name',
+<<<<<<< HEAD
         'path' => 'path',
         'engine' => 'engine',
         'created' => 'created',
@@ -55,6 +60,8 @@ class SearchConfigAdapter extends AbstractEntityAdapter
         'engine' => 'engine',
         'form_adapter' => 'formAdapter',
         'settings' => 'settings',
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'created' => 'created',
         'modified' => 'modified',
     ];

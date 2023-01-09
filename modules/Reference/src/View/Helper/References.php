@@ -129,6 +129,7 @@ class References extends AbstractHelper
      * the display:
      * - template (string): the template to use (default: "common/reference")
      * - raw (bool): Show references as raw text, not links (default to false)
+     * - raw_sub (bool): Show sub references as raw text, not links (default to false)
      * - link_to_single (bool): When there is one result for a term, link it
      *   directly to the resource, and not to the list page (default to config)
      * - custom_url (bool): with modules such Clean Url or Ark, use the url
@@ -253,7 +254,8 @@ class References extends AbstractHelper
      *
      * @param array|string $referenceLevels References and levels to show as
      * array or dash tree.
-     * @param array $query An Omeka search query to limit results.
+     * @param array $query An Omeka search query to limit results. It is used in
+     *   for urls in the tree too.
      * @param array $options Options to display the references.
      * - template (string): the template to use (default: "common/reference")
      * - term (string): Term or id to search (dcterms:subject by default).

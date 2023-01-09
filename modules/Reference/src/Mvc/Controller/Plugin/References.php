@@ -34,19 +34,34 @@ class References extends AbstractPlugin
     protected $translate;
 
     /**
-     * @var \Omeka\Api\Representation\PropertyRepresentation[]
+     * List of property main data by term and id.
+     *
+     * @var array
      */
-    protected $properties;
+    protected $propertiesByTermsAndIds;
 
     /**
-     * @var \Omeka\Api\Representation\ResourceClassRepresentation[]
+     * List of resource class main data by term and id.
+     *
+     * @var array
      */
-    protected $resourceClasses;
+    protected $resourceClassesByTermsAndIds;
 
     /**
-     * @var \Omeka\Api\Representation\ResourceTemplateRepresentation[]
+     * List of resource template main data by label and id.
+     *
+     * @var array
      */
-    protected $resourceTemplates;
+    protected $resourceTemplatesByLabelsAndIds;
+
+    /**
+     * List of item sets by title and id.
+     *
+     * Warning: titles are not unique.
+     *
+     * @var array
+     */
+    protected $itemSetsByTitlesAndIds;
 
     /**
      * @param bool
@@ -73,9 +88,6 @@ class References extends AbstractPlugin
      * @param AdapterManager $adapterManager
      * @param Api $api
      * @param Translate $translate
-     * @param \Omeka\Api\Representation\PropertyRepresentation[] $properties
-     * @param \Omeka\Api\Representation\ResourceClassRepresentation[] $resourceClasses
-     * @param \Omeka\Api\Representation\ResourceTemplateRepresentation[] $resourceTemplates
      * @param bool $supportAnyValue
      */
     public function __construct(
@@ -83,18 +95,12 @@ class References extends AbstractPlugin
         AdapterManager $adapterManager,
         Api $api,
         Translate $translate,
-        array $properties,
-        array $resourceClasses,
-        array $resourceTemplates,
         $supportAnyValue
     ) {
         $this->entityManager = $entityManager;
         $this->adapterManager = $adapterManager;
         $this->api = $api;
         $this->translate = $translate;
-        $this->properties = $properties;
-        $this->resourceClasses = $resourceClasses;
-        $this->resourceTemplates = $resourceTemplates;
         $this->supportAnyValue = $supportAnyValue;
     }
 
@@ -381,14 +387,10 @@ class References extends AbstractPlugin
                     if ($isAssociative) {
                         $result[$field['term']]['o:references'] = $values;
                     } else {
-                        foreach (array_filter($values) as $value => $valueData) {
-                            $property = $this->properties[$valueData['val']];
-                            $result[$field['term']]['o:references'][] = [
-                                'o:id' => $property->id(),
-                                'o:term' => $property->term(),
-                                'o:label' => $this->translate->__invoke($property->label()),
-                                '@language' => null,
-                            ] + $valueData;
+                        foreach (array_filter($values) as $valueData) {
+                            $property = $this->getProperty($valueData['val']);
+                            $property['o:label'] = $this->translate->__invoke($property['o:label']);
+                            $result[$field['term']]['o:references'][] = $property + $valueData;
                         }
                     }
                     break;
@@ -398,14 +400,10 @@ class References extends AbstractPlugin
                     if ($isAssociative) {
                         $result[$field['term']]['o:references'] = $values;
                     } else {
-                        foreach (array_filter($values) as $value => $valueData) {
-                            $resourceClass = $this->resourceClasses[$valueData['val']];
-                            $result[$field['term']]['o:references'][] = [
-                                'o:id' => $resourceClass->id(),
-                                'o:term' => $resourceClass->term(),
-                                'o:label' => $this->translate->__invoke($resourceClass->label()),
-                                '@language' => null,
-                            ] + $valueData;
+                        foreach (array_filter($values) as $valueData) {
+                            $resourceClass = $this->getResourceClass($valueData['val']);
+                            $resourceClass['o:label'] = $this->translate->__invoke($resourceClass->label());
+                            $result[$field['term']]['o:references'][] = $resourceClass + $valueData;
                         }
                     }
                     break;
@@ -415,13 +413,9 @@ class References extends AbstractPlugin
                     if ($isAssociative) {
                         $result[$field['term']]['o:references'] = $values;
                     } else {
-                        foreach (array_filter($values) as $value => $valueData) {
-                            $resourceTemplate = $this->resourceTemplates[$valueData['val']];
-                            $result[$field['term']]['o:references'][] = [
-                                'o:id' => $resourceTemplate->id(),
-                                'o:label' => $resourceTemplate->label(),
-                                '@language' => null,
-                            ] + $valueData;
+                        foreach (array_filter($values) as $valueData) {
+                            $resourceTemplate = $this->getResourceTemplates($valueData['val']);
+                            $result[$field['term']]['o:references'][] = $resourceTemplate + $valueData;
                         }
                     }
                     break;
@@ -436,15 +430,9 @@ class References extends AbstractPlugin
                     if ($isAssociative) {
                         $result[$field['term']]['o:references'] = $values;
                     } else {
-                        foreach (array_filter($values) as $value => $valueData) {
-                            // TODO Improve this process via the resource title (Omeka 2).
-                            $meta = $this->api->read('item_sets', ['id' => $valueData['val']])->getContent();
-                            $result[$field['term']]['o:references'][] = [
-                                '@type' => 'o:ItemSet',
-                                'o:id' => (int) $value,
-                                'o:label' => $meta->displayTitle(),
-                                '@language' => null,
-                            ] + $valueData;
+                        foreach (array_filter($values) as $valueData) {
+                            $meta = $this->getItemSet($valueData['val']);
+                            $result[$field['term']]['o:references'][] = $meta + $valueData;
                         }
                     }
                     break;
@@ -1084,31 +1072,31 @@ class References extends AbstractPlugin
                     // TODO Nothing to filter for resource titles?
                     break;
                 case 'o:property':
-                    $values = is_numeric($this->options['values'][0])
-                        ? $this->options['values']
-                        : $this->listPropertyIds($this->options['values']);
+                    $values = $this->getPropertyIds($this->options['values']);
+                    if (!$values) {
+                        $values = [0];
+                    }
                     $qb
                         ->andWhere('property' . '.id IN (:ids)')
                         ->setParameter('ids', $values);
                     break;
                 case 'o:resource_class':
-                    $values = is_numeric($this->options['values'][0])
-                        ? $this->options['values']
-                        : $this->listResourceClassIds($this->options['values']);
+                    $values = $this->getResourceClassIds($this->options['values']);
+                    if (!$values) {
+                        $values = [0];
+                    }
                     $qb
                         ->andWhere('resource_class' . '.id IN (:ids)')
                         ->setParameter('ids', $values);
                     break;
                 case 'o:resource_template':
-                    if (is_numeric($this->options['values'][0])) {
-                        $qb
-                            ->andWhere('resource_template' . '.id IN (:ids)')
-                            ->setParameter('ids', $this->options['values']);
-                    } else {
-                        $qb
-                            ->andWhere('resource_template' . '.label IN (:labels)')
-                            ->setParameter('labels', $this->options['values']);
+                    $values = $this->getResourceTemplateIds($this->options['values']);
+                    if (!$values) {
+                        $values = [0];
                     }
+                    $qb
+                        ->andWhere('resource_template' . '.id IN (:ids)')
+                        ->setParameter('ids', $this->options['values']);
                     break;
                 case 'o:item_set':
                     $qb
@@ -1225,6 +1213,7 @@ class References extends AbstractPlugin
 
             if ($this->options['fields']) {
                 $fields = array_fill_keys($this->options['fields'], true);
+                // FIXME Api call inside a loop.
                 $result = array_map(function ($v) use ($fields) {
                     // Search resources is not available.
                     if ($this->options['resource_name'] === 'resource') {
@@ -1233,7 +1222,7 @@ class References extends AbstractPlugin
                                 return array_intersect_key(
                                     $this->api->read('resources', ['id' => $id])->getContent()->jsonSerialize(),
                                     $fields
-                                    );
+                                );
                             } catch (\Omeka\Api\Exception\NotFoundException $e) {
                                 // May not be possible, except with weird rights.
                                 // return array_intersect_key(['o:id' => $id, 'o:title' => $title], $fields);
@@ -1417,8 +1406,10 @@ class References extends AbstractPlugin
     /**
      * Improve the default property query for resources.
      *
+     * @todo Unlike advanced search, does not manage excluded fields.
+     *
      * @see \Omeka\Api\Adapter\AbstractResourceEntityAdapter::buildPropertyQuery()
-     * @see \AdvancedSearchPlus\Module::buildPropertyQuery()
+     * @see \AdvancedSearch\Listener\SearchResourcesListener::buildPropertyQuery()
      *
      * Complete \Omeka\Api\Adapter\AbstractResourceEntityAdapter::buildPropertyQuery()
      *
@@ -1442,15 +1433,22 @@ class References extends AbstractPlugin
      *   - new: does not end with
      *   - res: has resource
      *   - nres: has no resource
+     *   For date time only for now (a check is done to have a meaningful answer):
+     *   TODO Remove the check for valid date time? Add another key (before/after)?
+     *   Of course, it's better to use Numeric Data Types.
+     *   - gt: greater than (after)
+     *   - gte: greater than or equal
+     *   - lte: lower than or equal
+     *   - lt: lower than (before)
      *
      * @param QueryBuilder $qb
      * @param AbstractResourceEntityAdapter $adapter
      */
     protected function buildPropertyQuery(QueryBuilder $qb, AbstractResourceEntityAdapter $adapter): void
     {
-        // if (empty($this->query['property']) || !is_array($this->query['property'])) {
-        //     return;
-        // }
+        if (empty($this->query['property']) || !is_array($this->query['property'])) {
+            return;
+        }
 
         $valuesJoin = 'omeka_root.values';
         $where = '';
@@ -1468,17 +1466,28 @@ class References extends AbstractPlugin
             )) {
                 continue;
             }
-            $propertyId = $queryRow['property'];
+
             $queryType = $queryRow['type'];
             $joiner = $queryRow['joiner'] ?? '';
             $value = $queryRow['text'] ?? '';
 
-            if (!strlen((string) $value) && $queryType !== 'nex' && $queryType !== 'ex') {
+            // A value can be an array with types "list" and "nlist".
+            if (!is_array($value)
+                && !strlen((string) $value)
+                && $queryType !== 'nex'
+                && $queryType !== 'ex'
+            ) {
                 continue;
+            }
+
+            $propertyId = $queryRow['property'];
+            if ($propertyId) {
+                $propertyId = $this->getPropertyId($propertyId);
             }
 
             $valuesAlias = $adapter->createAlias();
             $positive = true;
+            $incorrectValue = false;
 
             switch ($queryType) {
                 case 'neq':
@@ -1487,7 +1496,7 @@ class References extends AbstractPlugin
                 case 'eq':
                     $param = $adapter->createNamedParameter($qb, $value);
                     $subqueryAlias = $adapter->createAlias();
-                    $subquery = $adapter->getEntityManager()
+                    $subquery = $this->entityManager
                         ->createQueryBuilder()
                         ->select("$subqueryAlias.id")
                         ->from('Omeka\Entity\Resource', $subqueryAlias)
@@ -1505,7 +1514,7 @@ class References extends AbstractPlugin
                 case 'in':
                     $param = $adapter->createNamedParameter($qb, '%' . $escape($value) . '%');
                     $subqueryAlias = $adapter->createAlias();
-                    $subquery = $adapter->getEntityManager()
+                    $subquery = $this->entityManager
                         ->createQueryBuilder()
                         ->select("$subqueryAlias.id")
                         ->from('Omeka\Entity\Resource', $subqueryAlias)
@@ -1522,17 +1531,17 @@ class References extends AbstractPlugin
                     // no break.
                 case 'list':
                     $list = is_array($value) ? $value : explode("\n", $value);
-                    $list = array_filter(array_map('trim', array_map('strval', $list)), 'strlen');
+                    $list = array_unique(array_filter(array_map('trim', array_map('strval', $list)), 'strlen'));
                     if (empty($list)) {
                         continue 2;
                     }
                     $param = $adapter->createNamedParameter($qb, $list);
                     $subqueryAlias = $adapter->createAlias();
-                    $subquery = $adapter->getEntityManager()
+                    $subquery = $this->entityManager
                         ->createQueryBuilder()
                         ->select("$subqueryAlias.id")
                         ->from('Omeka\Entity\Resource', $subqueryAlias)
-                        ->where($expr->eq("$subqueryAlias.title", $param));
+                        ->where($expr->in("$subqueryAlias.title", $param));
                     $predicateExpr = $expr->orX(
                         $expr->in("$valuesAlias.valueResource", $subquery->getDQL()),
                         $expr->in("$valuesAlias.value", $param),
@@ -1546,7 +1555,7 @@ class References extends AbstractPlugin
                 case 'sw':
                     $param = $adapter->createNamedParameter($qb, $escape($value) . '%');
                     $subqueryAlias = $adapter->createAlias();
-                    $subquery = $adapter->getEntityManager()
+                    $subquery = $this->entityManager
                         ->createQueryBuilder()
                         ->select("$subqueryAlias.id")
                         ->from('Omeka\Entity\Resource', $subqueryAlias)
@@ -1564,7 +1573,7 @@ class References extends AbstractPlugin
                 case 'ew':
                     $param = $adapter->createNamedParameter($qb, '%' . $escape($value));
                     $subqueryAlias = $adapter->createAlias();
-                    $subquery = $adapter->getEntityManager()
+                    $subquery = $this->entityManager
                         ->createQueryBuilder()
                         ->select("$subqueryAlias.id")
                         ->from('Omeka\Entity\Resource', $subqueryAlias)
@@ -1593,24 +1602,67 @@ class References extends AbstractPlugin
                     $predicateExpr = $expr->isNotNull("$valuesAlias.id");
                     break;
 
+                    // TODO Manage uri and resources with gt, gte, lte, lt (it has a meaning at least for resource ids, but separate).
+                case 'gt':
+                    $valueNorm = $this->getDateTimeFromValue($value, false);
+                    if (is_null($valueNorm)) {
+                        $incorrectValue = true;
+                    } else {
+                        $predicateExpr = $expr->gt(
+                            "$valuesAlias.value",
+                            $adapter->createNamedParameter($qb, $valueNorm)
+                        );
+                    }
+                    break;
+                case 'gte':
+                    $valueNorm = $this->getDateTimeFromValue($value, true);
+                    if (is_null($valueNorm)) {
+                        $incorrectValue = true;
+                    } else {
+                        $predicateExpr = $expr->gte(
+                            "$valuesAlias.value",
+                            $adapter->createNamedParameter($qb, $valueNorm)
+                        );
+                    }
+                    break;
+                case 'lte':
+                    $valueNorm = $this->getDateTimeFromValue($value, false);
+                    if (is_null($valueNorm)) {
+                        $incorrectValue = true;
+                    } else {
+                        $predicateExpr = $expr->lte(
+                            "$valuesAlias.value",
+                            $adapter->createNamedParameter($qb, $valueNorm)
+                        );
+                    }
+                    break;
+                case 'lt':
+                    $valueNorm = $this->getDateTimeFromValue($value, true);
+                    if (is_null($valueNorm)) {
+                        $incorrectValue = true;
+                    } else {
+                        $predicateExpr = $expr->lt(
+                            "$valuesAlias.value",
+                            $adapter->createNamedParameter($qb, $valueNorm)
+                        );
+                    }
+                    break;
+
                 default:
                     continue 2;
             }
 
             $joinConditions = [];
-            // Narrow to specific property, if one is selected
-            if ($propertyId) {
-                if (is_numeric($propertyId)) {
-                    $propertyId = (int) $propertyId;
-                } else {
-                    $property = $adapter->getPropertyByTerm($propertyId);
-                    if ($property) {
-                        $propertyId = $property->getId();
-                    } else {
-                        $propertyId = 0;
-                    }
-                }
+            // Narrow to specific property, if one is selected.
+            // The check is done against the requested property, like in core.
+            if ($queryRow['property']) {
                 $joinConditions[] = $expr->eq("$valuesAlias.property", (int) $propertyId);
+            }
+
+            // Avoid to get results with an incorrect query.
+            if ($incorrectValue) {
+                $where = $expr->eq('omeka_root.id', 0);
+                break;
             }
 
             if ($positive) {
@@ -1646,7 +1698,7 @@ class References extends AbstractPlugin
      * @param string|int $field
      * @return array
      */
-    protected function prepareField($field)
+    protected function prepareField($field): array
     {
         static $labels;
 
@@ -1677,14 +1729,12 @@ class References extends AbstractPlugin
             ];
         }
 
-        if (isset($this->properties[$field])) {
-            $property = $this->properties[$field];
+        // It's not possible to determine what is a numeric value.
+        if (is_numeric($field)) {
             return [
-                '@type' => 'o:Property',
-                'type' => 'properties',
-                'id' => $property->id(),
+                'type' => null,
                 'term' => $field,
-                'label' => $property->label(),
+                'label' => $field,
             ];
         }
 
@@ -1698,40 +1748,48 @@ class References extends AbstractPlugin
             ];
         }
 
-        if (isset($this->resourceClasses[$field])) {
-            $resourceClass = $this->resourceClasses[$field];
+        $meta = $this->getProperty($field);
+        if ($meta) {
+            return [
+                '@type' => 'o:Property',
+                'type' => 'properties',
+                'id' => $meta['o:id'],
+                'term' => $meta['o:term'],
+                'label' => $meta['o:label'],
+            ];
+        }
+
+        $meta = $this->getResourceClass($field);
+        if ($meta) {
             return [
                 '@type' => 'o:ResourceClass',
                 'type' => 'resource_classes',
-                'id' => $resourceClass->id(),
-                'term' => $field,
-                'label' => $resourceClass->label(),
+                'id' => $meta['o:id'],
+                'term' => $meta['o:term'],
+                'label' => $meta['o:label'],
             ];
         }
 
-        if (isset($this->resourceTemplates[$field])) {
-            $resourceTemplate = $this->resourceTemplates[$field];
+        $meta = $this->getResourceTemplate($field);
+        if ($meta) {
             return [
                 '@type' => 'o:ResourceTemplate',
                 'type' => 'resource_templates',
-                'id' => $resourceTemplate->id(),
-                'term' => $field,
-                'label' => $resourceTemplate->label(),
+                'id' => $meta['o:id'],
+                'term' => null,
+                'label' => $meta['o:label'],
             ];
         }
 
-        if (is_numeric($field)) {
-            try {
-                $itemSet = $this->api->read('item_sets', $field)->getContent();
-                return [
-                    '@type' => 'o:ItemSet',
-                    'type' => 'item_sets',
-                    'id' => $itemSet->id(),
-                    'term' => $field,
-                    'label' => $itemSet->displayTitle(),
-                ];
-            } catch (\Omeka\Api\Exception\NotFoundException $e) {
-            }
+        $meta = $this->getItemSet($field);
+        if ($meta) {
+            return [
+                '@type' => 'o:ItemSet',
+                'type' => 'item_sets',
+                'id' => $meta['o:id'],
+                'term' => null,
+                'label' => $meta['o:label'],
+            ];
         }
 
         return [
@@ -1739,51 +1797,6 @@ class References extends AbstractPlugin
             'term' => $field,
             'label' => $field,
         ];
-    }
-
-    /**
-     * Convert a list of terms into a list of property ids.
-     *
-     * @param array $values
-     * @return array Only values that are terms are converted into ids, the
-     * other are removed.
-     */
-    protected function listPropertyIds(array $values)
-    {
-        $result = array_intersect_key($this->properties, array_fill_keys($values, null));
-        return array_map(function ($v) {
-            return $v->id();
-        }, $result);
-    }
-
-    /**
-     * Convert a list of terms into a list of resource class ids.
-     *
-     * @param array $values
-     * @return array Only values that are terms are converted into ids, the
-     * other are removed.
-     */
-    protected function listResourceClassIds(array $values)
-    {
-        $result = array_intersect_key($this->resourceClasses, array_fill_keys($values, null));
-        return array_map(function ($v) {
-            return $v->id();
-        }, $result);
-    }
-
-    /**
-     * Convert a list of labels into a list of resource template ids.
-     *
-     * @param array $values
-     * @return array Only values that are terms are converted into ids, the
-     * other are removed.
-     */
-    protected function listResourceTemplateIds(array $values)
-    {
-        $result = array_intersect_key($this->resourceTemplates, array_fill_keys($values, null));
-        return array_map(function ($v) {
-            return $v->id();
-        }, $result);
     }
 
     /**
@@ -1802,5 +1815,521 @@ class References extends AbstractPlugin
             'resources' => \Omeka\Entity\Resource::class,
         ];
         return $resourceEntityMap[$resourceName] ?? \Omeka\Entity\Resource::class;
+    }
+
+    /**
+     * Get property ids by JSON-LD terms or by numeric ids.
+     *
+     * @return int[]
+     */
+    protected function getPropertyIds(array $termsOrIds): array
+    {
+        if (is_null($this->propertiesByTermsAndIds)) {
+            $this->prepareProperties();
+        }
+        return array_column(array_intersect_key($this->propertiesByTermsAndIds, array_flip($termsOrIds)), 'o:id');
+    }
+
+    /**
+     * Get a property id by JSON-LD term or by numeric id.
+     */
+    protected function getPropertyId($termOrId): ?int
+    {
+        if (is_null($this->propertiesByTermsAndIds)) {
+            $this->prepareProperties();
+        }
+        return $this->propertiesByTermsAndIds[$termOrId]['o:id'] ?? null;
+    }
+
+    /**
+     * Get property by JSON-LD terms or by numeric ids.
+     *
+     * @return int[]
+     */
+    protected function getProperties(array $termsOrIds): array
+    {
+        if (is_null($this->propertiesByTermsAndIds)) {
+            $this->prepareProperties();
+        }
+        return array_values(array_intersect_key($this->propertiesByTermsAndIds, array_flip($termsOrIds)));
+    }
+
+    /**
+     * Get a property by JSON-LD term or by numeric id.
+     */
+    protected function getProperty($termOrId): ?array
+    {
+        if (is_null($this->propertiesByTermsAndIds)) {
+            $this->prepareProperties();
+        }
+        return $this->propertiesByTermsAndIds[$termOrId] ?? null;
+    }
+
+    /**
+     * Prepare the list of properties.
+     */
+    protected function prepareProperties(): self
+    {
+        if (is_null($this->propertiesByTermsAndIds)) {
+            $connection = $this->entityManager->getConnection();
+            $qb = $connection->createQueryBuilder();
+            $qb
+                ->select([
+                    'DISTINCT property.id AS "o:id"',
+                    'CONCAT(vocabulary.prefix, ":", property.local_name) AS "o:term"',
+                    'property.label AS "o:label"',
+                    'NULL AS "@language"',
+                    // Only the two first selects are needed, but some databases
+                    // require "order by" or "group by" value to be in the select.
+                    'vocabulary.id',
+                    'property.id',
+                ])
+                ->from('property', 'property')
+                ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')
+                ->orderBy('vocabulary.id', 'asc')
+                ->addOrderBy('property.id', 'asc')
+                ->addGroupBy('property.id')
+            ;
+            $stmt = $connection->executeQuery($qb);
+            // Fetch by key pair is not supported by doctrine 2.0.
+            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $this->propertiesByTermsAndIds = [];
+            foreach ($results as $result) {
+                $result['o:id'] = (int) $result['o:id'];
+                unset($result['id']);
+                $this->propertiesByTermsAndIds[$result['o:id']] = $result;
+                $this->propertiesByTermsAndIds[$result['o:term']] = $result;
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Get resource class ids by JSON-LD terms or by numeric ids.
+     *
+     * @return int[]
+     */
+    protected function getResourceClassIds(array $termsOrIds): array
+    {
+        if (is_null($this->resourceClassesByTermsAndIds)) {
+            $this->prepareResourceClasses();
+        }
+        return array_column(array_intersect_key($this->resourceClassesByTermsAndIds, array_flip($termsOrIds)), 'o:id');
+    }
+
+    /**
+     * Get resource class id by JSON-LD term or by numeric id.
+     */
+    protected function getResourceClassId($termOrId): ?int
+    {
+        if (is_null($this->resourceClassesByTermsAndIds)) {
+            $this->prepareResourceClasses();
+        }
+        return $this->resourceClassesByTermsAndIds[$termOrId]['o:id'] ?? null;
+    }
+
+    /**
+     * Get resource classes by JSON-LD terms or by numeric ids.
+     *
+     * @return int[]
+     */
+    protected function getResourceClasses(array $termsOrIds): array
+    {
+        if (is_null($this->resourceClassesByTermsAndIds)) {
+            $this->prepareResourceClasses();
+        }
+        return array_values(array_intersect_key($this->resourceClassesByTermsAndIds, array_flip($termsOrIds)));
+    }
+
+    /**
+     * Get resource class by JSON-LD term or by numeric id.
+     */
+    protected function getResourceClass($termOrId): ?array
+    {
+        if (is_null($this->resourceClassesByTermsAndIds)) {
+            $this->prepareResourceClasses();
+        }
+        return $this->resourceClassesByTermsAndIds[$termOrId] ?? null;
+    }
+
+    /**
+     * Prepare the list of resource classes.
+     */
+    protected function prepareResourceClasses(): self
+    {
+        if (is_null($this->propertiesByTermsAndIds)) {
+            $connection = $this->entityManager->getConnection();
+            $qb = $connection->createQueryBuilder();
+            $qb
+                ->select([
+                    'DISTINCT resource_class.id AS "o:id"',
+                    'CONCAT(vocabulary.prefix, ":", resource_class.local_name) AS "o:term"',
+                    'resource_class.label AS "o:label"',
+                    'NULL AS "@language"',
+                    // Only the two first selects are needed, but some databases
+                    // require "order by" or "group by" value to be in the select.
+                    'vocabulary.id',
+                    'resource_class.id',
+                ])
+                ->from('resource_class', 'resource_class')
+                ->innerJoin('resource_class', 'vocabulary', 'vocabulary', 'resource_class.vocabulary_id = vocabulary.id')
+                ->orderBy('vocabulary.id', 'asc')
+                ->addOrderBy('resource_class.id', 'asc')
+                ->addGroupBy('resource_class.id')
+            ;
+            $stmt = $connection->executeQuery($qb);
+            // Fetch by key pair is not supported by doctrine 2.0.
+            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $this->resourceClassesByTermsAndIds = [];
+            foreach ($results as $result) {
+                $result['o:id'] = (int) $result['o:id'];
+                unset($result['id']);
+                $this->resourceClassesByTermsAndIds[$result['o:id']] = $result;
+                $this->resourceClassesByTermsAndIds[$result['o:term']] = $result;
+            }
+            return $this;
+        }
+    }
+
+    /**
+     * Get resource template ids by labels or by numeric ids.
+     *
+     * @return int[]
+     */
+    protected function getResourceTemplateIds(array $labelsOrIds): array
+    {
+        if (is_null($this->resourceTemplatesByLabelsAndIds)) {
+            $this->prepareResourceTemplates();
+        }
+        return array_column(array_intersect_key($this->resourceTemplatesByLabelsAndIds, array_flip($labelsOrIds)), 'o:id');
+    }
+
+    /**
+     * Get resource template id by label or by numeric id.
+     */
+    protected function getResourceTemplateId($labelOrId): ?int
+    {
+        if (is_null($this->resourceTemplatesByLabelsAndIds)) {
+            $this->prepareResourceTemplates();
+        }
+        return $this->resourceTemplatesByLabelsAndIds[$labelOrId]['o:id'] ?? null;
+    }
+
+    /**
+     * Get resource template ids by labels or by numeric ids.
+     *
+     * @return int[]
+     */
+    protected function getResourceTemplates(array $labelsOrIds): array
+    {
+        if (is_null($this->resourceTemplatesByLabelsAndIds)) {
+            $this->prepareResourceTemplates();
+        }
+        return array_values(array_intersect_key($this->resourceTemplatesByLabelsAndIds, array_flip($labelsOrIds)));
+    }
+
+    /**
+     * Get resource template by label or by numeric id.
+     */
+    protected function getResourceTemplate($labelOrId): ?array
+    {
+        if (is_null($this->resourceTemplatesByLabelsAndIds)) {
+            $this->prepareResourceTemplates();
+        }
+        return $this->resourceTemplatesByLabelsAndIds[$labelOrId] ?? null;
+    }
+
+    /**
+     * Prepare the list of resource templates.
+     */
+    protected function prepareResourceTemplates(): self
+    {
+        if (is_null($this->resourceTemplatesByLabelsAndIds)) {
+            $connection = $this->entityManager->getConnection();
+            $qb = $connection->createQueryBuilder();
+            $qb
+                ->select([
+                    'DISTINCT resource_template.id AS "o:id"',
+                    'resource_template.label AS "o:label"',
+                    'NULL AS "@language"',
+                    // Only the two first selects are needed, but some databases
+                    // require "order by" or "group by" value to be in the select.
+                    'resource_template.id',
+                ])
+                ->from('resource_template', 'resource_template')
+                ->orderBy('resource_template.id', 'asc')
+                ->addGroupBy('resource_template.id')
+            ;
+            $stmt = $connection->executeQuery($qb);
+            // Fetch by key pair is not supported by doctrine 2.0.
+            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $this->resourceTemplatesByLabelsAndIds = [];
+            foreach ($results as $result) {
+                $result['o:id'] = (int) $result['o:id'];
+                unset($result['id']);
+                $this->resourceTemplatesByLabelsAndIds[$result['o:id']] = $result;
+                $this->resourceTemplatesByLabelsAndIds[$result['o:label']] = $result;
+            }
+            return $this;
+        }
+    }
+
+    /**
+     * Get item set ids by title or by numeric ids.
+     *
+     * Warning, titles are not unique.
+     *
+     * @return int[]
+     */
+    protected function getItemSetIds(array $titlesOrIds): array
+    {
+        if (is_null($this->itemSetsByTitlesAndIds)) {
+            $this->prepareItemSets();
+        }
+        return array_column(array_intersect_key($this->itemSetsByTitlesAndIds, array_flip($titlesOrIds)), 'o:id');
+    }
+
+    /**
+     * Get item set id by title or by numeric id.
+     *
+     * Warning, titles are not unique.
+     */
+    protected function getItemSetId($labelOrId): ?int
+    {
+        if (is_null($this->itemSetsByTitlesAndIds)) {
+            $this->prepareItemSets();
+        }
+        return $this->itemSetsByTitlesAndIds[$labelOrId]['o:id'] ?? null;
+    }
+
+    /**
+     * Get item set ids by titles or by numeric ids.
+     *
+     * Warning, titles are not unique.
+     *
+     * @return int[]
+     */
+    protected function getItemSets(array $titlesOrIds): array
+    {
+        if (is_null($this->itemSetsByTitlesAndIds)) {
+            $this->prepareItemSets();
+        }
+        return array_values(array_intersect_key($this->itemSetsByTitlesAndIds, array_flip($titlesOrIds)));
+    }
+
+    /**
+     * Get item set by title or by numeric id.
+     *
+     * Warning, titles are not unique.
+     */
+    protected function getItemSet($labelOrId): ?array
+    {
+        if (is_null($this->itemSetsByTitlesAndIds)) {
+            $this->prepareItemSets();
+        }
+        return $this->itemSetsByTitlesAndIds[$labelOrId] ?? null;
+    }
+
+    /**
+     * Prepare the list of item sets.
+     *
+     * Warning, titles are not unique.
+     */
+    protected function prepareItemSets(): self
+    {
+        if (is_null($this->itemSetsByTitlesAndIds)) {
+            $connection = $this->entityManager->getConnection();
+            $qb = $connection->createQueryBuilder();
+            $qb
+                ->select([
+                    'DISTINCT resource.id AS "o:id"',
+                    '"o:ItemSet" AS "@type"',
+                    'resource.title AS "o:label"',
+                    'NULL AS "@language"',
+                    // Only the two first selects are needed, but some databases
+                    // require "order by" or "group by" value to be in the select.
+                    'resource.id',
+                ])
+                ->from('resource', 'resource')
+                ->inner_join('item_set', 'item_set')
+                // TODO Improve return of private item sets.
+                ->where('resource.is_public', '1')
+                ->orderBy('resource.id', 'asc')
+                ->addGroupBy('resource.id')
+            ;
+            $stmt = $connection->executeQuery($qb);
+            // Fetch by key pair is not supported by doctrine 2.0.
+            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $this->itemSetsByTitlesAndIds = [];
+            foreach ($results as $result) {
+                $result['o:id'] = (int) $result['o:id'];
+                unset($result['id']);
+                $this->itemSetsByTitlesAndIds[$result['o:id']] = $result;
+                $this->itemSetsByTitlesAndIds[$result['o:label']] = $result;
+            }
+            return $this;
+        }
+    }
+
+    /**
+     * Copied from module AdvancedSearch to allow basic date range search.
+     *
+     * Convert into a standard DateTime. Manage some badly formatted values.
+     *
+     * Adapted from module NumericDataType.
+     * The regex pattern allows partial month and day too.
+     * @link https://mariadb.com/kb/en/datetime/
+     * @see \NumericDataTypes\DataType\AbstractDateTimeDataType::getDateTimeFromValue()
+     *
+     * Allow mysql datetime too, not only iso 8601 (so with a space, not only a
+     * "T" to separate date and time).
+     *
+     * Warning, year "0" does not exists, so output is null in that case.
+     *
+     * @param string $value
+     * @param bool $defaultFirst
+     * @return array|null
+     */
+    protected function getDateTimeFromValue($value, $defaultFirst = true)
+    {
+        $yearMin = -292277022656;
+        $yearMax = 292277026595;
+        $patternIso8601 = '^(?<date>(?<year>-?\d{1,})(-(?<month>\d{1,2}))?(-(?<day>\d{1,2}))?)(?<time>((?:T| )(?<hour>\d{1,2}))?(:(?<minute>\d{1,2}))?(:(?<second>\d{1,2}))?)(?<offset>((?<offset_hour>[+-]\d{1,2})?(:(?<offset_minute>\d{1,2}))?)|Z?)$';
+        static $dateTimes = [];
+
+        $firstOrLast = $defaultFirst ? 'first' : 'last';
+        if (isset($dateTimes[$value][$firstOrLast])) {
+            return $dateTimes[$value][$firstOrLast];
+        }
+
+        $dateTimes[$value][$firstOrLast] = null;
+
+        // Match against ISO 8601, allowing for reduced accuracy.
+        $matches = [];
+        if (!preg_match(sprintf('/%s/', $patternIso8601), $value, $matches)) {
+            return null;
+        }
+
+        // Remove empty values.
+        $matches = array_filter($matches, 'strlen');
+        if (!isset($matches['date'])) {
+            return null;
+        }
+
+        // An hour requires a day.
+        if (isset($matches['hour']) && !isset($matches['day'])) {
+            return null;
+        }
+
+        // An offset requires a time.
+        if (isset($matches['offset']) && !isset($matches['time'])) {
+            return null;
+        }
+
+        // Set the datetime components included in the passed value.
+        $dateTime = [
+            'value' => $value,
+            'date_value' => $matches['date'],
+            'time_value' => $matches['time'] ?? null,
+            'offset_value' => $matches['offset'] ?? null,
+            'year' => empty($matches['year']) ? null : (int) $matches['year'],
+            'month' => isset($matches['month']) ? (int) $matches['month'] : null,
+            'day' => isset($matches['day']) ? (int) $matches['day'] : null,
+            'hour' => isset($matches['hour']) ? (int) $matches['hour'] : null,
+            'minute' => isset($matches['minute']) ? (int) $matches['minute'] : null,
+            'second' => isset($matches['second']) ? (int) $matches['second'] : null,
+            'offset_hour' => isset($matches['offset_hour']) ? (int) $matches['offset_hour'] : null,
+            'offset_minute' => isset($matches['offset_minute']) ? (int) $matches['offset_minute'] : null,
+        ];
+
+        // Set the normalized datetime components. Each component not included
+        // in the passed value is given a default value.
+        $dateTime['month_normalized'] = $dateTime['month'] ?? ($defaultFirst ? 1 : 12);
+        // The last day takes special handling, as it depends on year/month.
+        $dateTime['day_normalized'] = $dateTime['day']
+        ?? ($defaultFirst ? 1 : self::getLastDay($dateTime['year'], $dateTime['month_normalized']));
+        $dateTime['hour_normalized'] = $dateTime['hour'] ?? ($defaultFirst ? 0 : 23);
+        $dateTime['minute_normalized'] = $dateTime['minute'] ?? ($defaultFirst ? 0 : 59);
+        $dateTime['second_normalized'] = $dateTime['second'] ?? ($defaultFirst ? 0 : 59);
+        $dateTime['offset_hour_normalized'] = $dateTime['offset_hour'] ?? 0;
+        $dateTime['offset_minute_normalized'] = $dateTime['offset_minute'] ?? 0;
+        // Set the UTC offset (+00:00) if no offset is provided.
+        $dateTime['offset_normalized'] = isset($dateTime['offset_value'])
+            ? ('Z' === $dateTime['offset_value'] ? '+00:00' : $dateTime['offset_value'])
+            : '+00:00';
+
+        // Validate ranges of the datetime component.
+        if (($yearMin > $dateTime['year']) || ($yearMax < $dateTime['year'])) {
+            return null;
+        }
+        if ((1 > $dateTime['month_normalized']) || (12 < $dateTime['month_normalized'])) {
+            return null;
+        }
+        if ((1 > $dateTime['day_normalized']) || (31 < $dateTime['day_normalized'])) {
+            return null;
+        }
+        if ((0 > $dateTime['hour_normalized']) || (23 < $dateTime['hour_normalized'])) {
+            return null;
+        }
+        if ((0 > $dateTime['minute_normalized']) || (59 < $dateTime['minute_normalized'])) {
+            return null;
+        }
+        if ((0 > $dateTime['second_normalized']) || (59 < $dateTime['second_normalized'])) {
+            return null;
+        }
+        if ((-23 > $dateTime['offset_hour_normalized']) || (23 < $dateTime['offset_hour_normalized'])) {
+            return null;
+        }
+        if ((0 > $dateTime['offset_minute_normalized']) || (59 < $dateTime['offset_minute_normalized'])) {
+            return null;
+        }
+
+        // Adding the DateTime object here to reduce code duplication. To ensure
+        // consistency, use Coordinated Universal Time (UTC) if no offset is
+        // provided. This avoids automatic adjustments based on the server's
+        // default timezone.
+        // With strict type, "now" is required.
+        $dateTime['date'] = new \DateTime('now', new \DateTimeZone($dateTime['offset_normalized']));
+        $dateTime['date']
+            ->setDate(
+                $dateTime['year'],
+                $dateTime['month_normalized'],
+                $dateTime['day_normalized']
+            )
+            ->setTime(
+                $dateTime['hour_normalized'],
+                $dateTime['minute_normalized'],
+                $dateTime['second_normalized']
+            );
+
+        // Cache the date/time as a sql date time.
+        $dateTimes[$value][$firstOrLast] = $dateTime['date']->format('Y-m-d H:i:s');
+        return $dateTimes[$value][$firstOrLast];
+    }
+
+    /**
+     * Get the last day of a given year/month.
+     *
+     * @param int $year
+     * @param int $month
+     * @return int
+     */
+    protected function getLastDay($year, $month)
+    {
+        switch ($month) {
+            case 2:
+                // February (accounting for leap year)
+                $leapYear = date('L', mktime(0, 0, 0, 1, 1, $year));
+                return $leapYear ? 29 : 28;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                // April, June, September, November
+                return 30;
+            default:
+                // January, March, May, July, August, October, December
+                return 31;
+        }
     }
 }

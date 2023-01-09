@@ -8,6 +8,7 @@
 // The form itself is managed by search-form-main.
 
 // The form can be used independantly of the search page, but they share the same css/js.
+<<<<<<< HEAD
 
 // Remove code to avoid to load the same files multiple times in your theme.
 
@@ -16,10 +17,16 @@ $status = $plugins->get('status');
 $assetUrl = $plugins->get('assetUrl');
 $headLink = $plugins->get('headLink');
 $headScript = $plugins->get('headScript');
+=======
+// By the way, they are loaded one time only by Laminas.
+
+$assetUrl = $this->plugin('assetUrl');
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 if ($searchPage->subSetting('autosuggest', 'suggester')
     || $searchPage->subSetting('autosuggest', 'url')
 ) {
+<<<<<<< HEAD
     $headScript
         ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'AdvancedSearch'), 'text/javascript', ['defer' => 'defer']);
 }
@@ -34,4 +41,15 @@ if (!$status->isAdminRequest()) {
 $headLink
     ->appendStylesheet($assetUrl('css/search.css', 'AdvancedSearch'));
 $headScript
+=======
+    $this->headScript()
+        ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'AdvancedSearch'), 'text/javascript', ['defer' => 'defer']);
+}
+
+$this->headLink()
+    ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.min.css', 'Omeka'))
+    ->appendStylesheet($assetUrl('css/search.css', 'AdvancedSearch'));
+$this->headScript()
+    ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.min.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     ->appendFile($assetUrl('js/search.js', 'AdvancedSearch'), 'text/javascript', ['defer' => 'defer']);

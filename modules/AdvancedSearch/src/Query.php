@@ -2,7 +2,11 @@
 
 /*
  * Copyright BibLibre, 2016
+<<<<<<< HEAD
  * Copyright Daniel Berthereau, 2018-2022
+=======
+ * Copyright Daniel Berthereau, 2018-2021
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software. You can use, modify and/ or
@@ -65,11 +69,14 @@ class Query implements \JsonSerializable
     protected $filterQueries = [];
 
     /**
+<<<<<<< HEAD
      * @var array
      */
     protected $hiddenQueryFilters = [];
 
     /**
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      * @var string|null
      */
     protected $sort = '';
@@ -92,23 +99,36 @@ class Query implements \JsonSerializable
     /**
      * @var array
      */
+<<<<<<< HEAD
     protected $facets = [];
 
     /**
      * @var int
      * @deprecated Use individual facet array. Will be removed in a future version.
+=======
+    protected $facetFields = [];
+
+    /**
+     * @var int
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      */
     protected $facetLimit = 0;
 
     /**
      * @var string
+<<<<<<< HEAD
      * @deprecated Use individual facet array. Will be removed in a future version.
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      */
     protected $facetOrder = '';
 
     /**
      * @var array
+<<<<<<< HEAD
      * @deprecated Use individual facet array. Will be removed in a future version.
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      */
     protected $facetLanguages = [];
 
@@ -144,7 +164,11 @@ class Query implements \JsonSerializable
     protected $siteId;
 
     /**
+<<<<<<< HEAD
      * The query should be stringable and is always trimmed.
+=======
+     * The key is always trimmed and it is always a stringed.
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      */
     public function setQuery($query): self
     {
@@ -247,6 +271,7 @@ class Query implements \JsonSerializable
         return $this->filterQueries;
     }
 
+<<<<<<< HEAD
     public function setHiddenQueryFilters(array $hiddenQueryFilters): self
     {
         $this->hiddenQueryFilters = $hiddenQueryFilters;
@@ -258,6 +283,8 @@ class Query implements \JsonSerializable
         return $this->hiddenQueryFilters;
     }
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     /**
      * @param string|null $sort The field and the direction ("asc" or "desc")
      * separated by a space. Null means no sort (default of the search engine).
@@ -313,6 +340,7 @@ class Query implements \JsonSerializable
         return $this;
     }
 
+<<<<<<< HEAD
     /**
      * Add facet fields and params.
      *
@@ -395,10 +423,22 @@ class Query implements \JsonSerializable
             'languages' => $this->facetLanguages,
         ];
         $this->facets[$facetField] = $facet;
+=======
+    public function addFacetFields(array $facetFields): self
+    {
+        $this->facetFields = $facetFields;
+        return $this;
+    }
+
+    public function addFacetField(string $facetField): self
+    {
+        $this->facetFields[] = $facetField;
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         return $this;
     }
 
     /**
+<<<<<<< HEAD
      * @deprecated Use facet fields array. Will be removed in a future version.
      */
     public function getFacetFields(): array
@@ -409,49 +449,73 @@ class Query implements \JsonSerializable
     /**
      * @deprecated Use facet fields array. Will be removed in a future version.
      */
+=======
+     * Get the flat list of fields to use as facet.
+     */
+    public function getFacetFields(): array
+    {
+        return $this->facetFields;
+    }
+
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     public function setFacetLimit(?int $facetLimit): self
     {
         $this->facetLimit = (int) $facetLimit;
         return $this;
     }
 
+<<<<<<< HEAD
     /**
      * @deprecated Use facet fields array. Will be removed in a future version.
      */
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     public function getFacetLimit(): int
     {
         return $this->facetLimit;
     }
 
+<<<<<<< HEAD
     /**
      * @deprecated Use facet fields array. Will be removed in a future version.
      */
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     public function setFacetOrder(?string $facetOrder): self
     {
         $this->facetOrder = (string) $facetOrder;
         return $this;
     }
 
+<<<<<<< HEAD
     /**
      * @deprecated Use facet fields array. Will be removed in a future version.
      */
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     public function getFacetOrder(): string
     {
         return $this->facetOrder;
     }
 
+<<<<<<< HEAD
     /**
      * @deprecated Use facet fields array. Will be removed in a future version.
      */
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     public function setFacetLanguages(array $facetLanguages): self
     {
         $this->facetLanguages = $facetLanguages;
         return $this;
     }
 
+<<<<<<< HEAD
     /**
      * @deprecated Use facet fields array. Will be removed in a future version.
      */
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     public function getFacetLanguages(): array
     {
         return $this->facetLanguages;
@@ -463,6 +527,7 @@ class Query implements \JsonSerializable
         return $this;
     }
 
+<<<<<<< HEAD
     public function addActiveFacet(string $facetField, $value): self
     {
         $this->activeFacets[$facetField][] = $value;
@@ -473,6 +538,11 @@ class Query implements \JsonSerializable
     {
         $this->activeFacets[$facetField]['from'] = $from === '' ? null : $from;
         $this->activeFacets[$facetField]['to'] = $to === '' ? null : $to;
+=======
+    public function addActiveFacet(string $name, $value): self
+    {
+        $this->activeFacets[$name][] = $value;
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         return $this;
     }
 
@@ -481,11 +551,14 @@ class Query implements \JsonSerializable
         return $this->activeFacets;
     }
 
+<<<<<<< HEAD
     public function getActiveFacet(string $facetField): ?array
     {
         return $this->activeFacets[$facetField] ?? null;
     }
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     /**
      * Available options are (internal engine when direct (without index)):
      * - suggester: id of the suggester
@@ -543,6 +616,7 @@ class Query implements \JsonSerializable
     }
 
     /**
+<<<<<<< HEAD
      * Check for a simple browse: no query, no filters and no facets.
      *
      * This is not the inverse of isSearchQuery(): unlike isSearchQuery(),
@@ -563,6 +637,9 @@ class Query implements \JsonSerializable
      *
      * This is not the inverse of isBrowse(): unlike isBrowse(), facets are not
      * taken into a account.
+=======
+     * Check if the query is filled, except public, pagination, sort and facets.
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
      */
     public function isSearchQuery(): bool
     {
@@ -582,13 +659,19 @@ class Query implements \JsonSerializable
             'filters' => $this->getFilters(),
             'date_range_filters' => $this->getDateRangeFilters(),
             'filter_queries' => $this->getFilterQueries(),
+<<<<<<< HEAD
             'hidden_query_filters' => $this->getHiddenQueryFilters(),
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             'sort' => $this->getSort(),
             'page' => $this->getPage(),
             'offset' => $this->getOffset(),
             'limit' => $this->getLimit(),
+<<<<<<< HEAD
             'facets' => $this->getFacets(),
             // Deprecated "facet_fields", "facet_limit", "facet_languages".
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             'facet_fields' => $this->getFacetFields(),
             'facet_limit' => $this->getFacetLimit(),
             'facet_languages' => $this->getFacetLanguages(),
@@ -597,11 +680,14 @@ class Query implements \JsonSerializable
             'suggest_fields' => $this->getSuggestFields(),
             'excluded_fields' => $this->getExcludedFields(),
             'site_id' => $this->getSiteId(),
+<<<<<<< HEAD
             'deprecated' => [
                 'facet_fields',
                 'facet_limit',
                 'facet_languages',
             ],
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         ];
     }
 }

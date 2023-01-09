@@ -8,6 +8,7 @@
     "packages": [
         {
             "name": "composer/installers",
+<<<<<<< HEAD
             "version": "v2.2.0",
             "source": {
                 "type": "git",
@@ -23,22 +24,52 @@
             "require": {
                 "composer-plugin-api": "^1.0 || ^2.0",
                 "php": "^7.2 || ^8.0"
+=======
+            "version": "v1.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/installers.git",
+                "reference": "d20a64ed3c94748397ff5973488761b22f6d3f19"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/installers/zipball/d20a64ed3c94748397ff5973488761b22f6d3f19",
+                "reference": "d20a64ed3c94748397ff5973488761b22f6d3f19",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0 || ^2.0"
+            },
+            "replace": {
+                "roundcube/plugin-installer": "*",
+                "shama/baton": "*"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             },
             "require-dev": {
                 "composer/composer": "1.6.* || ^2.0",
                 "composer/semver": "^1 || ^3",
                 "phpstan/phpstan": "^0.12.55",
                 "phpstan/phpstan-phpunit": "^0.12.16",
+<<<<<<< HEAD
                 "symfony/phpunit-bridge": "^5.3",
                 "symfony/process": "^5"
+=======
+                "symfony/phpunit-bridge": "^4.2 || ^5",
+                "symfony/process": "^2.3"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             },
             "type": "composer-plugin",
             "extra": {
                 "class": "Composer\\Installers\\Plugin",
                 "branch-alias": {
+<<<<<<< HEAD
                     "dev-main": "2.x-dev"
                 },
                 "plugin-modifies-install-path": true
+=======
+                    "dev-main": "1.x-dev"
+                }
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             },
             "autoload": {
                 "psr-4": {
@@ -59,6 +90,10 @@
             "description": "A multi-framework Composer library installer",
             "homepage": "https://composer.github.io/installers/",
             "keywords": [
+<<<<<<< HEAD
+=======
+                "Craft",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 "Dolibarr",
                 "Eliasis",
                 "Hurad",
@@ -79,6 +114,10 @@
                 "Whmcs",
                 "WolfCMS",
                 "agl",
+<<<<<<< HEAD
+=======
+                "aimeos",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 "annotatecms",
                 "attogram",
                 "bitrix",
@@ -97,6 +136,10 @@
                 "grav",
                 "installer",
                 "itop",
+<<<<<<< HEAD
+=======
+                "joomla",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 "known",
                 "kohana",
                 "laravel",
@@ -105,7 +148,10 @@
                 "magento",
                 "majima",
                 "mako",
+<<<<<<< HEAD
                 "matomo",
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 "mediawiki",
                 "miaoxing",
                 "modulework",
@@ -125,7 +171,13 @@
                 "silverstripe",
                 "sydes",
                 "sylius",
+<<<<<<< HEAD
                 "tastyigniter",
+=======
+                "symfony",
+                "tastyigniter",
+                "typo3",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 "wordpress",
                 "yawik",
                 "zend",
@@ -133,7 +185,11 @@
             ],
             "support": {
                 "issues": "https://github.com/composer/installers/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/composer/installers/tree/v2.2.0"
+=======
+                "source": "https://github.com/composer/installers/tree/v1.12.0"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             },
             "funding": [
                 {
@@ -149,7 +205,11 @@
                     "type": "tidelift"
                 }
             ],
+<<<<<<< HEAD
             "time": "2022-08-20T06:45:11+00:00"
+=======
+            "time": "2021-09-13T08:19:44+00:00"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         },
         {
             "name": "devbridge/jquery-autocomplete",
@@ -163,6 +223,7 @@
         },
         {
             "name": "oomphinc/composer-installers-extender",
+<<<<<<< HEAD
             "version": "2.0.1",
             "source": {
                 "type": "git",
@@ -173,11 +234,27 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/oomphinc/composer-installers-extender/zipball/cbf4b6f9a24153b785d09eee755b995ba87bd5f9",
                 "reference": "cbf4b6f9a24153b785d09eee755b995ba87bd5f9",
+=======
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/oomphinc/composer-installers-extender.git",
+                "reference": "8d3fe38a1723e0e91076920c8bb946b1696e28ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/oomphinc/composer-installers-extender/zipball/8d3fe38a1723e0e91076920c8bb946b1696e28ca",
+                "reference": "8d3fe38a1723e0e91076920c8bb946b1696e28ca",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
+<<<<<<< HEAD
                 "composer/installers": "^1.0 || ^2.0",
+=======
+                "composer/installers": "^1.0",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 "php": ">=7.1"
             },
             "require-dev": {
@@ -214,9 +291,15 @@
             "homepage": "http://www.oomphinc.com/",
             "support": {
                 "issues": "https://github.com/oomphinc/composer-installers-extender/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/oomphinc/composer-installers-extender/tree/2.0.1"
             },
             "time": "2021-12-15T12:32:42+00:00"
+=======
+                "source": "https://github.com/oomphinc/composer-installers-extender/tree/2.0.0"
+            },
+            "time": "2020-08-11T21:06:11+00:00"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         }
     ],
     "packages-dev": [
@@ -270,5 +353,9 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
+<<<<<<< HEAD
     "plugin-api-version": "2.3.0"
+=======
+    "plugin-api-version": "2.0.0"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 }

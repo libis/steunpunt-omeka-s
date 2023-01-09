@@ -1,13 +1,13 @@
 /* main: style.scss */
 $family-primary: 'Raleway', sans-serif;
 $family-secondary: 'Manrope', sans-serif;
-$primary: #45aab4;
+$primary: #5ebec4;
 
 $info: #00407a;
 $dark: #00407a;
 $text: #333;
 $link: $primary;
-$navbar-item-color: #fff;
+$navbar-item-color: $primary;
 $section-padding: 3rem 1.5rem 3rem 1.5rem;
 $navbar-height:4rem;
 $border: #b3b3b3;
@@ -38,6 +38,3 @@ $modal-background-background-color:rgba($primary,0.86);
 $control-radius:0;
 $input-radius:0;
 
-
-
-@import "../../../../node_modules/bulma/bulma.sass";

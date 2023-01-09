@@ -27,7 +27,11 @@ $(document).ready(function() {
 
     $('.chosen-select').chosen(chosenOptions);
 
+<<<<<<< HEAD
     $('body.search').find('#resource-templates .value select, #item-sets .value select, #site_id, #owner_id, #datetime-queries .value select')
+=======
+    $('#resource-templates .value select, #item-sets .value select, #site_id, #owner_id, #datetime-queries .value select')
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         .addClass('chosen-select').chosen(chosenOptions);
     $('#property-queries, #resource-class').on('o:value-created', '.value', function(e) {
         $('.chosen-select').chosen(chosenOptions);

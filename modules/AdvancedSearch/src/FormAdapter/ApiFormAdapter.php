@@ -168,6 +168,7 @@ class ApiFormAdapter implements FormAdapterInterface
             return;
         }
 
+<<<<<<< HEAD
         $withoutValueQueryTypes = [
             'ex',
             'nex',
@@ -179,6 +180,8 @@ class ApiFormAdapter implements FormAdapterInterface
             'nlex',
         ];
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         foreach ($request['property'] as $queryRow) {
             if (!(is_array($queryRow)
                 && array_key_exists('property', $queryRow)
@@ -191,7 +194,11 @@ class ApiFormAdapter implements FormAdapterInterface
             // $joiner = $queryRow['joiner']) ?? null;
             $value = $queryRow['text'] ?? null;
 
+<<<<<<< HEAD
             if (!$value && !in_array($queryType, $withoutValueQueryTypes)) {
+=======
+            if (!$value && $queryType !== 'nex' && $queryType !== 'ex') {
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 continue;
             }
 
@@ -235,10 +242,13 @@ class ApiFormAdapter implements FormAdapterInterface
                 case 'res':
                 case 'nex':
                 case 'ex':
+<<<<<<< HEAD
                 case 'nexs':
                 case 'exs':
                 case 'nexm':
                 case 'exm':
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 case 'nlex':
                 case 'lex':
                 case 'nlres':

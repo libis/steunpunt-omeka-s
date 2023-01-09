@@ -61,7 +61,10 @@ return [
         'invokables' => [
             Form\Element\BlockShowTitleSelect::class => Form\Element\BlockShowTitleSelect::class,
             Form\Element\OptionalRadio::class => Form\Element\OptionalRadio::class,
+<<<<<<< HEAD
             // Blocks.
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             Form\AssetFieldset::class => Form\AssetFieldset::class,
             Form\BlockFieldset::class => Form\BlockFieldset::class,
             Form\BrowsePreviewFieldset::class => Form\BrowsePreviewFieldset::class,
@@ -107,6 +110,7 @@ return [
             ],
         ],
     ],
+<<<<<<< HEAD
     'assets' => [
         // Override internals assets. Only for Omeka assets: modules can use another filename.
         'internals' => [
@@ -117,6 +121,11 @@ return [
         'Class', // @translate
         'Url (deprecated)', // @translate
         'Insert Footnotes', // @translate
+=======
+    'js_translate_strings' => [
+        'Class', // @translate
+        'Url (deprecated)', // @translate
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     ],
     'blockplus' => [
         'settings' => [

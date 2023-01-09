@@ -2,6 +2,7 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var array $query
+<<<<<<< HEAD
  *
  * Same as core template, with:
  * - option used term for admin;
@@ -19,6 +20,17 @@ $siteSetting = $plugins->get('siteSetting');
 $resourceClassSelect = $plugins->get('resourceClassSelect');
 
 $isSiteRequest = $status->isSiteRequest();
+=======
+ */
+
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$resourceClassSelect = $plugins->get('resourceClassSelect');
+$setting = $plugins->get('setting');
+$siteSetting = $plugins->get('siteSetting');
+
+$isSiteRequest = $this->status()->isSiteRequest();
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 $usedTerms = $isSiteRequest ? $siteSetting('advancedsearch_restrict_used_terms', true) : $setting('advancedsearch_restrict_used_terms', true);
 
 // Prepare the resource class query.
@@ -26,21 +38,38 @@ $ids = $query['resource_class_id'] ?? [];
 if (!is_array($ids)) {
     $ids = [$ids];
 }
+<<<<<<< HEAD
 $ids = array_filter($ids, 'is_numeric') ?: [null];
+=======
+$ids = array_filter($ids);
+if (!$ids) {
+    $ids = [null];
+}
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 ?>
 
 <div id="resource-class" class="field removable multi-value" role="group">
     <div class="field-meta">
+<<<<<<< HEAD
         <span id="by-resource-class-label" class="label"><?= $translate('Search by class') ?></span>
         <?= $hyperlink('', '#', ['class' => 'expand', 'title' => $translate('Expand')]) ?>
         <div class="collapsible">
             <div class="field-description"><?= $translate('Searches for resources that are any of these classes.') ?></div>
         </div>
         <button type="button" class="add-value o-icon-add button" aria-label="<?= $translate('Add new class') ?>" title="<?= $translate('Add new class') ?>"></button>
+=======
+        <span id="by-resource-class-label" class="label"><?php echo $translate('Search by class'); ?></span>
+        <?php echo $this->hyperlink('', '#', ['class' => 'expand', 'title' => $translate('Expand')]); ?>
+        <div class="collapsible">
+            <div class="field-description"><?php echo $translate('Searches for resources that are any of these classes.'); ?></div>
+        </div>
+        <button type="button" class="add-value o-icon-add button" aria-label="<?php echo $translate('Add new class'); ?>" title="<?php echo $translate('Add new class'); ?>"></button>
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     </div>
     <div class="inputs">
         <?php foreach ($ids as $id): ?>
         <div class="value">
+<<<<<<< HEAD
             <?= $resourceClassSelect([
                 'name' => 'resource_class_id[]',
                 'options' => [
@@ -49,13 +78,25 @@ $ids = array_filter($ids, 'is_numeric') ?: [null];
                     ],
                     'used_terms' => $usedTerms,
                 ],
+=======
+            <?php echo $resourceClassSelect([
+                'name' => 'resource_class_id[]',
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 'attributes' => [
                     'value' => $id,
                     'aria-labelledby' => 'by-resource-class-label',
                     'class' => 'chosen-select',
                 ],
+<<<<<<< HEAD
             ]) ?>
             <button type="button" class="o-icon-delete remove-value button" aria-label="<?= $translate('Remove value') ?>" title="<?= $translate('Remove value') ?>"></button>
+=======
+                'options' => [
+                    'used_terms' => $usedTerms,
+                ],
+            ]); ?>
+            <button type="button" class="o-icon-delete remove-value button" aria-label="<?php echo $translate('Remove value'); ?>" title="<?php echo $translate('Remove value'); ?>"></button>
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         </div>
         <?php endforeach; ?>
     </div>

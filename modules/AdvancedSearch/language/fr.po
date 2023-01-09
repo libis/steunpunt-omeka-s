@@ -7,14 +7,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2022-09-05 00:00+0000\n"
 "PO-Revision-Date: 2022-09-05 00:00+0000\n"
+=======
+"POT-Creation-Date: 2022-01-03 00:00+0000\n"
+"PO-Revision-Date: 2022-01-03 00:00+0000\n"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+<<<<<<< HEAD
 "X-Generator: Poedit 3.1.1\n"
 
 #: Module.php:857
@@ -162,22 +168,173 @@ msgid "Asc"
 msgstr "Asc"
 
 #: src/Adapter/InternalAdapter.php:85
+=======
+"X-Generator: Poedit 3.0.1\n"
+
+#: Module.php:730 Module.php:1108
+msgid "is in list"
+msgstr "est dans la liste"
+
+#: Module.php:731 Module.php:1109
+msgid "is not in list"
+msgstr "n’est pas dans la liste"
+
+#: Module.php:732 Module.php:1110 src/View/Helper/SearchFilters.php:56
+#: view/common/advanced-search/properties.phtml:86
+msgid "starts with"
+msgstr "commence par"
+
+#: Module.php:733 Module.php:1111 src/View/Helper/SearchFilters.php:57
+#: view/common/advanced-search/properties.phtml:87
+msgid "does not start with"
+msgstr "ne commence pas par"
+
+#: Module.php:734 Module.php:1112 src/View/Helper/SearchFilters.php:58
+#: view/common/advanced-search/properties.phtml:88
+msgid "ends with"
+msgstr "se termine par"
+
+#: Module.php:735 Module.php:1113 src/View/Helper/SearchFilters.php:59
+#: view/common/advanced-search/properties.phtml:89
+msgid "does not end with"
+msgstr "ne se termine pas par"
+
+#: Module.php:738 Module.php:1116 src/View/Helper/SearchFilters.php:64
+#: view/common/advanced-search/properties.phtml:94
+msgid "is a linked resource"
+msgstr "est une ressource liée"
+
+#: Module.php:739 Module.php:1117 src/View/Helper/SearchFilters.php:65
+#: view/common/advanced-search/properties.phtml:95
+msgid "is not a linked resource"
+msgstr "n’est pas une ressource liée"
+
+#: Module.php:740 Module.php:1118 src/View/Helper/SearchFilters.php:66
+#: view/common/advanced-search/properties.phtml:96
+msgid "is linked with resource with ID"
+msgstr "est liée à la ressource avec l’id"
+
+#: Module.php:741 Module.php:1119 src/View/Helper/SearchFilters.php:67
+#: view/common/advanced-search/properties.phtml:97
+msgid "is not linked with resource with ID"
+msgstr "n’est pas liée à la ressource avec l’id"
+
+#: Module.php:846 Module.php:884 Module.php:1210
+#: src/View/Helper/SearchFilters.php:146
+msgid "EXCEPT"
+msgstr "SAUF"
+
+#: Module.php:860 view/common/advanced-search/date-time.phtml:74
+msgid "after"
+msgstr "après"
+
+#: Module.php:861 view/common/advanced-search/date-time.phtml:73
+msgid "after or on"
+msgstr "après ou le"
+
+#: Module.php:862 view/common/advanced-search/date-time.phtml:75
+msgid "on"
+msgstr "sur"
+
+#: Module.php:863 view/common/advanced-search/date-time.phtml:76
+msgid "not on"
+msgstr "pas sur"
+
+#: Module.php:864 view/common/advanced-search/date-time.phtml:77
+msgid "before or on"
+msgstr "avant ou le"
+
+#: Module.php:865 view/common/advanced-search/date-time.phtml:78
+msgid "before"
+msgstr "avant"
+
+#: Module.php:866 view/common/advanced-search/date-time.phtml:79
+msgid "has any date / time"
+msgstr "a une date / heure"
+
+#: Module.php:867 view/common/advanced-search/date-time.phtml:80
+msgid "has no date / time"
+msgstr "n’a pas de date / heure"
+
+#: Module.php:908 view/common/advanced-search/has-media.phtml:12
+#: view/common/advanced-search/has-media.phtml:27
+msgid "Has media"
+msgstr "A un média"
+
+#: Module.php:915
+msgid "Has original"
+msgstr "A un original"
+
+#: Module.php:922 view/common/advanced-search/has-thumbnails.phtml:12
+#: view/common/advanced-search/has-thumbnails.phtml:27
+msgid "Has thumbnails"
+msgstr "A des vignettes"
+
+#: Module.php:929
+msgid "Media types"
+msgstr "Types de média"
+
+#: Module.php:1014
+msgid "Resource id"
+msgstr "Id de la ressource"
+
+#: Module.php:1120
+msgid "greater than"
+msgstr "plus grand que"
+
+#: Module.php:1121
+msgid "greater than or equal"
+msgstr "plus grand ou égal à"
+
+#: Module.php:1122
+msgid "lower than or equal"
+msgstr "plus petit ou égal à"
+
+#: Module.php:1123
+msgid "lower than"
+msgstr "plus petit que"
+
+#: Module.php:1203
+msgid "Unknown field"
+msgstr "Champ inconnu"
+
+#: Module.php:1204
+msgid "[Any field]"
+msgstr "[tout champ]"
+
+#: src/Adapter/InternalAdapter.php:86
+msgid "Asc"
+msgstr "Asc"
+
+#: src/Adapter/InternalAdapter.php:87
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid "Desc"
 msgstr "Desc"
 
 #: src/Api/Representation/SearchEngineRepresentation.php:143
 #, php-format
 msgid "[Missing adapter \"%s\"]"
+<<<<<<< HEAD
 msgstr "[Adaptateur « %s » manquant]"
+=======
+msgstr "[Adaptateur \"%s\" manquant]"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchConfigController.php:568
 msgid "Filters"
 msgstr "Filtres"
 
+<<<<<<< HEAD
 #: src/Generic/AbstractModule.php:66 src/Generic/AbstractModule.php:740
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr "Ce module requiert le module « %s »."
+=======
+#: src/Generic/AbstractModule.php:66
+#, php-format
+msgid "This module requires the module \"%s\"."
+msgstr "Ce module requiert le module \"%s\"."
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Generic/AbstractModule.php:73
 #, php-format
@@ -188,6 +345,7 @@ msgstr "Ce module requiert les modules \"%s\"."
 msgid "This module has resources that cannot be installed."
 msgstr "Ce module a des ressources qui ne peuvent pas être installées."
 
+<<<<<<< HEAD
 #: src/Generic/AbstractModule.php:87
 msgid ""
 "This module cannot install its tables, because they exist already. Try to "
@@ -208,6 +366,9 @@ msgid "This module requires the module \"%1$s\", version %2$s or above."
 msgstr "Ce module requiert le module « %1$s », version %2$s ou supérieure."
 
 #: src/Generic/AbstractModule.php:832
+=======
+#: src/Generic/AbstractModule.php:725
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
@@ -221,6 +382,7 @@ msgstr ""
 msgid "Permission denied for the current user to %s the %s resource."
 msgstr "Autorisation refusée à l’utilisateur actuel de %s la %s ressource."
 
+<<<<<<< HEAD
 #: src/View/Helper/SearchFilters.php:149 src/View/Helper/SearchFilters.php:238
 #: src/View/Helper/SearchFilters.php:261 src/View/Helper/SearchFilters.php:277
 #: src/View/Helper/SearchFilters.php:300
@@ -296,6 +458,8 @@ msgstr "Types de média"
 msgid "Per page"
 msgstr "Par page"
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #: view/advanced-search/admin/index/browse.phtml:52
 msgid "Search manager"
 msgstr "Moteurs de recherche"
@@ -470,7 +634,11 @@ msgstr "Pas d’indexation en cours : la tâche peut être lancée."
 #: view/advanced-search/admin/search-engine/index-confirm.phtml:53
 #: view/advanced-search/admin/search-suggester/index-confirm.phtml:53
 msgid "This index has no resource type to index."
+<<<<<<< HEAD
 msgstr "L’index n’a pas de type de ressource à indexer."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: view/advanced-search/admin/search-suggester/add.phtml:12
 msgid "Add suggester"
@@ -558,6 +726,7 @@ msgstr "Supprimer la date / heure"
 msgid "Has original file"
 msgstr "A un fichier original"
 
+<<<<<<< HEAD
 #: view/search/facet-select-range.phtml:39
 msgid "Between"
 msgstr "Entre"
@@ -612,6 +781,58 @@ msgid "Your query returned no results"
 msgstr "Votre recherche n'a retourné aucun résultat"
 
 #: view/search/search.phtml:195
+=======
+#: view/search/facet-select.phtml:18
+msgid "Select below…"
+msgstr "Choisir ci-dessous…"
+
+#: view/search/facets.phtml:45
+msgid "Facets"
+msgstr "Facettes"
+
+#: view/search/facets.phtml:48
+msgid "Active facets"
+msgstr "Facettes actives"
+
+#: view/search/facets.phtml:64 view/search/facets.phtml:87
+msgid "Apply facets"
+msgstr "Appliquer les facettes"
+
+#: view/search/facets.phtml:69
+msgid "No facets."
+msgstr "Pas de facettes."
+
+#: view/search/resource-list.phtml:35
+msgid "No media"
+msgstr "Pas de média"
+
+#: view/search/results-header-footer.phtml:34
+#, php-format
+msgid "Results by %d"
+msgstr "Par %d résultats"
+
+#: view/search/results-header-footer.phtml:66
+msgid "list"
+msgstr "liste"
+
+#: view/search/results-header-footer.phtml:68
+msgid "grid"
+msgstr "grille"
+
+#: view/search/search.phtml:167
+msgid "Fill a query and get results."
+msgstr "Faîtes une requête pour obtenir des résultats."
+
+#: view/search/search.phtml:169
+msgid "This item set has no items."
+msgstr "Cette collection n’a pas de contenus."
+
+#: view/search/search.phtml:176
+msgid "Your query returned no results"
+msgstr "Votre recherche n'a retourné aucun résultat"
+
+#: view/search/search.phtml:196
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid "An error occured and your query returned no results."
 msgstr ""
 "Une erreur est survenue et votre recherche n'a retourné aucun résultat."
@@ -636,12 +857,21 @@ msgid "Select item sets…"
 msgstr "Choisir des collections…"
 
 #: data/scripts/upgrade_from_advancedsearchplus.php:79
+<<<<<<< HEAD
 #: data/scripts/upgrade_from_search.php:355 Module.php:218
 #, php-format
 msgid "The module \"%s\" was upgraded by module \"%s\" and uninstalled."
 msgstr "Le module « %s » a été mis à niveau par le module « %s » et supprimé."
 
 #: data/scripts/upgrade_from_search.php:29 Module.php:113
+=======
+#: data/scripts/upgrade_from_search.php:355 Module.php:221
+#, php-format
+msgid "The module \"%s\" was upgraded by module \"%s\" and uninstalled."
+msgstr ""
+
+#: data/scripts/upgrade_from_search.php:29 Module.php:116
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "Compatibility of this module with module \"Search\" of BibLibre has not been "
 "checked. Uninstall it first, or upgrade it with its fork at https://gitlab."
@@ -655,12 +885,19 @@ msgstr ""
 #, php-format
 msgid "The version of the module Search should be at least %s to be upgraded."
 msgstr ""
+<<<<<<< HEAD
 "La version du module Search doit être au moins %s pour être mise à niveau."
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: data/scripts/upgrade.php:201
 #, php-format
 msgid "The module %s should be updated to version %s."
+<<<<<<< HEAD
 msgstr "Le module %s doit être mis à jour à la version %s."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: data/scripts/upgrade.php:208
 msgid ""
@@ -694,10 +931,13 @@ msgid ""
 "input elements, the type should be \"Omeka\" (or prepend \"Omeka/\" if "
 "needed). See the default config page."
 msgstr ""
+<<<<<<< HEAD
 "Certains types de champs ont été renommés pour les filtres dans le "
 "formulaire. Pour utiliser les éléments d’entrée, le type doit être "
 "« Omeka » (ou préfixer avec « Omeka/ » si besoin). Voir la page de "
 "configuration par défaut."
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: data/scripts/upgrade.php:236
 msgid ""
@@ -707,6 +947,7 @@ msgstr ""
 "Il est désormais possible de chercher des ressources avec des ressources "
 "liées dans la recherche avancée standard."
 
+<<<<<<< HEAD
 #: data/scripts/upgrade.php:244
 msgid ""
 "A new option was added to display the resources mixed (by default) or item "
@@ -763,22 +1004,57 @@ msgstr ""
 "« Search » doit d’abord être mis à jour à la version 3.5.23.3 ou supérieure."
 
 #: Module.php:126
+=======
+#: data/search_configs/default.php:186
+msgid "Results by 10"
+msgstr "Par 10 résultats"
+
+#: data/search_configs/default.php:188
+msgid "Results by 25"
+msgstr "Par 25 résultats"
+
+#: data/search_configs/default.php:189
+msgid "Results by 50"
+msgstr "Par 50 résultats"
+
+#: data/search_configs/default.php:190
+msgid "Results by 100"
+msgstr "Par 100 résultats"
+
+#: Module.php:121
+msgid ""
+"To be automatically upgraded and replaced by this module, the module \"Search"
+"\" should be updated first to version 3.5.23.3 or greater."
+msgstr ""
+
+#: Module.php:129
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "To be automatically upgraded and replaced by this module, use version "
 "3.3.6.6 or below."
 msgstr ""
+<<<<<<< HEAD
 "Pour être automatiquement mis à niveau et remplacé par ce module, utiliser "
 "la version 3.3.6.6 ou inférieure."
 
 #: Module.php:136
+=======
+
+#: Module.php:139
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "The module Reference is required to use the facets with the default internal "
 "adapter, but not for the Solr adapter."
 msgstr ""
+<<<<<<< HEAD
 "Le module Référence est nécessaire pour utiliser les facettes avec "
 "l’adapteur interne, mais pas avec l’adapteur Solr."
 
 #: Module.php:159 Module.php:177
+=======
+
+#: Module.php:162 Module.php:180
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "An error occurred during migration of module \"%s\". Check the config and "
@@ -787,11 +1063,16 @@ msgstr ""
 "Une erreur est survenue durant la migration du module \"%s\". Vérifier la "
 "config et désinstaller manuellement."
 
+<<<<<<< HEAD
 #: Module.php:184
+=======
+#: Module.php:187
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "The modules Search, Advanced Search Plus, PSL Search Form, Search Solr "
 "cannot be upgraded with a version of Advanced Search greater than 3.3.6.6."
 msgstr ""
+<<<<<<< HEAD
 "Les modules Search, Advanced Search Plus, PSL Search Form, Search Solr ne "
 "peuvent pas être mis à jour avec une version d’Advanced Search supérieure à "
 "3.3.6.6."
@@ -802,10 +1083,20 @@ msgid "The module %s should be upgraded to version %s or later."
 msgstr "Le module %s doit être mis à niveau à la version %s ou supérieure."
 
 #: Module.php:204
+=======
+
+#: Module.php:201
+#, php-format
+msgid "The module %s should be upgraded to version %s or later."
+msgstr ""
+
+#: Module.php:207
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "The module %s can be reenabled."
 msgstr "Le module %s peut être réactivé."
 
+<<<<<<< HEAD
 #: Module.php:1083 src/View/Helper/SearchFilters.php:339
 msgid " "
 msgstr ""
@@ -826,55 +1117,98 @@ msgstr ""
 "\"%s\" : %s"
 
 #: Module.php:1229
+=======
+#: Module.php:846 Module.php:884 Module.php:1210
+msgid " "
+msgstr ""
+
+#: Module.php:1336
+#, php-format
+msgid "Unable to batch index metadata for search engine \"%s\": %s"
+msgstr ""
+"Impossible d’indexer les métadonnées en lot pour le moteur de recherche \"%s"
+"\" : %s"
+
+#: Module.php:1341
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "Unable to batch update the search engine \"%s\": see log."
 msgstr ""
 "Impossible de mettre à jour le moteur de recherche \"%s\" : voir les "
 "journaux."
 
+<<<<<<< HEAD
 #: Module.php:1314
+=======
+#: Module.php:1426
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "Unable to delete the search index for resource #%d: %s"
 msgstr ""
 "Impossible de supprimer l’index de recherche pour la ressource #%d : %s"
 
+<<<<<<< HEAD
 #: Module.php:1319
+=======
+#: Module.php:1431
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "Unable to delete the search index for the deleted resource #%d: see log."
 msgstr ""
+<<<<<<< HEAD
 "Impossible de supprimer l’index de recherche pour la ressource supprimée "
 "#%d : voir les journaux."
 
 #: Module.php:1339
+=======
+"Impossible de supprimer l’index de recherche pour la ressource supprimée #"
+"%d : voir les journaux."
+
+#: Module.php:1451
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "Unable to index metadata of resource #%d for search: %s"
 msgstr ""
 "Impossible d’indexer les métadonnées des ressources #%d pour la recherche : "
 "%s"
 
+<<<<<<< HEAD
 #: Module.php:1344
+=======
+#: Module.php:1456
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "Unable to update the search index for resource #%d: see log."
 msgstr ""
 "Impossible de mettre à jour l’index pour la ressource #%d : voir les "
 "journaux."
 
+<<<<<<< HEAD
 #: Module.php:1532
+=======
+#: Module.php:1633
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "The internal search engine (sql) is available. Configure it in the %ssearch "
 "manager%s."
 msgstr ""
+<<<<<<< HEAD
 "Le moteur de recherche interne (sql) est disponible et peut être configuré "
 "dans le menu %sMoteurs de recherche%s."
 
 #: Module.php:1573
+=======
+
+#: Module.php:1674
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "The internal suggester (sql) will be available after indexation. Configure "
 "it in the %ssearch manager%s."
 msgstr ""
+<<<<<<< HEAD
 "Le suggéreur interne (sql) sera disponible après indexation. Configurer le "
 "dans le menu %sMoteurs de recherche%s."
 
@@ -908,12 +1242,45 @@ msgstr "Choisir le type de ressource…"
 #: src/Form/MainSearchForm.php:465 src/Form/MainSearchForm.php:488
 #: src/Form/MainSearchForm.php:504 src/Form/MainSearchForm.php:525
 #: src/Form/MainSearchForm.php:555 src/Form/MainSearchForm.php:586
+=======
+
+#: Module.php:1708
+#, php-format
+msgid ""
+"The default search page is available. Configure it in the %ssearch manager"
+"%s, in the main settings (for admin) and in site settings (for public)."
+msgstr ""
+
+#: src/Form/MainSearchForm.php:320
+msgid "From"
+msgstr "De"
+
+#: src/Form/MainSearchForm.php:323 src/Form/MainSearchForm.php:333
+msgid "YYYY"
+msgstr "AAAA"
+
+#: src/Form/MainSearchForm.php:330
+msgid "To"
+msgstr "À"
+
+#: src/Form/MainSearchForm.php:460
+msgid "Select resource type…"
+msgstr "Choisir le type de ressource…"
+
+#: src/Form/MainSearchForm.php:463 src/Form/MainSearchForm.php:486
+#: src/Form/MainSearchForm.php:502 src/Form/MainSearchForm.php:523
+#: src/Form/MainSearchForm.php:554 src/Form/MainSearchForm.php:586
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #: src/Form/MainSearchForm.php:618 src/Form/MainSearchForm.php:657
 #: src/Form/MainSearchForm.php:682 src/Form/MainSearchForm.php:722
 msgid "label"
 msgstr "libellé"
 
+<<<<<<< HEAD
 #: src/Form/MainSearchForm.php:533
+=======
+#: src/Form/MainSearchForm.php:532
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid "Select owners…"
 msgstr "Choisir des propiétaires…"
 
@@ -929,6 +1296,13 @@ msgstr "Choisir des modèles…"
 msgid "Select collections…"
 msgstr "Choisir des collections…"
 
+<<<<<<< HEAD
+=======
+#: src/Form/SearchFilter/Advanced.php:54
+msgid "and"
+msgstr "et"
+
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #: src/Form/SearchFilter/Advanced.php:55
 msgid "or"
 msgstr "ou"
@@ -950,8 +1324,11 @@ msgid ""
 "The request below will be checked against the matching form below. Keys "
 "unknown by the form will be removed."
 msgstr ""
+<<<<<<< HEAD
 "La requête ci-dessous sera validée avec le formulaire. Les clés non-"
 "présentes dans le formulaire seront supprimées."
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Form/SearchingFormFieldset.php:50
 msgid "Display results"
@@ -971,7 +1348,11 @@ msgstr ""
 
 #: src/Form/SearchingFormFieldset.php:72
 msgid "Hidden filter query"
+<<<<<<< HEAD
 msgstr "Requête cachée pour filtrer"
+=======
+msgstr "Requête pour le filtre caché"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Form/SearchingFormFieldset.php:73
 msgid ""
@@ -990,18 +1371,29 @@ msgid ""
 "Templates are in folder \"common/block-layout\" of the theme and should "
 "start with \"searching-form\"."
 msgstr ""
+<<<<<<< HEAD
 "Les modèles sont dans le dossier « common/block-layout » du thème et doivent "
 "commencer par « searching-form »."
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Form/SettingsFieldset.php:24
 msgid "Advanced Search (admin board)"
 msgstr "Recherche avancée (interface admin)"
 
+<<<<<<< HEAD
 #: src/Form/SettingsFieldset.php:50 src/Form/SiteSettingsFieldset.php:75
 msgid "Restrict to used properties and resources classes"
 msgstr "Restreindre aux propriétés et aux classes utilisées"
 
 #: src/Form/SettingsFieldset.php:51 src/Form/SiteSettingsFieldset.php:76
+=======
+#: src/Form/SettingsFieldset.php:49 src/Form/SiteSettingsFieldset.php:74
+msgid "Restrict to used properties and resources classes"
+msgstr "Restreindre aux propriétés et aux classes utilisées"
+
+#: src/Form/SettingsFieldset.php:50 src/Form/SiteSettingsFieldset.php:75
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "If checked, restrict the list of properties and resources classes to the "
 "used ones in advanced search form."
@@ -1009,6 +1401,7 @@ msgstr ""
 "Si coché, restreindre la liste des propriétés et des classes à celles "
 "utilisées dans la recherche avancée."
 
+<<<<<<< HEAD
 #: src/Form/SettingsFieldset.php:63
 msgid "Default search page (admin)"
 msgstr "Page de recherche par défaut (admin)"
@@ -1030,10 +1423,34 @@ msgid "Page used for quick api search"
 msgstr "Configuration utilisée pour la recherche api rapide"
 
 #: src/Form/SettingsFieldset.php:90
+=======
+#: src/Form/SettingsFieldset.php:62
+msgid "Default search page (admin)"
+msgstr "Page de recherche par défaut (admin)"
+
+#: src/Form/SettingsFieldset.php:63
+msgid "This search engine is used in the admin bar."
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:65
+msgid "Select the search engine for the admin bar…"
+msgstr "Choisir le moteur de recherche par défaut en admin…"
+
+#: src/Form/SettingsFieldset.php:76 src/Form/SiteSettingsFieldset.php:122
+msgid "Available search pages"
+msgstr "Pages de recherche disponibles"
+
+#: src/Form/SettingsFieldset.php:88
+msgid "Page used for quick api search"
+msgstr "Configuration utilisée pour la recherche api rapide"
+
+#: src/Form/SettingsFieldset.php:89
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "The method apiSearch() allows to do a quick search in some cases. It "
 "requires a mapping done with the Omeka api and the selected index."
 msgstr ""
+<<<<<<< HEAD
 "La méthode apiSearch() permet d’accélérer les recherches dans certains cas. "
 "Elle nécessite un alignement entre l’api Omeka et l’index choisi."
 
@@ -1046,6 +1463,18 @@ msgid "Search batch size for reindexation"
 msgstr "Taille de la réindexation en lot"
 
 #: src/Form/SettingsFieldset.php:104
+=======
+
+#: src/Form/SettingsFieldset.php:91
+msgid "Select the config for quick api search…"
+msgstr "Choisir la configuration pour la recherche api rapide…"
+
+#: src/Form/SettingsFieldset.php:102
+msgid "Search batch size for reindexation"
+msgstr "Taille de la réindexation en lot"
+
+#: src/Form/SettingsFieldset.php:103
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "Default is 100, but it can be adapted according to your resource average "
 "size, your mapping and your architecture."
@@ -1058,6 +1487,7 @@ msgstr ""
 msgid "Advanced Search (module)"
 msgstr "Recherche avancée (module)"
 
+<<<<<<< HEAD
 #: src/Form/SiteSettingsFieldset.php:64
 msgid "Core advanced search page"
 msgstr "Page de recherche avancée Omeka"
@@ -1083,6 +1513,33 @@ msgid "Redirect item set page to search"
 msgstr "Rediriger la page de collection vers la recherche"
 
 #: src/Form/SiteSettingsFieldset.php:136
+=======
+#: src/Form/SiteSettingsFieldset.php:63
+msgid "Core advanced search page"
+msgstr "Page de recherche avancée Omeka"
+
+#: src/Form/SiteSettingsFieldset.php:86
+msgid "Display only following fields"
+msgstr "Afficher seulement les champs suivants"
+
+#: src/Form/SiteSettingsFieldset.php:100
+msgid "Module search pages"
+msgstr "Page de recherche du module"
+
+#: src/Form/SiteSettingsFieldset.php:110
+msgid "Default search page"
+msgstr "Page de recherche par défaut"
+
+#: src/Form/SiteSettingsFieldset.php:112
+msgid "Select the default search engine for the site…"
+msgstr "Choisir le moteur de recherche par défaut du site…"
+
+#: src/Form/SiteSettingsFieldset.php:134
+msgid "Redirect item set page to search"
+msgstr "Rediriger la page de collection vers la recherche"
+
+#: src/Form/SiteSettingsFieldset.php:135
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "By default, item-set/show is redirected to item/browse. This option "
 "redirects it to the search page."
@@ -1109,8 +1566,11 @@ msgid ""
 "The page will be made available on all selected sites. This param can be set "
 "in each site settings too."
 msgstr ""
+<<<<<<< HEAD
 "La page sera disponible dans tous les sites indiqués. Ce paramètre peut "
 "également être modifié dans la configuration de chaque site."
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Form/Admin/SearchConfigForm.php:131
 msgid "Availability on sites"
@@ -1118,7 +1578,11 @@ msgstr "Disponible sur les sites"
 
 #: src/Form/Admin/SearchConfigForm.php:132
 msgid "The admin settings are not modified."
+<<<<<<< HEAD
 msgstr "Les paramètres admin n’ont pas été modifiés."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Form/Admin/SearchConfigForm.php:134
 msgid "Make unavailable in all sites"
@@ -1156,6 +1620,7 @@ msgstr "Résultats de la requête ci-dessous"
 msgid "Default results of the search engine"
 msgstr "Résultats par défaut du moteur de recherche"
 
+<<<<<<< HEAD
 #: src/Form/Admin/SearchConfigConfigureForm.php:101
 msgid "Default query"
 msgstr "Requête par défaut"
@@ -1192,10 +1657,35 @@ msgid "Direct endpoint"
 msgstr "Url directe"
 
 #: src/Form/Admin/SearchConfigConfigureForm.php:151
+=======
+#: src/Form/Admin/SearchConfigConfigureForm.php:100
+msgid "Default query"
+msgstr "Requête par défaut"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:101
+msgid ""
+"The format of the query depends on the search form and the search engine."
+msgstr ""
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:114
+msgid "Auto-suggestions"
+msgstr "Auto-suggestions"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:122
+msgid "Suggester"
+msgstr "Suggéreur"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:137
+msgid "Direct endpoint"
+msgstr "Url directe"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:139
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "This url allows to use an external endpoint to manage keywords and is "
 "generally quicker. Needed params should be appended."
 msgstr ""
+<<<<<<< HEAD
 "Cette url permet d’utiliser un adresse externe pour gérer les mots clés et "
 "est généralement plus rapide. Les paramètres nécessaires seront ajoutés."
 
@@ -1204,6 +1694,14 @@ msgid "Optional query param name for direct endpoint"
 msgstr "Nom du paramètre facultatif pour l’interrogation directe"
 
 #: src/Form/Admin/SearchConfigConfigureForm.php:162
+=======
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:149
+msgid "Optional query param name for direct endpoint"
+msgstr "Nom du paramètre facultatif pour l’interrogation directe"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:150
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "For a direct Solr endpoint, it should be \"suggest.q\", else \"q\" is used "
 "by default."
@@ -1211,11 +1709,19 @@ msgstr ""
 "Pour un point Solr, cela doit être \"suggest.q\", sinon \"q\" est utilisé "
 "par défaut."
 
+<<<<<<< HEAD
 #: src/Form/Admin/SearchConfigConfigureForm.php:177
 msgid "Advanced form"
 msgstr "Formulaire avancé"
 
 #: src/Form/Admin/SearchConfigConfigureForm.php:187
+=======
+#: src/Form/Admin/SearchConfigConfigureForm.php:165
+msgid "Advanced form"
+msgstr "Formulaire avancé"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:175
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "List of filters that will be displayed in the search form. Format is \"field "
 "= Label = Type = options\". The field should exist in all resources fields."
@@ -1224,6 +1730,7 @@ msgstr ""
 "format est \"champ = Libellé = Type = options\". Le champ doit exister dans "
 "la liste des champs de toutes les ressources."
 
+<<<<<<< HEAD
 #: src/Form/Admin/SearchConfigConfigureForm.php:216
 msgid "Available filters"
 msgstr "Champs de filtre disponibles"
@@ -1237,6 +1744,21 @@ msgid "Advanced filters"
 msgstr "Filtres avancés"
 
 #: src/Form/Admin/SearchConfigConfigureForm.php:233
+=======
+#: src/Form/Admin/SearchConfigConfigureForm.php:204
+msgid "Available filters"
+msgstr "Champs de filtre disponibles"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:205
+msgid "List of all available filters, among which some can be copied above."
+msgstr "Liste des filtres disponibles et pouvant être copiés ci-dessus."
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:220
+msgid "Advanced filters"
+msgstr "Filtres avancés"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:221
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "List of filters that will be displayed in the search form. Format is \"term "
 "= Label\". The field should exist in all resources fields."
@@ -1245,6 +1767,7 @@ msgstr ""
 "format est \"terme = Libellé\". Le champ doit exister dans la liste des "
 "champs de toutes les ressources."
 
+<<<<<<< HEAD
 #: src/Form/Admin/SearchConfigConfigureForm.php:252
 msgid "Number of advanced filters to display"
 msgstr "Nombre de filtres avancés à afficher"
@@ -1270,11 +1793,39 @@ msgid "List of operators"
 msgstr "Liste des opérateurs"
 
 #: src/Form/Admin/SearchConfigConfigureForm.php:300
+=======
+#: src/Form/Admin/SearchConfigConfigureForm.php:240
+msgid "Number of advanced filters to display"
+msgstr "Nombre de filtres avancés à afficher"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:241
+msgid "The filters may be managed via js for a better display."
+msgstr ""
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:257
+msgid "Add the joiner (\"and\" or \"or\") to the advanced filters"
+msgstr "Ajouter la jointure (\"et\" ou \"ou\") aux filtres avancés"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:267
+msgid "Add the joiner \"not\" to the advanced filters"
+msgstr "Ajouter la jointure (\"sauf\") aux filtres avancés"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:277
+msgid "Add the operator (\"equal\", \"in\", etc.) to the advanced filters"
+msgstr "Ajouter le type (\"égal\", \"dans\", etc.) aux filtres avancés"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:287
+msgid "List of operators"
+msgstr "Liste des opérateurs"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:288
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "The default list is: eq, neq, in, nin, sw, nsw, ew, new, ex, nex, res, nres. "
 "Negative operators are removed when the joiner \"not\" is used. The default "
 "operators are used when empty."
 msgstr ""
+<<<<<<< HEAD
 "La liste par défaut est : eq, neq, in, nin, sw, nsw, ew, new, ex, nex, res, "
 "nres. Les opérateurs négatifs sont supprimés quand le type « not » est "
 "utilisé. Les opérateurs par défaut sont utilisés quand le champ est vide."
@@ -1361,6 +1912,91 @@ msgid "Sort fields"
 msgstr "Champs de tri"
 
 #: src/Form/Admin/SearchConfigConfigureForm.php:493
+=======
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:321
+msgid "Results display (when supported by theme)"
+msgstr "Affichage des résultats (si le thème le supporte)"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:329
+msgid "List of query filters"
+msgstr "Liste des filtres de recherche"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:332
+#: src/Form/Admin/SearchConfigConfigureForm.php:349
+#: src/Form/Admin/SearchConfigConfigureForm.php:366
+#: src/Form/Admin/SearchConfigConfigureForm.php:383
+#: src/Form/Admin/SearchConfigConfigureForm.php:400
+msgid "Results header"
+msgstr "Avant les résultats"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:333
+#: src/Form/Admin/SearchConfigConfigureForm.php:350
+#: src/Form/Admin/SearchConfigConfigureForm.php:367
+#: src/Form/Admin/SearchConfigConfigureForm.php:384
+#: src/Form/Admin/SearchConfigConfigureForm.php:401
+msgid "Results footer"
+msgstr "Après les résultats"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:334
+#: src/Form/Admin/SearchConfigConfigureForm.php:351
+#: src/Form/Admin/SearchConfigConfigureForm.php:368
+#: src/Form/Admin/SearchConfigConfigureForm.php:385
+#: src/Form/Admin/SearchConfigConfigureForm.php:402
+#: src/Form/Admin/SearchConfigConfigureForm.php:631
+msgid "Both"
+msgstr "Les deux"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:346
+msgid "Paginator"
+msgstr "Paginateur"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:363
+msgid "Pagination per page"
+msgstr "Pagination par page"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:397
+msgid "Grid / list"
+msgstr "Grille / liste"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:414
+msgid "Grid / list default mode"
+msgstr "Mode grille / liste par défaut"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:416
+msgid "Auto (previous user choice)"
+msgstr "Automatique (précédent choix de l’utilisateur)"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:417
+msgid "Grid"
+msgstr "Grille"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:418
+msgid "List"
+msgstr "Liste"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:419
+msgid "Only grid"
+msgstr "Uniquement en grille"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:420
+msgid "Only list"
+msgstr "Uniquement en liste"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:448
+msgid "If any, the search page will display a select to paginate results."
+msgstr "Affiche un menu déroulant pour la pagination des résultats."
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:471
+msgid "Sorting"
+msgstr "Tri"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:480
+msgid "Sort fields"
+msgstr "Champs de tri"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:481
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "List of sort fields that will be displayed in the search page. Format is "
 "\"term dir = Label\"."
@@ -1368,15 +2004,24 @@ msgstr ""
 "Liste des champs de tri qui seront affichés dans la page de recherche. Le "
 "format est \"terme dir = Libellé\"."
 
+<<<<<<< HEAD
 #: src/Form/Admin/SearchConfigConfigureForm.php:511
 msgid "Available sort fields"
 msgstr "Champs de tri disponibles"
 
 #: src/Form/Admin/SearchConfigConfigureForm.php:512
+=======
+#: src/Form/Admin/SearchConfigConfigureForm.php:499
+msgid "Available sort fields"
+msgstr "Champs de tri disponibles"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:500
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "List of all available sort fields, among which some can be copied above."
 msgstr "Liste des champs de tri disponibles et pouvant être copiés ci-dessus."
 
+<<<<<<< HEAD
 #: src/Form/Admin/SearchConfigConfigureForm.php:542
 msgid "List of facets"
 msgstr "Liste des facettes"
@@ -1426,6 +2071,57 @@ msgid "Get facets from specific languages"
 msgstr "Utiliser les facettes à partir de langues spécifiques"
 
 #: src/Form/Admin/SearchConfigConfigureForm.php:611
+=======
+#: src/Form/Admin/SearchConfigConfigureForm.php:530
+msgid "List of facets"
+msgstr "Liste des facettes"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:531
+msgid ""
+"List of facets that will be displayed in the search page. Format is \"field "
+"= Label\" and optionnally \" = Select\"."
+msgstr ""
+"Liste des facettes à afficher sur la page de recherche. Le format est "
+"\"champ = libellé\" et éventuellement \" = Select\"."
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:550
+msgid "Available facets"
+msgstr "Facettes disponibles"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:551
+msgid "List of all available facets, among which some can be copied above."
+msgstr "Liste des facettes disponibles et pouvant être copiés ci-dessus."
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:566
+msgid "Maximum number of facet by field"
+msgstr "Nombre maximum de facette par champ"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:567
+msgid "The maximum number of values fetched for each facet"
+msgstr "Le nombre maximum de valeurs récupérées pour chaque facette"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:580
+msgid "Order of facet items"
+msgstr "Ordre des valeurs des facettes"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:582
+msgid "Native"
+msgstr "Par défaut"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:584
+msgid "Count (biggest first)"
+msgstr "Total (du plus grand)"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:585
+msgid "Count (smallest first)"
+msgstr "Total (du plus petit)"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:598
+msgid "Get facets from specific languages"
+msgstr "Utiliser les facettes à partir de langues spécifiques"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:599
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "Generally, facets are translated in the view, but in some cases, facet "
 "values may be translated directly in a multivalued property. Use \"|\" to "
@@ -1442,6 +2138,7 @@ msgstr ""
 "sont des facettes, la langue vide doit être indiquée pour avoir des "
 "résultats."
 
+<<<<<<< HEAD
 #: src/Form/Admin/SearchConfigConfigureForm.php:623
 msgid "Facet mode"
 msgstr "Mode des facettes"
@@ -1471,6 +2168,37 @@ msgid "Display the list of active facets"
 msgstr "Afficher la liste des facettes actives"
 
 #: src/Form/Admin/SearchConfigConfigureForm.php:669
+=======
+#: src/Form/Admin/SearchConfigConfigureForm.php:611
+msgid "Facet mode"
+msgstr "Mode des facettes"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:613
+msgid "Send request with a button"
+msgstr "Utiliser un bouton pour envoyer la requête"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:614
+msgid "Send request directly"
+msgstr "Suivre le lien directement"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:627
+msgid "Position of the button \"Apply filters\""
+msgstr "Position du bouton « Appliquer les filtres »"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:629
+msgid "Above facets"
+msgstr "Au-dessus des facettes"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:630
+msgid "Below facets"
+msgstr "En dessous des facettes"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:645
+msgid "Display the list of active facets"
+msgstr "Afficher la liste des facettes actives"
+
+#: src/Form/Admin/SearchConfigConfigureForm.php:657
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid "Display the count of each facet item"
 msgstr "Afficher le total de chaque valeur de facette"
 
@@ -1499,9 +2227,15 @@ msgstr "Multi-champs (filtres et facettes)"
 
 #: src/Form/Admin/InternalConfigFieldset.php:30
 msgid ""
+<<<<<<< HEAD
 "List of fields that refers to multiple properties, formatted \"name = "
 "label\", then the list of properties and an empty line. The name must not be "
 "a property term or a reserved keyword."
+=======
+"List of fields that refers to multiple properties, formatted \"name = label"
+"\", then the list of properties and an empty line. The name must not be a "
+"property term or a reserved keyword."
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgstr ""
 "Liste des champs qui renvoient à une ou plusieurs propriétés, formatées "
 "\"nom = libellé\", puis la liste des propriétés et une ligne vide. Le nom ne "
@@ -1691,6 +2425,7 @@ msgstr "Un problème est survenu."
 msgid "An issue occurred for the suggester."
 msgstr "Un problème est survenu avec le suggéreur."
 
+<<<<<<< HEAD
 #: src/Querier/InternalQuerier.php:171 src/Querier/InternalQuerier.php:355
 msgid "An internal issue in database occurred."
 msgstr "Un problème interne à la base de données est survenu."
@@ -1701,22 +2436,41 @@ msgstr ""
 "Ce mode n’est actuellement pas géré par le moteur de recherche interne."
 
 #: src/Querier/InternalQuerier.php:423
+=======
+#: src/Querier/InternalQuerier.php:173 src/Querier/InternalQuerier.php:359
+msgid "An internal issue in database occurred."
+msgstr "Un problème interne à la base de données est survenu."
+
+#: src/Querier/InternalQuerier.php:349
+msgid "This mode is currently not supported with the internal search engine."
+msgstr ""
+
+#: src/Querier/InternalQuerier.php:426
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "The query \"%1$s\" uses %2$d properties, that is more than the %3$d "
 "supported currently. Excluded fields are removed."
 msgstr ""
+<<<<<<< HEAD
 "La requête « %1$s » utilise %2$d propriétés, ce qui est plus que la limite "
 "de %3$d champs. Les champs exclus ont été supprimés."
 
 #: src/Querier/InternalQuerier.php:431
+=======
+
+#: src/Querier/InternalQuerier.php:434
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "The query \"%1$s\" uses %2$d properties, that is more than the %3$d "
 "supported currently. Request is troncated."
 msgstr ""
+<<<<<<< HEAD
 "La requête « %1$s » utilise %2$d propriétés, ce qui est plus que la limite "
 "de %3$d champs. La requête a été tronquée."
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/IndexController.php:118
 #: src/Controller/IndexController.php:136
@@ -1730,7 +2484,11 @@ msgstr "Une erreur est survenue."
 
 #: src/Controller/IndexController.php:189
 msgid "This action requires an ajax request."
+<<<<<<< HEAD
 msgstr "Cette action nécessite une requête ajax."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/IndexController.php:214
 msgid "Not a search page for this site."
@@ -1752,7 +2510,11 @@ msgstr "Le suggéreur \"%s\" a été créé."
 #: src/Controller/Admin/SearchSuggesterController.php:60
 #, php-format
 msgid "The search adapter for engine \"%s\" is not available."
+<<<<<<< HEAD
 msgstr "L’adapteur de recherche « %s » n’est pas disponible."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchSuggesterController.php:95
 #, php-format
@@ -1793,7 +2555,11 @@ msgstr "Le nom doit être unique."
 #: src/Controller/Admin/SearchConfigController.php:209
 #: src/Controller/Admin/SearchConfigController.php:309
 msgid "There was an error during validation"
+<<<<<<< HEAD
 msgstr "Il y a eu une erreur durant la validation"
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchEngineController.php:78
 #, php-format
@@ -1803,7 +2569,11 @@ msgstr "Index de recherche \"%s\" créé."
 #: src/Controller/Admin/SearchEngineController.php:94
 #, php-format
 msgid "The search adapter \"%s\" is not available."
+<<<<<<< HEAD
 msgstr "L’adapteur de recherche « %s » n’est pas disponible."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchEngineController.php:111
 msgid "Adapter settings"
@@ -1812,7 +2582,11 @@ msgstr "Paramètres de l’adaptateur"
 #: src/Controller/Admin/SearchEngineController.php:138
 #, php-format
 msgid "Search index \"%s\" successfully configured."
+<<<<<<< HEAD
 msgstr "L’index de recherche « %s » a été configuré avec succès."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchEngineController.php:141
 msgid "Don’t forget to run the indexation of the search engine."
@@ -1822,18 +2596,31 @@ msgstr "N’oubliez pas de lancer l’indexation du moteur de recherche."
 #, php-format
 msgid "Indexing of \"%1$s\" started in job %2$s#%3$d%4$s (%5$slogs%4$s)"
 msgstr ""
+<<<<<<< HEAD
 "L'indexation de \"%1$s\" a commencé dans la tâche %2$s#%3$d%4$s "
 "(%5$slogs%4$s)"
+=======
+"L'indexation de \"%1$s\" a commencé dans la tâche %2$s#%3$d%4$s (%5$slogs"
+"%4$s)"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchEngineController.php:223
 #, php-format
 msgid "Search index \"%s\" successfully deleted"
+<<<<<<< HEAD
 msgstr "L’index de recherche « %s » a été supprimé"
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchEngineController.php:228
 #, php-format
 msgid "Search index \"%s\" could not be deleted"
+<<<<<<< HEAD
 msgstr "L’index de recherche « %s » ne peut pas être supprimé"
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchConfigController.php:88
 #, php-format
@@ -1848,7 +2635,11 @@ msgstr ""
 
 #: src/Controller/Admin/SearchConfigController.php:104
 msgid "The api adapter should be selected in the main settings."
+<<<<<<< HEAD
 msgstr "L’adapteur api doit être sélectionné dans les paramètres généraux."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchConfigController.php:140
 #, php-format
@@ -1863,7 +2654,11 @@ msgstr "L’adaptateur pour le moteur \"%s\" n’est pas disponible."
 #: src/Controller/Admin/SearchConfigController.php:181
 #, php-format
 msgid "This engine adapter \"%s\" has no config form."
+<<<<<<< HEAD
 msgstr "L’adapteur du moteur « %s » n’a pas de formulaire de configuration."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchConfigController.php:223
 #, php-format
@@ -1892,6 +2687,7 @@ msgstr ""
 
 #: src/Controller/Admin/SearchConfigController.php:373
 msgid "The page has been set by default in admin board."
+<<<<<<< HEAD
 msgstr "La page est désormais la page par défaut en admin."
 
 #: src/Controller/Admin/SearchConfigController.php:376
@@ -1905,6 +2701,21 @@ msgstr "La page a été désactivée dans tous les sites indiqués."
 #: src/Controller/Admin/SearchConfigController.php:389
 msgid "The page has been made available in all specified sites."
 msgstr "La page est désormais disponible dans tous les sites indiqués."
+=======
+msgstr ""
+
+#: src/Controller/Admin/SearchConfigController.php:376
+msgid "The page has been unset in admin board."
+msgstr ""
+
+#: src/Controller/Admin/SearchConfigController.php:385
+msgid "The page has been disabled in all specified sites."
+msgstr ""
+
+#: src/Controller/Admin/SearchConfigController.php:389
+msgid "The page has been made available in all specified sites."
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Controller/Admin/SearchConfigController.php:393
 msgid "The availability of pages of sites was let unmodified."
@@ -1932,7 +2743,11 @@ msgstr ""
 "Erreur dans la requête : %s\n"
 "Requête : %s"
 
+<<<<<<< HEAD
 #: src/Api/Adapter/SearchConfigAdapter.php:151
+=======
+#: src/Api/Adapter/SearchConfigAdapter.php:138
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "The path \"%s\" is already taken."
 msgstr "Le chemin \"%s\" est déjà utilisé."
@@ -1945,21 +2760,31 @@ msgstr "Principal"
 msgid "Api"
 msgstr "Api"
 
+<<<<<<< HEAD
 #: src/Job/IndexSuggestions.php:71
+=======
+#: src/Job/IndexSuggestions.php:78
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "Suggester #%d (\"%s\"): Only search engine with the intenal adapter (sql) "
 "can be indexed currently."
 msgstr ""
+<<<<<<< HEAD
 "Le suggéreur #%d (« %s ») : seuls les moteurs de recherche avec l’adapteur "
 "interne (sql) peuvent être indexés actuellement."
 
 #: src/Job/IndexSuggestions.php:87
+=======
+
+#: src/Job/IndexSuggestions.php:94
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "Suggester #%d (\"%s\"): there is no resource type to index or the indexation "
 "is not needed."
 msgstr ""
+<<<<<<< HEAD
 "Le suggéreur #%d (« %s ») : il n’y a aucun type de ressource à indexer ou "
 "l’indexation est inutile."
 
@@ -1973,28 +2798,50 @@ msgstr ""
 "Suggestions » et la tâche actuelle n’a pas été forcée."
 
 #: src/Job/IndexSuggestions.php:105
+=======
+
+#: src/Job/IndexSuggestions.php:106
+#, php-format
+msgid ""
+"Suggester #%d (\"%s\"): There are already %d other jobs \"Index Suggestions"
+"\" and the current one is not forced."
+msgstr ""
+
+#: src/Job/IndexSuggestions.php:112
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "There are already %d other jobs \"Index Suggestions\". Slowdowns may occur "
 "on the site."
 msgstr ""
+<<<<<<< HEAD
 "Il y a déjà %d autres tâches « Indexation Suggestions ». Cela peut ralentir "
 "le site."
 
 #: src/Job/IndexSuggestions.php:116
+=======
+
+#: src/Job/IndexSuggestions.php:123
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "Suggester #%d (\"%s\"): start of indexing (index mode: %s, process mode: %s)."
 msgstr ""
+<<<<<<< HEAD
 "Le suggéreur #%d (« %s ») : lancement de l’indexation (mode d’indexation : "
 "%s, mode de traitement : %s)."
 
 #: src/Job/IndexSuggestions.php:125
+=======
+
+#: src/Job/IndexSuggestions.php:132
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "Suggester #%d (\"%s\"): end of indexing. %s suggestions indexed. Execution "
 "time: %s seconds."
 msgstr ""
+<<<<<<< HEAD
 "Le suggéreur #%d (« %s ») : fin de l’indexation. %s suggestions indexées. "
 "Temps d’exécution : %s secondes."
 
@@ -2004,21 +2851,42 @@ msgid "Suggester #%d (\"%s\"): %d suggestions deleted."
 msgstr "Le suggéreur #%d (« %s ») : %d suggestions supprimées."
 
 #: src/Job/IndexSuggestions.php:554
+=======
+
+#: src/Job/IndexSuggestions.php:143
+#, php-format
+msgid "Suggester #%d (\"%s\"): %d suggestions deleted."
+msgstr ""
+
+#: src/Job/IndexSuggestions.php:559
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "Indexing suggestions for %d resource values."
 msgstr "Indexation des suggestions pour les valeurs de %d ressources."
 
+<<<<<<< HEAD
 #: src/Job/IndexSuggestions.php:621
+=======
+#: src/Job/IndexSuggestions.php:626
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "Job stopped: %d/%d processed (index mode: %s)."
 msgstr "Tâche arrêtée : %d/%d traitées (mode d’indexation : %s)"
 
+<<<<<<< HEAD
 #: src/Job/IndexSuggestions.php:629
+=======
+#: src/Job/IndexSuggestions.php:634
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "%d/%d values processed."
 msgstr "%d/%d valeurs traitées."
 
+<<<<<<< HEAD
 #: src/Job/IndexSuggestions.php:724
+=======
+#: src/Job/IndexSuggestions.php:729
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "End of process: %d/%d processed (index mode: %s)."
 msgstr "Fin du process : %d/%d traitées (mode d’indexation : %s)"
@@ -2029,8 +2897,11 @@ msgid ""
 "Search index #%d (\"%s\"): there is no resource type to index or the "
 "indexation is not needed."
 msgstr ""
+<<<<<<< HEAD
 "Index de recherche #%d (« %s ») : il n’y a aucun type de ressource à indexer "
 "ou l’indexation est inutile."
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Job/IndexSearch.php:107
 #, php-format
@@ -2038,8 +2909,11 @@ msgid ""
 "Search index #%d (\"%s\"): There are already %d other jobs \"Index Search\" "
 "and the current one is not forced."
 msgstr ""
+<<<<<<< HEAD
 "Index de recherche #%d (« %s ») : il y a déjà %d autres tâches d’indexation "
 "et la tâche en cours n’a pas été forcée."
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Job/IndexSearch.php:113
 #, php-format
@@ -2047,49 +2921,76 @@ msgid ""
 "There are already %d other jobs \"Index Search\". Slowdowns may occur on the "
 "site."
 msgstr ""
+<<<<<<< HEAD
 "Il y a déjà %d autres tâches « Indexation Recherche ». Cela peut ralentir le "
 "site."
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Job/IndexSearch.php:120
 #, php-format
 msgid "Search index #%d (\"%s\"): start of indexing"
+<<<<<<< HEAD
 msgstr "Index de recherche #%d (« %s ») : début de l’indexation"
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Job/IndexSearch.php:132
 #, php-format
 msgid "Search index is not cleared: reindexing starts at resource #%d."
 msgstr ""
+<<<<<<< HEAD
 "L’index de recherche n’a pas été effacé : réindexation à partir de la "
 "ressource #%d."
 
 #: src/Job/IndexSearch.php:161
+=======
+
+#: src/Job/IndexSearch.php:158
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "Search index #%d (\"%s\"): the indexing was stopped. Nothing was indexed."
 msgstr ""
+<<<<<<< HEAD
 "Index de recherche #%d (« %s ») : l’indexation a été arrétée. Rien n’a été "
 "indexé."
 
 #: src/Job/IndexSearch.php:166 src/Job/IndexSearch.php:201
+=======
+
+#: src/Job/IndexSearch.php:163 src/Job/IndexSearch.php:198
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid "%s: %d indexed"
 msgstr "%s : %d indexés"
 
+<<<<<<< HEAD
 #: src/Job/IndexSearch.php:170
+=======
+#: src/Job/IndexSearch.php:167
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "Search index #%d (\"%s\"): the indexing was stopped. Last indexed resource: "
 "%s #%d; %s. Execution time: %d seconds."
 msgstr ""
+<<<<<<< HEAD
 "Index de recherche #%d (« %s ») : l’indexation a été arrétée. Dernière "
 "ressource indexée : %s #%d ; %s. Temps d’exécution : %d secondes."
 
 #: src/Job/IndexSearch.php:206
+=======
+
+#: src/Job/IndexSearch.php:203
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "Search index #%d (\"%s\"): end of indexing. %s. Execution time: %s seconds. "
 "Failed indexed resources should be checked manually."
 msgstr ""
+<<<<<<< HEAD
 "Index de recherche #%d (« %s ») : fin de l’indexation. %s. Temps "
 "d’exécution : %s secondes. Les problèmes d’indexation doivent être vérifiés "
 "manuellement."
@@ -2103,6 +3004,18 @@ msgid "Multi-fields"
 msgstr "Champs multiples"
 
 #: src/Adapter/InternalAdapter.php:135
+=======
+
+#: src/Adapter/InternalAdapter.php:11
+msgid "Internal [sql]"
+msgstr "Interne [sql]"
+
+#: src/Adapter/InternalAdapter.php:126
+msgid "Multi-fields"
+msgstr "Champs multiples"
+
+#: src/Adapter/InternalAdapter.php:137
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid "Generic"
 msgstr "Générique"
 
@@ -2113,7 +3026,11 @@ msgstr "Formulaire de recherche (module Recherche avancée)"
 #: src/Site/BlockLayout/SearchingForm.php:76
 #, php-format
 msgid "The search page #%d is not available for the site %s."
+<<<<<<< HEAD
 msgstr "La page de recherche #%d n’est pas disponible sur le site %s."
+=======
+msgstr ""
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #: src/Site/BlockLayout/SearchingForm.php:84
 msgid "No search page specified for this block."
@@ -2138,7 +3055,11 @@ msgstr "La page de recherche n’a plus d’adaptateur pour le formulaire."
 msgid "Form adapter \"%s\" not found."
 msgstr "Adaptateur de formulaire \"%s\" non trouvé."
 
+<<<<<<< HEAD
 #: src/Mvc/Controller/Plugin/SearchRequestToResponse.php:220
+=======
+#: src/Mvc/Controller/Plugin/SearchRequestToResponse.php:212
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #, php-format
 msgid ""
 "Query error: %s\n"
@@ -2147,6 +3068,7 @@ msgstr ""
 "Erreur dans la requête : %s\n"
 "Requête : %s"
 
+<<<<<<< HEAD
 #: config/module.config.php:295
 msgid "Automatic mapping of empty values"
 msgstr "Correspondance automatique des valeurs vides"
@@ -2172,10 +3094,38 @@ msgid "Processing…"
 msgstr "En traitement…"
 
 #: config/module.config.php:301
+=======
+#: config/module.config.php:272
+msgid "Automatic mapping of empty values"
+msgstr "Correspondance automatique des valeurs vides"
+
+#: config/module.config.php:273
+msgid "Available"
+msgstr "Disponibles"
+
+#: config/module.config.php:274
+msgid "Enabled"
+msgstr "Activé"
+
+#: config/module.config.php:275
+msgid "Find"
+msgstr "Trouver"
+
+#: config/module.config.php:276
+msgid "Find resources…"
+msgstr "Trouver des ressources…"
+
+#: config/module.config.php:277
+msgid "Processing…"
+msgstr "En traitement…"
+
+#: config/module.config.php:278
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 msgid ""
 "Try to map automatically the metadata and the properties that are not mapped "
 "yet with the fields of the index"
 msgstr ""
+<<<<<<< HEAD
 "Essaie d’aligner les métadonnées et les propriétés qui ne le sont pas déjà "
 "avec les champs de l’'index"
 
@@ -2205,6 +3155,17 @@ msgstr "Date / heure"
 #~ msgid "is not linked with resource with ID"
 #~ msgstr "n’est pas liée à la ressource avec l’id"
 
+=======
+
+#: config/module.config.php:336
+msgid "Full text"
+msgstr "Plein texte"
+
+#: config/module.config.php:348
+msgid "Date time"
+msgstr "Date / heure"
+
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #~ msgid "NOT"
 #~ msgstr "SAUF"
 

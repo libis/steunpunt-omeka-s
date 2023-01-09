@@ -17,6 +17,15 @@ jobs:
     strategy:
       matrix:
         php-version:
+<<<<<<< HEAD
+=======
+          - "5.3"
+          - "5.4"
+          - "5.5"
+          - "5.6"
+          - "7.0"
+          - "7.1"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
           - "7.2"
           - "7.3"
           - "7.4"
@@ -24,7 +33,11 @@ jobs:
           - "8.1"
         dependencies: [locked]
         include:
+<<<<<<< HEAD
           - php-version: "7.2"
+=======
+          - php-version: "5.3"
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             dependencies: lowest
           - php-version: "8.1"
             dependencies: lowest
@@ -55,8 +68,21 @@ jobs:
         if: "contains(matrix.dependencies, 'lowest')"
         run: "echo \"COMPOSER_FLAGS=$COMPOSER_FLAGS --prefer-lowest\" >> $GITHUB_ENV"
 
+<<<<<<< HEAD
       - name: "Install latest dependencies"
         run: "composer update ${{ env.COMPOSER_FLAGS }}"
+=======
+      - name: "Upgrade phpunit-bridge if needed for php 8 lowest build"
+        if: "contains(matrix.php-version, '8.')"
+        run: |
+          composer require symfony/phpunit-bridge:^5.3.3 --dev --no-update
+
+      - name: "Install latest dependencies"
+        run: |
+          # Remove PHPStan as it requires a newer PHP
+          composer remove phpstan/phpstan phpstan/phpstan-phpunit --dev --no-update
+          composer update ${{ env.COMPOSER_FLAGS }}
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
       - name: "Run tests"
         run: "vendor/bin/simple-phpunit --verbose"

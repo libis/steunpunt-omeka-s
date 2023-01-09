@@ -19,9 +19,9 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright');
     endif;
   ?>  
   <?php if(!in_array($propertyData['property']->label(),$not) && !in_array($propertyData['alternate_label'],$notalt)):?>
-  <div class="columns ">
-    <div class="column is-3" style="padding-top:0.3rem;padding-bottom:0.3rem;">
-      <h4 class="title is-6" style="font-size:0.9rem;">
+  <div class="row">
+    <div class="col-xs-12 col-md-4">
+      <h4 class="title is-6" style="font-size:0.9rem;padding-top:0.3rem;padding-bottom:0.3rem;line-height: 1.6;">
       <?php if ($propertyData['alternate_label']): ?>
       <?php echo $escape($propertyData['alternate_label']); ?>
       <?php else: ?>
@@ -34,8 +34,8 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright');
       <?php endif; ?>
       </h4>
     </div>
-    <div class="column is-7" style="padding-top:0.3rem;padding-bottom:0.3rem;">
-      <div class="values" style="font-size:0.9rem;">
+    <div class="col-xs-12 col-md-8">
+      <div class="values" style="font-size:0.9rem;padding-top:0.3rem;padding-bottom:0.3rem;line-height: 1.6;">
       <?php $i=0;?>
       <?php foreach ($propertyData['values'] as $value): ?>
           <?php
@@ -59,6 +59,7 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright');
 
                 <?php if($propertyData['alternate_label'] == 'Thema'):?>
                   <a target="_blank" href="/nl/item-set?fulltext_search=&property[0][joiner]=and&property[0][property]=8&property[0][type]=eq&property[0][text]=<?php echo $value->asHtml(); ?>&resource_class_id[]=&resource_template_id[]=&submit=Zoeken"><?php echo $value->asHtml(); ?></a>
+<<<<<<< HEAD
                 <?php elseif($propertyData['alternate_label'] == 'Referenties'):?>
                   <?php $ref_e = explode("$$",$value->__toString());?>
                   <?php if(isset($ref_e[1])):?>
@@ -249,6 +250,14 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright');
                   <?php endif;?>                  
                 <?php elseif (strpos($value->asHtml(), 'http') !== false && strpos($value->asHtml(), 'uri-value-link') === false):?>
                   <a target="_blank" href="<?php echo $value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
+=======
+                <?php elseif($propertyData['alternate_label'] == 'Department/Research/Group/Unit'):?>                  
+                  <a href="<?php echo '/herkul/s/en/find?q=&facet[schema:subOrganization][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
+                 <?php elseif($propertyData['alternate_label'] == 'Faculty'):?>                  
+                  <a href="<?php echo '/herkul/s/en/find?q=&facet[schema:parentOrganization][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
+                <?php elseif($propertyData['alternate_label'] == 'Research keywords'):?>                  
+                  <a href="<?php echo '/herkul/s/en/find?q=&facet[schema:keywords][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                 <?php else:?>
                   <?php echo $value->asHtml(); ?>
                 <?php endif;?>

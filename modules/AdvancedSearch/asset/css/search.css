@@ -24,12 +24,18 @@
     #search-filters .filter {
         display: flex;
         margin-bottom: 0;
+<<<<<<< HEAD
         /*
         margin-left: 30%;
         padding-bottom: 6px;
         padding-left: 1.69492%;
         */
         padding: 6px;
+=======
+        margin-left: 30%;
+        padding-bottom: 6px;
+        padding-left: 1.69492%;
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     }
     #search-filters .filter:first-of-type {
         padding-top: 6px;

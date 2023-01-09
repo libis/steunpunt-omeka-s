@@ -5,6 +5,10 @@
     "description": "A multi-framework Composer library installer",
     "keywords": [
         "installer",
+<<<<<<< HEAD
+=======
+        "Aimeos",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         "AGL",
         "AnnotateCms",
         "Attogram",
@@ -14,6 +18,10 @@
         "Cockpit",
         "CodeIgniter",
         "concrete5",
+<<<<<<< HEAD
+=======
+        "Craft",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         "Croogo",
         "DokuWiki",
         "Dolibarr",
@@ -27,6 +35,10 @@
         "Hurad",
         "ImageCMS",
         "iTop",
+<<<<<<< HEAD
+=======
+        "Joomla",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         "Kanboard",
         "Known",
         "Kohana",
@@ -38,7 +50,10 @@
         "majima",
         "Mako",
         "MantisBT",
+<<<<<<< HEAD
         "Matomo",
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         "Mautic",
         "Maya",
         "MODX",
@@ -67,8 +82,15 @@
         "Starbug",
         "SyDES",
         "Sylius",
+<<<<<<< HEAD
         "TastyIgniter",
         "Thelia",
+=======
+        "symfony",
+        "TastyIgniter",
+        "Thelia",
+        "TYPO3",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         "WHMCS",
         "WolfCMS",
         "WordPress",
@@ -93,17 +115,29 @@
     "extra": {
         "class": "Composer\\Installers\\Plugin",
         "branch-alias": {
+<<<<<<< HEAD
             "dev-main": "2.x-dev"
         },
         "plugin-modifies-install-path": true
     },
     "require": {
         "php": "^7.2 || ^8.0",
+=======
+            "dev-main": "1.x-dev"
+        }
+    },
+    "replace": {
+        "shama/baton": "*",
+        "roundcube/plugin-installer": "*"
+    },
+    "require": {
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         "composer-plugin-api": "^1.0 || ^2.0"
     },
     "require-dev": {
         "composer/composer": "1.6.* || ^2.0",
         "composer/semver": "^1 || ^3",
+<<<<<<< HEAD
         "symfony/phpunit-bridge": "^5.3",
         "phpstan/phpstan": "^0.12.55",
         "symfony/process": "^5",
@@ -111,6 +145,15 @@
     },
     "scripts": {
         "test": "vendor/bin/simple-phpunit",
+=======
+        "symfony/phpunit-bridge": "^4.2 || ^5",
+        "phpstan/phpstan": "^0.12.55",
+        "symfony/process": "^2.3",
+        "phpstan/phpstan-phpunit": "^0.12.16"
+    },
+    "scripts": {
+        "test": "SYMFONY_PHPUNIT_REMOVE_RETURN_TYPEHINT=1 vendor/bin/simple-phpunit",
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         "phpstan": "vendor/bin/phpstan analyse"
     }
 }

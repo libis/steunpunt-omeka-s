@@ -69,6 +69,7 @@
         border-bottom: 1px solid #000;
     }
 
+<<<<<<< HEAD
     #advanced-search #datetime-queries .query-text:disabled,
     #advanced-search #property-queries.multi-value .value:first-child .chosen-container:first-of-type,
     #advanced-search #datetime-queries.multi-value .value:first-child .chosen-container:first-of-type,
@@ -83,6 +84,39 @@
         padding: 4px;
     }
 
+=======
+    #advanced-search #datetime-queries .value:first-child select:nth-child(2) {
+        margin-left: 0;
+    }
+    #advanced-search #datetime-queries .query-text:disabled {
+        display: none;
+    }
+    #advanced-search .multi-value .value:first-child .chosen-container-single-nosearch:first-of-type,
+    #advanced-search .multi-value .value:first-child .joiner:first-of-type {
+       display: none;
+    }
+
+    /* Quick fix for search form in admin. */
+    #search-filters {
+        margin-top: 0;
+        margin-bottom: 6px;
+        background-color: rgba(0,0,0,.04);
+    }
+    #search-filters > legend {
+        font-size: 16px;
+        font-weight: normal;
+        padding-left: 6px;
+    }
+    #search-filters .filter {
+        margin-left: inherit;
+}
+    #search-filters .filter select:nth-of-type(1) {
+        margin-left: 0;
+    }
+    #search-filters .filter input {
+        margin-right: 6px;
+    }
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     input[type=submit][disabled] {
         cursor: unset;
     }

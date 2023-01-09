@@ -20,9 +20,12 @@ return [
         'search' => [
             'default_results' => 'default',
             'default_query' => '',
+<<<<<<< HEAD
             // Generally sort, but allows to force page, facets, etc.
             'default_query_post' => '',
             'hidden_query_filters' => '',
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         ],
 
         'autosuggest' => [

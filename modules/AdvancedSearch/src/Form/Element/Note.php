@@ -3,6 +3,7 @@
 namespace AdvancedSearch\Form\Element;
 
 use Laminas\Form\Element;
+<<<<<<< HEAD
 use Laminas\Form\Exception\InvalidArgumentException;
 
 /**
@@ -143,4 +144,24 @@ class Note extends Element
     {
         return $this->wrap;
     }
+=======
+
+/**
+ * Add a static text in Omeka admin forms.
+ *
+ * A static text can be added in Zend, but not in Laminas.
+ * Furthermore, the "fieldset" element cannot display an info text.
+ *
+ * To use it in Omeka admin, the element must not contain option "label".
+ * The text can be passed with the option "html" (unescaped) or "text"
+ * (translated and escaped).
+ *
+ * @see Zend_Form_Element_Note in Zend framework version 1.
+ */
+class Note extends Element
+{
+    protected $attributes = [
+        'type' => 'note',
+    ];
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 }

@@ -9,9 +9,15 @@ use Composer\Util\Filesystem;
  * - `bitrix-d7-module` — copy the module to directory `bitrix/modules/<vendor>.<name>`.
  * - `bitrix-d7-component` — copy the component to directory `bitrix/components/<vendor>/<name>`.
  * - `bitrix-d7-template` — copy the template to directory `bitrix/templates/<vendor>_<name>`.
+<<<<<<< HEAD
  *
  * You can set custom path to directory with Bitrix kernel in `composer.json`:
  *
+=======
+ * 
+ * You can set custom path to directory with Bitrix kernel in `composer.json`:
+ * 
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
  * ```json
  * {
  *      "extra": {
@@ -25,7 +31,10 @@ use Composer\Util\Filesystem;
  */
 class BitrixInstaller extends BaseInstaller
 {
+<<<<<<< HEAD
     /** @var array<string, string> */
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     protected $locations = array(
         'module'    => '{$bitrix_dir}/modules/{$name}/',    // deprecated, remove on the major release (Backward compatibility will be broken)
         'component' => '{$bitrix_dir}/components/{$name}/', // deprecated, remove on the major release (Backward compatibility will be broken)
@@ -36,6 +45,7 @@ class BitrixInstaller extends BaseInstaller
     );
 
     /**
+<<<<<<< HEAD
      * @var string[] Storage for informations about duplicates at all the time of installation packages.
      */
     private static $checkedDuplicates = array();
@@ -43,6 +53,17 @@ class BitrixInstaller extends BaseInstaller
     public function inflectPackageVars(array $vars): array
     {
         /** @phpstan-ignore-next-line */
+=======
+     * @var array Storage for informations about duplicates at all the time of installation packages.
+     */
+    private static $checkedDuplicates = array();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function inflectPackageVars($vars)
+    {
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         if ($this->composer->getPackage()) {
             $extra = $this->composer->getPackage()->getExtra();
 
@@ -61,7 +82,11 @@ class BitrixInstaller extends BaseInstaller
     /**
      * {@inheritdoc}
      */
+<<<<<<< HEAD
     protected function templatePath(string $path, array $vars = array()): string
+=======
+    protected function templatePath($path, array $vars = array())
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     {
         $templatePath = parent::templatePath($path, $vars);
         $this->checkDuplicates($templatePath, $vars);
@@ -72,9 +97,16 @@ class BitrixInstaller extends BaseInstaller
     /**
      * Duplicates search packages.
      *
+<<<<<<< HEAD
      * @param array<string, string> $vars
      */
     protected function checkDuplicates(string $path, array $vars = array()): void
+=======
+     * @param string $path
+     * @param array $vars
+     */
+    protected function checkDuplicates($path, array $vars = array())
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     {
         $packageType = substr($vars['type'], strlen('bitrix') + 1);
         $localDir = explode('/', $vars['bitrix_dir']);
@@ -92,7 +124,12 @@ class BitrixInstaller extends BaseInstaller
             return;
         }
 
+<<<<<<< HEAD
         if ($oldPath !== $path && file_exists($oldPath) && $this->io->isInteractive()) {
+=======
+        if ($oldPath !== $path && file_exists($oldPath) && $this->io && $this->io->isInteractive()) {
+
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
             $this->io->writeError('    <error>Duplication of packages:</error>');
             $this->io->writeError('    <info>Package ' . $oldPath . ' will be called instead package ' . $path . '</info>');
 

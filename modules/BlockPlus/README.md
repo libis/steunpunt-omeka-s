@@ -12,6 +12,9 @@ page, search form, assets, item set showcase, exhibits, footnotes, etc.
 Furthermore, each block can use multiple templates, so it's possible to theme a
 block differently in different pages.
 
+Furthermore, each block can use multiple templates, so it's possible to theme a
+block differently in different pages.
+
 
 Installation
 ------------
@@ -47,6 +50,7 @@ Select them in the view "Page edit". You may theme them too: copy the block
 templates that are in `view/common/block-layout/` in the same place of your
 theme.
 
+<<<<<<< HEAD
 ### Improvements in all blocks
 
 The core blocks (Browse preview, Html, Item metadata, Item showcase, List of pages,
@@ -87,6 +91,23 @@ supports templates. Some templates are available: "asset-block", "asset-hero-boo
 
 #### Block Metadata
 
+=======
+### Blocks
+
+#### Asset
+
+Since the integration of "asset" in Omeka 3.1, this block is an improved version
+of the [core block "asset"]. It can list assets with optional link to pages,
+labels and caption. The assets are not required to be filled, so it allow to
+display any list of contents.
+
+Unlike the upstream version, it has a specific `class` option at asset level and
+supports templates. Some templates are available: "asset-block", "asset-hero-bootstrap",
+"asset-left-right" and "asset-partners".
+
+#### Block Metadata
+
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 This block provides the same information than the view helper `pageMetadata()`
 (see below), but from a block. It is usefull with the simple block to extract
 params, or to get some informations about the page from anywhere in the theme.
@@ -99,6 +120,7 @@ if ($blockMetadata):
 endif;
 ```
 
+<<<<<<< HEAD
 ### Browse preview (improvements)
 
 The block Browse preview has new fields to display sort headings and pagination,
@@ -116,6 +138,8 @@ To use them, simply select the wanted template:
 
 ![browse-preview-carousel](https://gitlab.com/Daniel-KM/Omeka-S-module-BlockPlus/-/raw/master/data/images/browse-preview-carousel.png)
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #### D3 Graph
 
 The D3 graph adds the [D3 library] to display relations between items in a graph:
@@ -127,6 +151,7 @@ Similar to media with html, but to display an external asset that is not a
 resource neither an asset file, so currently not manageable inside Omeka. It may
 be used to display a html text with a video on the home page.
 
+<<<<<<< HEAD
 #### HTML (improvements)
 
 Two new options are added in main settings:
@@ -138,6 +163,8 @@ Two new options are added in main settings:
 
 Furthermore, it is possible to add footnotes inside each html field.
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #### Item Set showcase
 
 This is similar to the block Item Showcase, but for item sets.
@@ -149,11 +176,14 @@ for example the page "About" or "Privacy". Of course, the page is a standard
 page and can be more complex with multiple blocks. May be fun.
 This is an equivalent for the [shortcode as a page] in [Omeka Classic] too.
 
+<<<<<<< HEAD
 ### Page date
 
 Display the date of the creation and/or modification of the current page.
 See Omeka issue [#1706].
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 #### Redirect to URL
 
 Allow to redirect the page to another page, inside or outside Omeka. It is useful
@@ -238,12 +268,16 @@ It will avoid possible issues.
 
 #### Showcase
 
+<<<<<<< HEAD
 This is a showcase for any resource, site, page, asset or url. It's an improved
 and genericized version of item showcase.
 
 #### Table of contents (improvement)
 
 The table can be displayed from the root if wanted.
+=======
+This is a showcase for any resource, site, page, asset or url.
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 #### Twitter
 
@@ -269,6 +303,89 @@ too. If you can't, try to check the option to use the Api version 1.1.
 
 In all cases, there is a [rate limit], but generally largely enough for a common
 digital library.
+
+<<<<<<< HEAD
+### Theme view helpers
+
+#### Page Metadata
+
+Allow to add a type to the page, so it’s simpler to have different templates for
+different pages. It allows in particular to create exhibits inside a site,
+without creating a new site.
+
+You can add new types in the settings of the site. Then, in your theme, you can
+get the page type `$pageType = $this->pageMetadata('type');` and many other data
+about the page. If the page is an exhibit, it is possible to build a specific
+navigation menu of this exhibit too, like in the site [Fondation de la Maison de Salins].
+=======
+#### Improvements for Browse preview, Html, Item metadata, Item showcase, List of pages, List of sites, Page title, Table of contents
+
+Allow to use a specific template for some blocks, so it’s possible to display
+these blocks differently in the same page or on different pages. An heading is
+added too. For the table of contents, the possibility to display the table from
+the root is added too.
+
+Furthermore, the block Browse preview has new fields to display sort headings
+and pagination, so it's now possible to have a specific list of items, like the
+main browse view.
+
+It has some specific templates too:
+- simple carousel ("browse-preview-carousel"): this is an upgrade of the plugin
+  [Shortcode Carousel] for [Omeka Classic].
+- gallery display with a quick viewer too ("browse-preview-gallery"). This one
+  has a specific option to add to the query to display thumbnails as square or
+  medium: `thumbnail_size=medium`. You can see an example on the site [Ontologie du christianisme médiéval en images],
+  from French [Institut national de l’histoire de l’art].
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
+
+To manage multiple types, it’s generally required to edit the template "view/omeka/site/page/show.phtml"
+of your theme and to add a check:
+
+```php
+// A simple check is done to make the theme more generic.
+$pageMetadata = $plugins->has('pageMetadata') ? $plugins->get('pageMetadata') : null;
+if ($pageMetadata):
+    $type = $pageMetadata('type') ?: null;
+    switch ($type):
+        case 'home':
+            $class = 'home';
+            // Specific html code…
+            break;
+        case 'exhibit':
+            $class = 'exhibit';
+            // Specific html code…
+            break;
+        case 'exhibit_page':
+            $class = 'exhibit-page';
+            // Specific html code…
+            break;
+        case 'simple':
+            $class = 'simple-page';
+            // Specific html code…
+            break;
+        default:
+            // Generic html code…
+            $class = 'page';
+            break;
+    endswitch;
+    $this->htmlElement('body')->appendAttribute('class', $class);
+    // …
+endif;
+```
+
+#### Pages Metadata
+
+This view helper allows to get the data of all pages of the same type in the
+current site. For example, you can get all "exhibit_page". Multiple types can be
+retrieved at once.
+
+```php
+// A simple check is done to make the theme more generic.
+$pagesMetadata = $plugins->has('pagesMetadata') ? $plugins->get('pagesMetadata') : null;
+if ($pagesMetadata):
+    $data = $pagesMetadata('exhibit_page');
+endif;
+```
 
 ### Theme view helpers
 
@@ -337,11 +454,19 @@ TODO
 ----
 
 - [ ] Merge more similar blocks into a main block (with automatic upgrade).
+<<<<<<< HEAD
 - [x] Integrate Shortcodes (module [Shortcode])
 - [x] Integrate Menu (module [Menu])
 - [ ] Integrate attachments for block Showcase
 - [ ] Integrate sidebar forms for block Showcase
 - [ ] Auto-create asset when image is uploaded in a Html field.
+=======
+- [x] Integrates Shortcodes (module [Shortcode])
+- [x] Integrates Menu (module [Menu])
+- [ ] Integrates attachments for block Showcase
+- [ ] Integrates sidebar forms for block Showcase
+
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 Warning
 -------

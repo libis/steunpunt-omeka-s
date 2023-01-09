@@ -35,7 +35,10 @@ automatically required as well if not already required.
 To support additional package types, add an array of these types in the
 `extra` property in your `composer.json`:
 
+<<<<<<< HEAD
 with [`composer/installers`][] < v1.0.13:
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 ```json
 {
     "extra": {
@@ -43,6 +46,7 @@ with [`composer/installers`][] < v1.0.13:
     }
 }
 ```
+<<<<<<< HEAD
 with [`composer/installers`][] >= v1.0.13:
 ```json
 {
@@ -54,6 +58,12 @@ with [`composer/installers`][] >= v1.0.13:
 Then refer to that type when adding to `installer-paths`:
 
 with [`composer/installers`][] < v1.0.13:
+=======
+
+Then, you can add mappings for packages of these types in the same way that you
+would add package types that are supported by [`composer/installers`][]:
+
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 ```json
 {
     "extra": {
@@ -65,6 +75,7 @@ with [`composer/installers`][] < v1.0.13:
     }
 }
 ```
+<<<<<<< HEAD
 with [`composer/installers`][] >= v1.0.13:
 ```json
 {
@@ -77,6 +88,8 @@ with [`composer/installers`][] >= v1.0.13:
     }
 }
 ```
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 By default, packages that do not specify a `type` will be considered the type
 `library`. Adding support for this type allows any of these packages to be
@@ -86,9 +99,15 @@ If a type has been added to `installer-types`, the plugin will attempt to find
 an explicit installer path in the mapping. If there is no match either by name
 or by type, the default installer path for all packages will be used instead.
 
+<<<<<<< HEAD
 **Please see the README for [`composer/installers`][] to see the supported syntax
 for package and type matching as well as the supported replacement tokens in
 the path (e.g. `{$name}`).**
+=======
+Please see the README for [`composer/installers`][] to see the supported syntax
+for package and type matching as well as the supported replacement tokens in
+the path (e.g. `{$name}`).
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
 ## License
 

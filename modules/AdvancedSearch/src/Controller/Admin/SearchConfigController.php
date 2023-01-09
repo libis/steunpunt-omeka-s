@@ -2,7 +2,11 @@
 
 /*
  * Copyright BibLibre, 2016-2017
+<<<<<<< HEAD
  * Copyright Daniel Berthereau, 2018-2022
+=======
+ * Copyright Daniel Berthereau, 2018-2021
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -492,10 +496,13 @@ class SearchConfigController extends AbstractActionController
             $params['search']['default_query'] = trim($params['search']['default_query'] ?? '', "? \t\n\r\0\x0B");
         }
 
+<<<<<<< HEAD
         if (isset($params['search']['default_query_post'])) {
             $params['search']['default_query_post'] = trim($params['search']['default_query_post'] ?? '', "? \t\n\r\0\x0B");
         }
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         // Add a warning because it may be a hard to understand issue.
         if (isset($params['facet']['languages'])) {
             $params['facet']['languages'] = array_values(array_unique(array_map('trim', $params['facet']['languages'])));

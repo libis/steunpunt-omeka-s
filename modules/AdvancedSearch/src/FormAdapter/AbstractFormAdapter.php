@@ -1,7 +1,11 @@
 <?php declare(strict_types=1);
 
 /*
+<<<<<<< HEAD
  * Copyright Daniel Berthereau, 2019-2022
+=======
+ * Copyright Daniel Berthereau, 2019-2021
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -29,7 +33,10 @@
 
 namespace AdvancedSearch\FormAdapter;
 
+<<<<<<< HEAD
 use AdvancedSearch\Mvc\Controller\Plugin\SearchResources;
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 use AdvancedSearch\Query;
 
 abstract class AbstractFormAdapter implements FormAdapterInterface
@@ -69,7 +76,10 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
         $query = new Query;
 
         // Solr doesn't allow unavailable args anymore (invalid or unknown).
+<<<<<<< HEAD
         // Furthermore, fields are case sensitive.
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         $onlyAvailableFields = !empty($formSettings['only_available_fields']);
         if ($onlyAvailableFields) {
             $availableFields = $formSettings['available_fields'] ?? [];
@@ -173,7 +183,10 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
 
                 case 'filter':
                     // The request filters are the advanced ones in the form settings.
+<<<<<<< HEAD
                     // The default query type is "in" (contains).
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                     $joiner = null;
                     $operator = null;
                     foreach ($formSettings['filters'] as $filter) {
@@ -184,17 +197,25 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
                         }
                     }
 
+<<<<<<< HEAD
                     // TODO The filter field can be multiple (as array).
+=======
+                    // TODO The filter field can be multiple.
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 
                     if (empty($joiner)) {
                         if (empty($operator)) {
                             foreach ($value as $filter) {
+<<<<<<< HEAD
                                 if (isset($filter['field'])
                                     && isset($filter['value'])
                                     && !is_array($filter['value'])
                                     && trim($filter['value']) !== ''
                                     && $checkAvailableField($filter['field'])
                                 ) {
+=======
+                                if (isset($filter['field']) && isset($filter['value']) && trim($filter['value']) !== '' && $checkAvailableField($filter['field'])) {
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                                     $query->addFilter($filter['field'], $filter['value']);
                                 }
                             }
@@ -202,7 +223,11 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
                             foreach ($value as $filter) {
                                 if (isset($filter['field']) && $checkAvailableField($filter['field'])) {
                                     $type = empty($filter['type']) ? 'in' : $filter['type'];
+<<<<<<< HEAD
                                     if (in_array($type, SearchResources::PROPERTY_QUERY['value_none'])) {
+=======
+                                    if ($type === 'ex' || $type === 'nex') {
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                                         $query->addFilterQuery($filter['field'], null, $type);
                                     } elseif (isset($filter['value']) && trim($filter['value']) !== '') {
                                         $query->addFilterQuery($filter['field'], $filter['value'], $type);
@@ -214,7 +239,10 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
                         if (empty($operator)) {
                             foreach ($value as $filter) {
                                 if (isset($filter['field']) && isset($filter['value']) && trim($filter['value']) !== '' && $checkAvailableField($filter['field'])) {
+<<<<<<< HEAD
                                     $type = empty($filter['type']) ? 'in' : $filter['type'];
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                                     $join = isset($filter['join']) && in_array($filter['join'], ['or', 'not']) ? $filter['join'] : 'and';
                                     $query->addFilterQuery($filter['field'], $filter['value'], $type, $join);
                                 }
@@ -223,7 +251,11 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
                             foreach ($value as $filter) {
                                 if (isset($filter['field']) && $checkAvailableField($filter['field'])) {
                                     $type = empty($filter['type']) ? 'in' : $filter['type'];
+<<<<<<< HEAD
                                     if (in_array($type, SearchResources::PROPERTY_QUERY['value_none'])) {
+=======
+                                    if ($type === 'ex' || $type === 'nex') {
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                                         $join = isset($filter['join']) && in_array($filter['join'], ['or', 'not']) ? $filter['join'] : 'and';
                                         $query->addFilterQuery($filter['field'], null, $type, $join);
                                     } elseif (isset($filter['value']) && trim($filter['value']) !== '') {
@@ -274,6 +306,7 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
                         continue 2;
                     }
                     foreach ($value as $facetName => $facetValues) {
+<<<<<<< HEAD
                         $firstFacetKey = key($facetValues);
                         if ($firstFacetKey === 'from' || $firstFacetKey === 'to') {
                             // Reorder early when needed.
@@ -294,6 +327,10 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
                             foreach ($facetValues as $facetValue) {
                                 $query->addActiveFacet($facetName, $facetValue);
                             }
+=======
+                        foreach ($facetValues as $facetValue) {
+                            $query->addActiveFacet($facetName, $facetValue);
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
                         }
                     }
                     break;

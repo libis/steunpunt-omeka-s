@@ -6,8 +6,11 @@ use Laminas\Form\Element\Select;
 
 class SearchConfigSelect extends Select
 {
+<<<<<<< HEAD
     use TraitOptionalElement;
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     /**
      * @var \Omeka\Api\Manager
      */

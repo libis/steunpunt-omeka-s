@@ -1,10 +1,16 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
 namespace Composer\Installers;
 
 class MoodleInstaller extends BaseInstaller
 {
+<<<<<<< HEAD
     /** @var array<string, string> */
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
     protected $locations = array(
         'mod'                => 'mod/{$name}/',
         'admin_report'       => 'admin/report/{$name}/',
@@ -13,7 +19,10 @@ class MoodleInstaller extends BaseInstaller
         'assignment'         => 'mod/assignment/type/{$name}/',
         'assignsubmission'   => 'mod/assign/submission/{$name}/',
         'assignfeedback'     => 'mod/assign/feedback/{$name}/',
+<<<<<<< HEAD
         'antivirus'          => 'lib/antivirus/{$name}/',
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'auth'               => 'auth/{$name}/',
         'availability'       => 'availability/condition/{$name}/',
         'block'              => 'blocks/{$name}/',
@@ -21,6 +30,7 @@ class MoodleInstaller extends BaseInstaller
         'cachestore'         => 'cache/stores/{$name}/',
         'cachelock'          => 'cache/locks/{$name}/',
         'calendartype'       => 'calendar/type/{$name}/',
+<<<<<<< HEAD
         'customfield'        => 'customfield/field/{$name}/',
         'fileconverter'      => 'files/converter/{$name}/',
         'format'             => 'course/format/{$name}/',
@@ -29,6 +39,13 @@ class MoodleInstaller extends BaseInstaller
         'customcertelement'  => 'mod/customcert/element/{$name}/',
         'datafield'          => 'mod/data/field/{$name}/',
         'dataformat'         => 'dataformat/{$name}/',
+=======
+        'fileconverter'      => 'files/converter/{$name}/',
+        'format'             => 'course/format/{$name}/',
+        'coursereport'       => 'course/report/{$name}/',
+        'customcertelement'  => 'mod/customcert/element/{$name}/',
+        'datafield'          => 'mod/data/field/{$name}/',
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'datapreset'         => 'mod/data/preset/{$name}/',
         'editor'             => 'lib/editor/{$name}/',
         'enrol'              => 'enrol/{$name}/',
@@ -41,10 +58,15 @@ class MoodleInstaller extends BaseInstaller
         'logstore'           => 'admin/tool/log/store/{$name}/',
         'ltisource'          => 'mod/lti/source/{$name}/',
         'ltiservice'         => 'mod/lti/service/{$name}/',
+<<<<<<< HEAD
         'media'              => 'media/player/{$name}/',
         'message'            => 'message/output/{$name}/',
         'mnetservice'        => 'mnet/service/{$name}/',
         'paygw'              => 'payment/gateway/{$name}/',
+=======
+        'message'            => 'message/output/{$name}/',
+        'mnetservice'        => 'mnet/service/{$name}/',
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'plagiarism'         => 'plagiarism/{$name}/',
         'portfolio'          => 'portfolio/{$name}/',
         'qbehaviour'         => 'question/behaviour/{$name}/',

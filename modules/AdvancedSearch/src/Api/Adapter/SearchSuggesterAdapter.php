@@ -14,6 +14,7 @@ class SearchSuggesterAdapter extends AbstractEntityAdapter
     protected $sortFields = [
         'id' => 'id',
         'name' => 'name',
+<<<<<<< HEAD
         'engine' => 'engine',
         'created' => 'created',
         'modified' => 'modified',
@@ -24,6 +25,8 @@ class SearchSuggesterAdapter extends AbstractEntityAdapter
         'name' => 'name',
         'engine' => 'engine',
         'settings' => 'settings',
+=======
+>>>>>>> c6f1c16375a005bfd976d7028b85168df30fcd28
         'created' => 'created',
         'modified' => 'modified',
     ];

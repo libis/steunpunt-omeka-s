@@ -298,7 +298,7 @@ class Harvest extends AbstractJob
         $query = [];
         $query['property'][0] = array(
           'property' => 10,
-          'text' => $id,
+          'text' => $id.'',
           'type' => 'eq',
           'joiner' => 'and'
         );
@@ -306,7 +306,7 @@ class Harvest extends AbstractJob
         $results = '';
         $response = $this->api->search('item_sets',$query);
         $results = $response->getContent();
-
+	//$this->logger->info(sizeof($results));
         foreach($results as $result):
           if($result):
             return $result->id();
@@ -317,22 +317,25 @@ class Harvest extends AbstractJob
     }
 
     protected function collectionExistsKP($id){
-        //find matching identifier
+	//find matching identifier
         $query = [];
         $query['property'][0] = array(
           'property' => 1,
-          'text' => $id,
+          'text' => $id.'',
           'type' => 'eq',
           'joiner' => 'and'
         );
+	//$query["site_id"]=1;
 
         $results = '';
         $response = $this->api->search('item_sets',$query);
         $results = $response->getContent();
-
+	//$this->logger->info(sizeof($results));
         foreach($results as $result):
           if($result):
-            return $result->id();
+		//	  return $result->id();
+	//	  $this->logger->info("collectie gevonden in titel");
+		return $result->id();
           endif;
         endforeach;
 
@@ -342,18 +345,20 @@ class Harvest extends AbstractJob
           'text' => $id,
           'type' => 'eq',
           'joiner' => 'and'
-        );
+  );
+	//$query["site_id"]=1;
 
         $results = '';
         $response = $this->api->search('item_sets',$query);
         $results = $response->getContent();
 
         foreach($results as $result):
-          if($result):
+		if($result):
+	//		 $this->logger->info("collectie gevonden in alt titel");
             return $result->id();
           endif;
         endforeach;
-
+	 //$this->logger->info($id);
         return false;
     }
 

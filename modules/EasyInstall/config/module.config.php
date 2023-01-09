@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace EasyInstall;
 
 return [
@@ -27,7 +27,7 @@ return [
             'admin' => [
                 'child_routes' => [
                     'easy-install' => [
-                        'type' => \Zend\Router\Http\Literal::class,
+                        'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/easy-install',
                             'defaults' => [
@@ -48,6 +48,16 @@ return [
                 'route' => 'admin/easy-install',
                 'resource' => 'Omeka\Controller\Admin\Module',
                 'privilege' => 'browse',
+            ],
+        ],
+    ],
+    'translator' => [
+        'translation_file_patterns' => [
+            [
+                'type' => 'gettext',
+                'base_dir' => dirname(__DIR__) . '/language',
+                'pattern' => '%s.mo',
+                'text_domain' => null,
             ],
         ],
     ],

@@ -138,9 +138,9 @@ class CleanRoute implements RouteInterface
 
         $matches = [];
 
-        // The path offset is currently not managed: no action.
-        // So the check all the remaining paths. Routes will be reordered.
-        $path = mb_substr($path, (int) $pathOffset);
+        if (!is_null($pathOffset)) {
+            $pathOffset = (int) $pathOffset;
+        }
 
         // Check if it is a top url first or if there is a base path.
         if (mb_stripos('|' . SLUGS_SITE . '|', '|' . trim(mb_substr($path, mb_strlen(SLUG_SITE)), '/') . '|') !== false) {
@@ -150,11 +150,11 @@ class CleanRoute implements RouteInterface
         foreach ($this->routes as /* $routeName =>*/ $data) {
             $regex = $data['regex'];
 
-            // if (is_null($pathOffset)) {
-            $result = preg_match('(^' . $regex . '$)', $path, $matches);
-            // } else {
-            //     $result = preg_match('(\G' . $regex . ')', $path, $matches, null, (int) $pathOffset);
-            // }
+            if (is_null($pathOffset)) {
+                $result = preg_match('(^' . $regex . '$)', $path, $matches);
+            } else {
+                $result = preg_match('(\G' . $regex . '$)', $path, $matches, 0, $pathOffset);
+            }
 
             if (!$result) {
                 continue;
@@ -169,7 +169,7 @@ class CleanRoute implements RouteInterface
                 }
             }
 
-            // Check if the resource identifiers is a reserved word.
+            // Check if the resource identifier is a reserved word.
             // They are managed here currently for simplicity.
             $reserved = '|' . SLUGS_CORE . SLUGS_RESERVED . '|';
             foreach ($params as $key => $value) {
@@ -258,6 +258,7 @@ class CleanRoute implements RouteInterface
             }
 
             $matchedLength = mb_strlen($matches[0]);
+
             return new RouteMatch(array_merge($data['defaults'], $params), $matchedLength);
         }
 
@@ -316,8 +317,7 @@ class CleanRoute implements RouteInterface
         }
         if ($context === 'site') {
             $context = SLUG_MAIN_SITE !== false
-                && !empty($params['site-slug'])
-                && $params['site-slug'] === SLUG_MAIN_SITE
+                && (empty($params['site-slug']) || $params['site-slug'] === SLUG_MAIN_SITE)
                 ? 'top'
                 : 'public';
         }
@@ -745,8 +745,7 @@ class CleanRoute implements RouteInterface
                 // The media representation doesn't have the position.
                 // $view->api() cannot set a response content.
                 return $this->entityManager
-                    ->getRepository(\Omeka\Entity\Media::class)
-                    ->find($resource->id())
+                    ->find(\Omeka\Entity\Media::class, $resource->id())
                     ->getPosition();
             default:
                 return null;
@@ -772,8 +771,7 @@ class CleanRoute implements RouteInterface
     protected function mediaBelongsToItemSet(int $mediaId, int $itemSetId): bool
     {
         $media = $this->entityManager
-            ->getRepository(\Omeka\Entity\Media::class)
-            ->find($mediaId);
+            ->find(\Omeka\Entity\Media::class, $mediaId);
         return $this->itemBelongsToItemSet($media->getItem()->getId(), $itemSetId);
     }
 

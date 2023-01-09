@@ -54,10 +54,12 @@ $translate = $this->plugin('translate');
           endif;
 
           if($_SERVER['REQUEST_URI'] == '/'):
-            $url = 'https://blendeff.be/nl'.$resource->url();
+            $url = 'https://blendeff.be/s/nl/'.str_replace("s//","",$resource->url());
           else:  
             $url = $resource->url();
-          endif;  
+	  endif;  
+	  //$url = str_replace("
+	  //$url = $resource->url();
 
           /*if($resourceType == 'item-set'):
             $url = $block->page()->site()->url().'/search?q=&limit[item_set_id][0]='.$resource->id();
@@ -104,7 +106,7 @@ $translate = $this->plugin('translate');
     </div>
     <?php if ($this->linkText == 'Nieuwsarchief'):?>
       <div class="has-text-right">
-        <a href="<?php echo $block->page()->site()->url().'/browse?resource_template_id=2&page=1&sort_by=dcterms%3Adate&sort_order=desc';?>" class="button is-primary">
+        <a href="<?php echo $block->page()->site()->url().'/item/browse?resource_template_id=2&page=1&sort_by=dcterms%3Adate&sort_order=desc';?>" class="button is-primary">
           <span><?php echo $this->linkText;?></span>
           <span class="icon is-small">
             <i class="fas fa-angle-right"></i>

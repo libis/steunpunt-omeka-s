@@ -100,6 +100,9 @@ class GetIdentifiersFromResourcesOfType extends AbstractHelper
         $qb = $this->connection->createQueryBuilder()
             ->from('value', 'value')
             ->leftJoin('value', 'resource', 'resource', 'resource.id = value.resource_id')
+            // An identifier is always literal: it identifies a resource inside
+            // the base. It can't be an external uri or a linked resource.
+            ->where('value.type = "literal"')
             ->andWhere('value.property_id = :property_id')
             ->setParameter('property_id', $this->options[$resourceName]['property'])
             // Only one identifier by resource.
@@ -113,23 +116,29 @@ class GetIdentifiersFromResourcesOfType extends AbstractHelper
         $lengthPrefix = mb_strlen($prefix);
         if ($lengthPrefix) {
             $qb
-                ->select([
+                ->select(
                     // Should be the first column.
-                    'id' => 'value.resource_id',
-                    'identifier' => $this->options[$resourceName]['prefix_part_of']
-                        ? 'value.value'
+                    'value.resource_id AS id',
+                    $this->options[$resourceName]['prefix_part_of']
+                        ? 'value.value AS identifier'
                         // 'identifier' => $qb->expr()->trim($qb->expr()->substring('value.text', $lengthPrefix + 1)),
-                        : '(TRIM(SUBSTR(value.value, ' . ($lengthPrefix + 1) . ')))',
-                ])
+                        : '(TRIM(SUBSTR(value.value, ' . ($lengthPrefix + 1) . '))) AS identifier',
+                        // Only the two first selects are needed, but some databases
+                        // require "order by" or "group by" value to be in the select.
+                        'value.id'
+                )
                 ->andWhere('value.value LIKE :value_value')
                 ->setParameter('value_value', $prefix . '%');
         } else {
             $qb
-                ->select([
+                ->select(
                     // Should be the first column.
-                    'id' => 'value.resource_id',
-                    'identifier' => 'value.value',
-                ]);
+                    'value.resource_id AS id',
+                    'value.value AS identifier',
+                    // Only the two first selects are needed, but some databases
+                    // require "order by" or "group by" value to be in the select.
+                    'value.id'
+                );
         }
 
         if ($isSingle) {
@@ -137,17 +146,18 @@ class GetIdentifiersFromResourcesOfType extends AbstractHelper
         }
 
         // Create a temporary table when the number of resources is very big.
+        // TODO Use a cache table like module Reference.
         $tempTable = count($resources) > self::CHUNK_RECORDS;
         if ($tempTable) {
             $query = 'DROP TABLE IF EXISTS `temp_resources`;';
-            $stmt = $this->connection->query($query);
+            $this->connection->executeStatement($query);
             // TODO Check if the id may be unique.
             // $query = 'CREATE TEMPORARY TABLE `temp_resources` (`id` INT UNSIGNED NOT NULL, PRIMARY KEY(`id`));';
             $query = 'CREATE TEMPORARY TABLE `temp_resources` (`id` INT UNSIGNED NOT NULL);';
-            $stmt = $this->connection->query($query);
+            $this->connection->executeStatement($query);
             foreach (array_chunk($resources, self::CHUNK_RECORDS) as $chunk) {
                 $query = 'INSERT INTO `temp_resources` VALUES(' . implode('),(', $chunk) . ');';
-                $stmt = $this->connection->query($query);
+                $this->connection->executeStatement($query);
             }
             $qb
                 // No where condition.
@@ -166,8 +176,7 @@ class GetIdentifiersFromResourcesOfType extends AbstractHelper
                 ->andWhere('value.resource_id IN (' . implode(',', $resources) . ')');
         }
 
-        $stmt = $this->connection->executeQuery($qb, $qb->getParameters());
-        $result = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $result = $this->connection->executeQuery($qb, $qb->getParameters())->fetchAllKeyValue();
         return $isSingle
             ? array_shift($result)
             : $result;

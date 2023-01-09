@@ -87,11 +87,11 @@ class Module extends AbstractModule
         }
         $services = $this->getServiceLocator();
         $module = $services->get('Omeka\ModuleManager')->getModule('Generic');
-        if ($module && version_compare($module->getIni('version'), '3.3.25', '<')) {
+        if ($module && version_compare($module->getIni('version') ?? '', '3.3.27', '<')) {
             $translator = $services->get('MvcTranslator');
             $message = new \Omeka\Stdlib\Message(
                 $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
-                'Generic', '3.3.25'
+                'Generic', '3.3.27'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
@@ -126,6 +126,12 @@ class Module extends AbstractModule
         $defaultSettings = ['routes' => [], 'route_aliases' => []];
         $cleanUrlSettings = $settings->get('cleanurl_settings', []) + $defaultSettings;
 
+        $configRoutes = $services->get('Config')['router']['routes'];
+
+        // Top routes are managed during init above.
+        $childRoutes = ($configRoutes['site']['child_routes']['resource-id']['child_routes'] ?? [])
+            + ($configRoutes['admin']['child_routes']['id']['child_routes'] ?? []);
+
         $router
             ->addRoute('clean-url', [
                 'type' => \CleanUrl\Router\Http\CleanRoute::class,
@@ -140,6 +146,11 @@ class Module extends AbstractModule
                     'getResourceFromIdentifier' => $helpers->get('getResourceFromIdentifier'),
                     'getResourceIdentifier' => $helpers->get('getResourceIdentifier'),
                 ],
+                // Fix https://gitlab.com/Daniel-KM/Omeka-S-module-CleanUrl/-/issues/11
+                // FIXME Go thorough to find why site/resource-id answer by a site/resource (so, above during merge of child routes).
+                // 'may_terminate' => !empty($childRoutes),
+                'may_terminate' => true,
+                'child_routes' => $childRoutes,
             ]);
     }
 
@@ -310,7 +321,7 @@ class Module extends AbstractModule
             // Check all pages of the default site.
             // TODO Manage the case where the default site is updated after (rare).
             $result = [];
-            $slugs = $connection->query('SELECT slug FROM site;')->fetchAll(\PDO::FETCH_COLUMN);
+            $slugs = $connection->executeQuery('SELECT slug FROM site;')->fetchAll(\PDO::FETCH_COLUMN);
             foreach ($slugs as $slug) {
                 if (mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|', '|' . trim($slug, '/') . '|')) {
                     $result[] = $slug;
@@ -324,7 +335,7 @@ class Module extends AbstractModule
                 $messenger->addError($message);
                 $hasError = true;
             }
-            $slugs = $connection->query('SELECT slug FROM site_page;')->fetchAll(\PDO::FETCH_COLUMN);
+            $slugs = $connection->executeQuery('SELECT slug FROM site_page;')->fetchAll(\PDO::FETCH_COLUMN);
             foreach ($slugs as $slug) {
                 if (mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|' . SLUGS_SITE . '|', '|' . trim($slug, '/') . '|') !== false) {
                     $result[] = $slug;
@@ -352,7 +363,7 @@ class Module extends AbstractModule
         // Check the existing slugs with reserved slugs.
         else {
             $result = [];
-            $slugs = $connection->query('SELECT slug FROM site;')->fetchAll(\PDO::FETCH_COLUMN);
+            $slugs = $connection->executeQuery('SELECT slug FROM site;')->fetchAll(\PDO::FETCH_COLUMN);
             foreach ($slugs as $slug) {
                 if (mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|', '|' . trim($slug, '/') . '|')) {
                     $result[] = $slug;
@@ -380,7 +391,7 @@ class Module extends AbstractModule
         // Check the existing slugs with reserved slugs.
         else {
             $result = [];
-            $slugs = $connection->query('SELECT slug FROM site_page;')->fetchAll(\PDO::FETCH_COLUMN);
+            $slugs = $connection->executeQuery('SELECT slug FROM site_page;')->fetchAll(\PDO::FETCH_COLUMN);
             foreach ($slugs as $slug) {
                 if (mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|' . SLUGS_SITE . '|', '|' . trim($slug, '/') . '|')) {
                     $result[] = $slug;
@@ -557,7 +568,7 @@ class Module extends AbstractModule
             return;
         }
 
-        $data['o:slug'] .= '_' . substr(str_replace(['+', '/'], '', base64_encode(random_bytes(20))), 0, 4);
+        $data['o:slug'] .= '_' . substr(str_replace(['+', '/', '='], ['', '', ''], base64_encode(random_bytes(128))), 0, 4);
         $request->setContent($data);
 
         $message = new Message('The slug "%s" is used or reserved. A random string has been automatically appended.', $slug); // @translate
@@ -626,7 +637,7 @@ class Module extends AbstractModule
         $sql = 'SELECT slug FROM site;';
         /** @var \Doctrine\DBAL\Connection $connection */
         $connection = $services->get('Omeka\Connection');
-        $stmt = $connection->query($sql);
+        $stmt = $connection->executeQuery($sql);
         $slugs = $stmt->fetchAll(\PDO::FETCH_COLUMN);
         $replaceRegex = $this->prepareRegex($slugs);
         $regex = "~const SLUGS_SITE = '[^']*?';~";

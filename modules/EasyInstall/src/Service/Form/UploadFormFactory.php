@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 namespace EasyInstall\Service\Form;
 
 use EasyInstall\Form\UploadForm;
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class UploadFormFactory implements FactoryInterface
 {

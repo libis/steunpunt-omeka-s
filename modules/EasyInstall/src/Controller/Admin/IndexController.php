@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 namespace EasyInstall\Controller\Admin;
 
-use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Inflector\InflectorFactory;
 use EasyInstall\Form\UploadForm;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Omeka\Mvc\Controller\Plugin\Messenger;
 use Omeka\Stdlib\Message;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
 
 class IndexController extends AbstractActionController
 {
@@ -40,8 +40,10 @@ class IndexController extends AbstractActionController
             return $view;
         }
 
+        $data = $form->getData();
+
         foreach ($addons->types() as $type) {
-            $url = $this->params()->fromPost($type);
+            $url = $data[$type] ?? null;
             if ($url) {
                 $addon = $addons->dataForUrl($url, $type);
                 if ($addons->dirExists($addon)) {
@@ -70,7 +72,7 @@ class IndexController extends AbstractActionController
      *
      * @param array $addon
      */
-    protected function installAddon(array $addon)
+    protected function installAddon(array $addon): void
     {
         switch ($addon['type']) {
             case 'module':
@@ -197,7 +199,7 @@ class IndexController extends AbstractActionController
         }
 
         $message = new Message('If "%s" doesn’t appear in the list of %s, its directory may need to be renamed.', // @translate
-            $addon['name'], Inflector::pluralize($type));
+            $addon['name'], InflectorFactory::create()->build()->pluralize($type));
         $this->messenger()->add(
             $result ? Messenger::NOTICE : Messenger::WARNING,
             $message
@@ -401,7 +403,7 @@ class IndexController extends AbstractActionController
     {
         /** @var \Omeka\Api\Representation\ModuleRepresentation[] $modules */
         $modules = $this->api()->search('modules', ['id' => $module])->getContent();
-        return isset($modules[$module]) ? $modules[$module] : null;
+        return $modules[$module] ?? null;
     }
 
     /**
@@ -415,7 +417,7 @@ class IndexController extends AbstractActionController
      * @param array $errors
      * @throws \Exception
      */
-    protected function executeCommand($command, &$status, &$output, &$errors)
+    protected function executeCommand($command, &$status, &$output, &$errors): void
     {
         // Using proc_open() instead of exec() solves a problem where exec('convert')
         // fails with a "Permission Denied" error because the current working
@@ -435,7 +437,7 @@ class IndexController extends AbstractActionController
             }
             $status = proc_close($proc);
         } else {
-            throw new \Exception(new Message(
+            throw new \Exception((string) new Message(
                 'Failed to execute command: %s', // @translate
                 $command
             ));
@@ -446,12 +448,14 @@ class IndexController extends AbstractActionController
      * Remove a dir from filesystem.
      *
      * @param string $dirpath Absolute path.
-     * @return bool
      */
-    private function rmDir($dirPath)
+    private function rmDir(string $dirPath): bool
     {
         if (!file_exists($dirPath)) {
             return true;
+        }
+        if (strpos($dirPath, '/..') !== false || substr($dirPath, 0, 1) !== '/') {
+            return false;
         }
         $files = array_diff(scandir($dirPath), ['.', '..']);
         foreach ($files as $file) {

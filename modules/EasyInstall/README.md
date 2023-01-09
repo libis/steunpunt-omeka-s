@@ -1,6 +1,10 @@
 Easy Install (module for Omeka S)
 =================================
 
+> __New versions of this module and support for Omeka S version 3.0 and above
+> are available on [GitLab], which seems to respect users and privacy better
+> than the previous repository.__
+
 [![Build Status](https://travis-ci.org/Daniel-KM/Omeka-S-module-EasyInstall.svg?branch=master)](https://travis-ci.org/Daniel-KM/Omeka-S-module-EasyInstall)
 
 [Easy Install] is a module for [Omeka Semantic] that allows to install Omeka S
@@ -18,6 +22,20 @@ Installation
 Uncompress files in the directory `modules` and rename folder `EasyInstall`.
 
 See general end user documentation for [Installing a module](http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules).
+
+In some cases, your may need to add credentials in your config (omeka file "config/local.config.php"),
+depending on your linux distribution:
+```php
+    'http_client' => [
+        // 'adapter' => \Laminas\Http\Client\Adapter\Curl::class,
+        'sslcapath' => '/usr/local/etc/ssl/certs',
+        'sslcafile' => '/usr/local/etc/ssl/certs/ca.crt',
+        // 'sslcapath' => '/etc/pki/tls/certs',
+        // 'sslcafile' => '/etc/pki/tls/certs/ca-bundle.crt',
+    ],
+```
+
+You can find more information on the params in [Laminas help].
 
 
 Usage
@@ -44,7 +62,7 @@ See online issues on the [module issues] page.
 License
 -------
 
-This plugin is published under the [CeCILL v2.1] licence, compatible with
+This plugin is published under the [CeCILL v2.1] license, compatible with
 [GNU/GPL] and approved by [FSF] and [OSI].
 
 In consideration of access to the source code and the rights to copy, modify and
@@ -69,7 +87,7 @@ Contact
 
 Current maintainers:
 
-* Daniel Berthereau (see [Daniel-KM] on GitHub)
+* Daniel Berthereau (see [Daniel-KM] on GitLab)
 
 
 Copyright
@@ -78,15 +96,17 @@ Copyright
 * Copyright Daniel Berthereau, 2017-2019
 
 
-[Easy Install]: https://github.com/Daniel-KM/Omeka-S-module-EasyInstall
+[Easy Install]: https://gitlab.com/Daniel-KM/Omeka-S-module-EasyInstall
 [Escher]: https://github.com/AcuGIS/Escher
 [Omeka Semantic]: https://www.omeka.org/s
 [Omeka Classic]: https://omeka.org/classic
+[Laminas help]: https://docs.laminas.dev/laminas-http/client/adapters
 [modules]: https://daniel-km.github.io/UpgradeToOmekaS/omeka_s_modules.html
 [themes]: https://daniel-km.github.io/UpgradeToOmekaS/omeka_s_themes.html
-[module issues]: https://github.com/Daniel-KM/Omeka-S-module-EasyInstall/issues
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-EasyInstall/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
-[Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
+[GitLab]: https://gitlab.com/Daniel-KM
+[Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"

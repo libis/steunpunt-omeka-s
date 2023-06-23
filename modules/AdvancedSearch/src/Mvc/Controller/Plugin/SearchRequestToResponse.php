@@ -158,8 +158,10 @@ class SearchRequestToResponse extends AbstractPlugin
 
         // Check resources.
         $resourceTypes = $query->getResources();
+        // TODO Check why resources may not be filled.
+        $engineSettings['resources'] = $engineSettings['resources'] ?? ['items'];
         if ($resourceTypes) {
-            $resourceTypes = array_intersect($engineSettings['resources']) + $engineSettings['resources'];
+            $resourceTypes = array_intersect($resourceTypes, $engineSettings['resources']) ?: $engineSettings['resources'];
             $query->setResources($resourceTypes);
         } else {
             $query->setResources($engineSettings['resources']);

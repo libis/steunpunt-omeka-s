@@ -54,7 +54,9 @@
     $facetActive = $plugins->get('facetActive');
     $facetLabel = $plugins->get('facetLabel');
     // Facet checkbox can be used in any case anyway, the js checks it.
-    $facetElement = $isFacetModeButton ? $plugins->get('facetCheckbox') : $plugins->get('facetLink');
+    $facetElements = $isFacetModeButton ? $plugins->get('facetCheckboxes') : $plugins->get('facetLinks');
+    $facetSelect = $plugins->get('facetSelect');
+    $facetSelectRange = $plugins->get('facetSelectRange');
 
     // Don't display facets for item sets when browsing an item set.
     if (!empty($itemSet)) {
@@ -63,10 +65,8 @@
     }
 
     $options = $searchPage->setting('facet', []);
-    unset($options['facets']);
 ?>
-<div class="column is-one-quarter">
-  <aside class="facets">
+
       <h3 class="is-5"><strong><?= $translate('Filters') ?></strong></h3>
       <?php if ($displayActive && count($activeFacets)): ?>
         <h4 style="font-size:0.9rem;">Actieve filters</h4>
@@ -85,7 +85,7 @@
 
         <?php if ($displayFacetButton && ($displayButton === 'above' || $displayButton === 'both')): ?>
         <div class="apply-facets apply-facets-top">
-            <input type="submit" value="<?= $translate('Apply filters') ?>"/>
+            <input type="submit" value="<?= $translate('Filter toepassen') ?>"/>
         </div>
         <?php endif; ?>
 
@@ -94,33 +94,19 @@
         <?php else: ?>
         <ul class="search-facets-list">
             <?php foreach ($facets as $name => $facetValues): ?>
-                <?php
-                $more = false;
-                if(sizeof($facetValues)>8):
-                    $more = array_slice($facetValues, 8);
-                    $facetValues = array_slice($facetValues, 0, 8);
-                endif;
-                ?>
+            <?php $facetType = empty($options['facets'][$name]['type']) ? 'Checkbox' : $options['facets'][$name]['type']; ?>    
             <li class="search-facet">
-                <h4><?= $translate($facetLabel($name)) ?></h4>
-                <ul class="search-facet-items">
-                    <?php foreach ($facetValues as $facetValue): ?>
-                    <li class="search-facet-item">                    
-                        <?= $facetElement($name, $facetValue, $options) ?>
-                    </li>
-                    <?php endforeach; ?>
-                    <?php if($more):?>
-                    <div class="more-link"><a class="has-text-grey" href=""><i class="fas fa-plus-square"></i><span>Toon meer</span></a></div>
-                    <div class="more" style="display:none;">
-                        <?php foreach ($more as $facetValue): ?>
-                        <div class="form__item search-facet-item">
-                            <?= $facetElement($name, $facetValue, $options) ?>
-                        </div>
-                        <?php endforeach; ?>
-                        <div class="less-link"><a class="has-text-grey" href=""><i class="fas fa-minus-square"></i><span>Toon minder</span></a></div>
-                    </div>
+                <h4 style="font-weight:bold;"><?= $translate($facetLabel($name)) ?></h4>
+                <?php if(sizeof($facetValues) > 10):?>
+                    <input class="form-control txtSearch" type="text" placeholder="filter">
                 <?php endif;?>
-                </ul>
+                <?php if ($facetType === 'Select'): ?>
+                <?= $facetSelect($name, $facetValues, $options) ?>
+                <?php elseif ($facetType === 'SelectRange'): ?>
+                <?= $facetSelectRange($name, $facetValues, $options) ?>
+                <?php else: ?>
+                <?= $facetElements($name, $facetValues, $options) ?>
+                <?php endif; ?>               
             </li>
             <?php endforeach; ?>
         </ul>
@@ -132,19 +118,20 @@
         </div>
         <?php endif; ?>
     </form>
-  </aside>
-</div>
 <script>
     $(document).ready(function(){
-        $( ".more-link a" ).click(function(e) {
-            e.preventDefault();
-            $(this).parent().hide();
-            $(this).parent().next( "div" ).show();
-        });
-        $( ".less-link a" ).click(function(e) {
-            e.preventDefault();
-            $(this).parent().parent().hide();
-            $(this).parent().parent().prev( ".more-link" ).show();
+        $(".search-facet-items").on('keyup', ".txtSearch", function() {
+            var search = $(this).val().toLowerCase();
+            
+            //Go through each list item and hide if not match search
+            $(this).parent().find(".search-facet-item").each(function() {
+                if ($(this).html().toLowerCase().indexOf(search) != -1) {
+                    $(this).show();
+                }
+                else {
+                    $(this).hide();  
+                } 
+            });
         });
     });
 </script>

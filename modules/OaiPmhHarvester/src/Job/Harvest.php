@@ -140,7 +140,7 @@ class Harvest extends AbstractJob
                     $url .= '&set=' . $args['set_spec'];
                 }
             }
-            $this->logger->info($args['resource_type']);
+            //$this->logger->info($args['resource_type']);
             $this->logger->info("start load xml");
 
             /** @var \SimpleXMLElement $response */
@@ -196,7 +196,7 @@ class Harvest extends AbstractJob
                     }
                 }
                 $pre_record = $this->{$method}($record, $args['item_set_id'],$args);
-                if($args['endpoint'] == 'https://adlib.icts.kuleuven.be/webapi/oai.ashx'):
+                if($args['endpoint'] == 'https://adlib.icts.kuleuven.be/webapi/oai.ashx' || $args['endpoint'] == 'https://kup-apw.adlibhosting.com/axiellweboai/oai.ashx'):
                     $id_exists = $this->itemExists($pre_record, $pre_record['dcterms:identifier'][0]['@value'],$args['resource_type'],'adlib');
                 else:   
                     $id_exists = $this->itemExists($pre_record, $pre_record['dcterms:isVersionOf'][0]['@value'],$args['resource_type']);
@@ -279,7 +279,7 @@ class Harvest extends AbstractJob
             //try{
               //don't update files for to avoid redownload
               if(isset($item['o:media'])):                
-                unset($item['o:media']);
+                //unset($item['o:media']);
               endif;
               $response = $this->api->update($resource_type, $result->id() ,$item, [], ['isPartial' => true, 'flushEntityManager' => true]);
               $response = null;
@@ -407,6 +407,7 @@ class Harvest extends AbstractJob
 
     private function _oaidcToJson(SimpleXMLElement $record, $itemSetId, $args)
     {
+        //ADLIB
         $dcMetadata = $record
             ->metadata
             ->children('oai_dc',true)
@@ -436,11 +437,21 @@ class Harvest extends AbstractJob
                         if (filter_var($imageUrl, FILTER_VALIDATE_URL) === false){
                             continue;
                         }
-                        //$this->logger->info($imageUrl);
+
+                        //check for '/' in id, url not valid if this is the case
+                        $imageUrl = $imageUrl.'';
+                        str_replace("http:","https:",$imageUrl);
+                        $image_id = explode("id=",$imageUrl);
+
+                        $image_id = end($image_id);
+                        if(str_contains($image_id,"/")){                            
+                            continue;
+                        }
+                        $this->logger->info($imageUrl);
                         $media[$imgc]= [
                             'o:ingester' => 'url',
-                            'o:source' => $imageUrl.'',
-                            'ingest_url' => $imageUrl.'',
+                            'o:source' => $imageUrl,
+                            'ingest_url' => $imageUrl,
                             'dcterms:title' => [
                                 [
                                     'type' => 'literal',
@@ -481,9 +492,10 @@ class Harvest extends AbstractJob
 
     private function _anyDctermsToJson(SimpleXMLElement $record, $itemSetId, $args)
     {
+        //WCE
         $elementTexts = [];
         $media = [];
-        
+        $itemSetIds = [];
 
         $metadata = $record->metadata;
         $namespaces = $metadata->getNamespaces(true);
@@ -501,14 +513,14 @@ class Harvest extends AbstractJob
                     if($localName == 'isPartOf' && $args['resource_type'] == 'items'){
                       foreach ($dcMetadata->$localName as $collection_id) {
                         if($setID = $this->collectionExists($collection_id)):
-                          $itemSetId = $setID;
+                          $itemSetIds[] = $setID;
                         endif;
                       }
                     }
 
                      //add media if Beeld or Collectie
                     if($localName == 'relation'){
-                        $this->logger->info('relation');
+                        //$this->logger->info('relation');
                         $imgc=0;
                         foreach ($dcMetadata->$localName as $imageUrl) {
                             if (filter_var($imageUrl, FILTER_VALIDATE_URL) === false){
@@ -541,14 +553,16 @@ class Harvest extends AbstractJob
         $meta = $elementTexts;
 
         //set item set        
-        if($itemSetId && $args['resource_type'] == 'items'):
-            $meta['o:item_set'][] = ['o:id' => $itemSetId];
-        endif;
+        foreach($itemSetIds as $collectionId):
+            if($collectionId && $args['resource_type'] == 'items'):
+                $meta['o:item_set'][] = ['o:id' => $collectionId];
+            endif;        
+        endforeach;
 
         //media
         $imgs = array();
         foreach($media as $img):
-            $this->logger->info('add image');
+            
             $imgs[] = $img;
         endforeach;
         $meta['o:media'] = $imgs;
@@ -567,6 +581,7 @@ class Harvest extends AbstractJob
         $localName = $this->dcProperties[$propertyId];
         foreach ($metadata->$localName as $value) {
             $texts = trim($value);
+            $texts = str_replace("&amp;","&",$texts);
 
             $texts = explode('||',$texts);
             foreach($texts as $text):
@@ -579,6 +594,7 @@ class Harvest extends AbstractJob
               $type = empty($attributes['type']) ? null : trim($attributes['type']);
               $type = in_array(strtolower($type), ['dcterms:uri', 'uri']) ? 'uri' : 'literal';
 
+             
               $val = [
                   'property_id' => $propertyId,
                   'type' => $type,
@@ -587,8 +603,10 @@ class Harvest extends AbstractJob
 
               switch ($type) {
                   case 'uri':
-                      $val['o:label'] = null;
-                      $val['@id'] = $text;
+                      $val['o:label'] = $text;
+                      $val['@id'] = "";
+
+                      //$val['@language'] = $language;
                       break;
 
                   case 'literal':
@@ -596,6 +614,15 @@ class Harvest extends AbstractJob
                       // Extract xml language if any.
                       $attributes = iterator_to_array($value->attributes('xml', true));
                       $language = empty($attributes['lang']) ? null : trim($attributes['lang']);
+
+                      //map to default codes - libis  
+                      if($language == "gb" || $language == "en-GB"){
+                        $language = "en";
+                      }
+
+                      if($language == "be" || $language == "nl-BE"){
+                        $language = "nl";
+                      }
 
                       $val['@value'] = $text;
                       $val['@language'] = $language;

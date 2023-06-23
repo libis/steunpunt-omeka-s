@@ -2,8 +2,8 @@
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $labelInfo = $this->setting('property_label_information');
-$not = array('Title','Description','Is Version Of','Is Part Of','Language','Provenance');
-$notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright');
+$not = array('Title','Description','Is Version Of','Is Part Of','Language');
+$notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright','Geschiedenis');
 ?>
 
 <?php foreach ($templateProperties as $term => $property): ?>
@@ -54,7 +54,7 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright');
 
             <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($value->lang()); ?>">
                 <?php if ($language = $value->lang()): ?>
-                <span class="language"><?php echo $language; ?></span>
+                <!--<span class="language"><?php echo $language; ?></span>-->
                 <?php endif; ?>
 
                 <?php if($propertyData['alternate_label'] == 'Thema'):?>
@@ -100,10 +100,10 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright');
                 <?php elseif($propertyData['alternate_label'] == 'Materiaal'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
                     <?php $text = explode('$$',$value->asHtml());?>
-                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms_medium_ss][0]='.$text[0]; ?>"><?php echo $text[0]; ?></a>
+                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms:medium][0]='.$text[0]; ?>"><?php echo $text[0]; ?></a>
                     <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
                   <?php else:?>
-                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms_medium_ss][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
+                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms:medium][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
                   <?php endif;?> 
                 <?php elseif($propertyData['alternate_label'] == 'Plaats vervaardiging'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
@@ -204,10 +204,10 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright');
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
                     <?php $text = explode('$$',$value->asHtml());?>
                   
-                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms_alternative_ss][0]='.$text[0]; ?>"><?php echo $text[0]; ?></a>
+                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms:alternative][0]='.$text[0]; ?>"><?php echo $text[0]; ?></a>
                     <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
                   <?php else:?>
-                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms_alternative_ss][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
+                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms:alternative][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
                   
                   <?php endif;?>
                 
@@ -238,7 +238,7 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright');
                     <?php 
                       $medval = $values['dcterms:creator']['values'][$i]->asHtml();
                     ?>
-                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms_creator_ss][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
+                    <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms:creator][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
                       <?php if(sizeof($text) == 3):?>
                         <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
                       <?php elseif(sizeof($text) == 2  && $text[1]):?>

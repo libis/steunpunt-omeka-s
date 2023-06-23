@@ -130,16 +130,6 @@ class SearchBlock extends AbstractBlockLayout
         'materials' => $materials,
         'personen' => $personen,
         'objectnamen' => $objectnamen,
-
       ]);
-
-      /*return $view->partial('common/block-layout/tiles', [
-          'block' => $block,
-          'attachments' => $attachments,
-          'alignmentClass' => $alignmentClass,
-          'thumbnailType' => $thumbnailType,
-          'link' => $linkType,
-          'showTitleOption' => $showTitleOption,
-      ]);*/
     }
 }

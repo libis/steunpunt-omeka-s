@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright Daniel Berthereau 2018-2022
+ * Copyright Daniel Berthereau 2018-2023
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -101,6 +101,8 @@ class Advanced extends Fieldset
                 'nsw' => 'does not start with', // @translate
                 'ew' => 'ends with', // @translate
                 'new' => 'does not end with', // @translate
+                'near' => 'is similar to', // @translate
+                'nnear' => 'is not similar to', // @translate
                 'ex' => 'has any value', // @translate
                 'nex' => 'has no values', // @translate
                 'exs' => 'has a single value', // @translate
@@ -120,6 +122,7 @@ class Advanced extends Fieldset
                     $operators['nin'],
                     $operators['nsw'],
                     $operators['new'],
+                    $operators['nnear'],
                     $operators['nex'],
                     $operators['nexs'],
                     $operators['nexm'],

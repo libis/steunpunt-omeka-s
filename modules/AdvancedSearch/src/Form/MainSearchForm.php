@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright Daniel Berthereau 2018-2022
+ * Copyright Daniel Berthereau 2018-2023
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -59,7 +59,7 @@ class MainSearchForm extends Form
     protected $siteSetting;
 
     /**
-     * @var \Laminas\Form\FormElementManager\FormElementManagerV3Polyfill
+     * @var \Laminas\Form\FormElementManager;
      */
     protected $formElementManager;
 
@@ -279,7 +279,7 @@ class MainSearchForm extends Form
             ->setAttribute('data-field-type', 'filter')
             ->setOptions([
                 'label' => $filter['label'],
-                'count' => $filter['max_number'],
+                'count' => (int) $filter['max_number'],
                 'should_create_template' => true,
                 'allow_add' => true,
                 'target_element' => $advanced,
@@ -482,7 +482,7 @@ class MainSearchForm extends Form
         $element
             ->setAttributes([
                 'id' => 'search-id',
-                'data-field-type', $filter['type'] === 'MultiText' ? 'multitext' : 'text',
+                'data-field-type' => $filter['type'] === 'MultiText' ? 'multitext' : 'text',
             ])
             ->setOptions([
                 'label' => $filter['label'], // @translate
@@ -498,7 +498,7 @@ class MainSearchForm extends Form
         $element
             ->setAttributes([
                 'id' => 'search-is-public',
-                'data-field-type', 'checkbox',
+                'data-field-type' => 'checkbox',
             ])
             ->setOptions([
                 'label' => $filter['label'], // @translate
@@ -514,7 +514,7 @@ class MainSearchForm extends Form
         $fieldset
             ->setAttributes([
                 'id' => 'search-owners',
-                'data-field-type', 'owner',
+                'data-field-type' => 'owner',
             ])
             ->add([
                 'name' => 'id',
@@ -544,7 +544,7 @@ class MainSearchForm extends Form
         $fieldset
             ->setAttributes([
                 'id' => 'search-sites',
-                'data-field-type', 'site',
+                'data-field-type' => 'site',
             ])
             ->add([
                 'name' => 'id',
@@ -576,7 +576,7 @@ class MainSearchForm extends Form
         $fieldset = new Fieldset('class');
         $fieldset->setAttributes([
             'id' => 'search-classes',
-            'data-field-type', 'class',
+            'data-field-type' => 'class',
         ]);
 
         /** @var \Omeka\Form\Element\ResourceClassSelect $element */
@@ -646,7 +646,7 @@ class MainSearchForm extends Form
         $fieldset = new Fieldset('template');
         $fieldset->setAttributes([
             'id' => 'search-templates',
-            'data-field-type', 'template',
+            'data-field-type' => 'template',
         ]);
 
         /** @var \Omeka\Form\Element\ResourceTemplateSelect $element */
@@ -711,7 +711,7 @@ class MainSearchForm extends Form
         $fieldset
             ->setAttributes([
                 'id' => 'search-item-sets',
-                'data-field-type', 'itemset',
+                'data-field-type' => 'itemset',
             ])
             ->add([
                 'name' => 'id',

@@ -52,6 +52,8 @@ $itemSetId = $this->params()->fromRoute('item-set-id');
 // TODO Use site item set ?
 $itemSet = $itemSetId ? $api->searchOne('item_sets', ['id' => $itemSetId])->getContent() : null;
 
+$this->headScript()->appendFile($this->assetUrl('jquery-ui.min.js', 'jQueryUI'));
+$this->headLink()->appendStylesheet($this->assetUrl('jquery-ui.min.css', 'jQueryUI'));
 $this->headLink()->appendStylesheet($assetUrl('css/search.css', 'Search'));
 $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javascript', ['defer' => 'defer']);
 ?>
@@ -117,17 +119,65 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
     <?php //echo $query->getQuery().'&sort='.$query->getSort().'&'.json_encode($query->getFilters());?>
   <?php if (isset($response)): ?>
   <div class="columns">
-     
-      <?= $partial('search/facets', [
+    <div class="column is-one-quarter">
+      <aside class="facets">
+        
+        <?= $partial('search/facets', [
           'searchPage' => $searchPage,
           'query' => $query,
           'response' => $response,
           'itemSet' => $itemSet,
+          'site' => $site,
       ]) ?>
+      <form method="GET" id="psl-search-form">
+          <div id="psl-search-form-date">
+            <?php 
+              $dates = $query->getDateRangeFilters();
+              //var_dump($dates);
+              $to = '2023';$from = '1000';
+              if($dates):
+                $from = $dates["dcterms:date"][0]["from"];                  
+                $to = $dates["dcterms:date"][0]["to"];
+              endif;         
+              if(!$from){$from = "1000";}       
+              if(!$to){$from = "2023";}   
+            ?>
+            <label><?php echo $this->translate('Date'); ?> 
+            <span class="currentDate">
+              <?php if($from && $to):?>
+                <?php echo $from." - ".$to;?>
+              <?php endif;?>  
+            </span>
+            </label>
+            <?php //echo $this->formCollection($form->get('date'), false); ?>
+            <div class="field" style="display: none;">
+            <div class="field-meta">
+                <label for="dcterms:date[from]">From year</label>            </div>
+            <div class="inputs">                
+                <input type="text" name="dcterms:date[from]" placeholder="YYYY" value="<?php echo $from;?>">    </div>
+            </div>
+            <div class="field" style="display: none;">
+            <div class="field-meta">
+                <label for="dcterms:date[to]">To year</label>            </div>
+            <div class="inputs">
+                <input type="text" name="dcterms:date[to]" placeholder="YYYY" value="<?php echo $to;?>">    </div>
+            </div>
+            <div id="psl-search-form-date-slider"></div>
+            <div id="psl-search-form-date-graduations">
+                <div><?php echo $this->translate('1000'); ?></div>
+                <div><?php echo $this->translate('1250'); ?></div>
+                <div><?php echo $this->translate('1500'); ?></div>
+                <div><?php echo $this->translate('1750'); ?></div>
+                <div><?php echo $this->translate('2023'); ?></div>
+            </div>
+          </div>  
+          <div class="psl-tab-submit"><input type="submit" value="OK"/></div>      
+        </form>
+              </aside>
+              </div>
+     
       <div class="column is-three-quarter">
           <?php if ($response->getTotalResults()): ?>
-              
-
               <?php $itemSetsCount = $response->getResourceTotalResults('item_sets'); ?>
               <?= $partial('search/resource-list', [
                   'site' => $site,
@@ -185,3 +235,54 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
   <?php endif; ?>
   </div>
 </section>
+<script>
+  $('#psl-search-form').on('submit',function(e){
+      e.preventDefault();
+      const params = new URLSearchParams(window.location.search)
+      
+      params.set('dcterms:date[from]',$('[name="dcterms:date[from]"]').val());     
+      params.set('dcterms:date[to]',$('[name="dcterms:date[to]"]').val());     
+      window.location.href = location.protocol + '//' + location.host + location.pathname+'?'+params.toString();
+  });
+  $(document).ready(function() {
+    var dateFrom = $('#psl-search-form input[name="dcterms:date[from]"]');
+    var dateTo = $('#psl-search-form input[name="dcterms:date[to]"]');
+    var dateMin =1000;
+    var dateMax = 2023;
+    var currentDate = '';
+    console.log(dateFrom.val() + "," + dateTo.val());
+
+    $('#psl-search-form-date-slider').slider({
+        range: true,
+        min: dateMin,
+        max: dateMax,        
+        step: 10,
+       
+        //values: [dateFrom.val() || dateMin, dateTo.val() || dateMax],
+        values: [<?php echo $from;?>, <?php echo $to;?>],
+        change: function(event, ui) {
+            var from = ui.values[0] > dateMin ? ui.values[0] : '';
+            var to = ui.values[1] < dateMax ? ui.values[1] : '';
+            if (from != dateFrom.val()) {
+                dateFrom.val(from).change();
+            }
+            if (to != dateTo.val()) {
+                dateTo.val(to).change();
+            }
+
+            var fromv = from;
+            if(from == 0){
+              fromv = 1000;
+            }
+            var tov = to;
+            if(to == ''){
+              tov = 2023;
+            }
+            $('.currentDate').text((fromv) + ' - ' + tov);
+        }
+    });
+
+    dateFrom.parents('.field').hide();
+    dateTo.parents('.field').hide();
+  });
+</script>

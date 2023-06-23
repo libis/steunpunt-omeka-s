@@ -13,4 +13,5 @@ services:
       - ./config/:/var/www/html/config/
       - ./htaccess:/var/www/html/.htaccess
       - ./imagemagick-policy.xml:/var/www/html/imagemagick-policy.xml
+      - ./import-cron:/etc/cron.d/import-cron
     restart: "no"

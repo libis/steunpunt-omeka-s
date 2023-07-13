@@ -1,0 +1,123 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-09-05 00:00+0000\n"
+"PO-Revision-Date: 2023-07-13 10:43+0200\n"
+"Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0\n"
+
+msgid "OR"
+msgstr "OF"
+
+msgid "or"
+msgstr "of"
+
+msgid "AND"
+msgstr "EN"
+
+msgid "and"
+msgstr "en"
+
+msgid "Inventarisnummer"
+msgstr "Identifier"
+
+msgid "Vervaardiger"
+msgstr "Creator"
+
+msgid "Datering"
+msgstr "Date"
+
+msgid "Materiaal"
+msgstr "Material"
+
+msgid "Afmetingen"
+msgstr "Dimensions"
+
+msgid "Licentie"
+msgstr "License"
+
+msgid "Collectie"
+msgstr "Collection"
+
+msgid "Bekijk het object in de viewer"
+msgstr "View the object in the viewer"
+
+msgid "Objecten"
+msgstr "Objects"
+
+msgid "Objectnaam"
+msgstr "Object name"
+
+msgid "Plaats vervaardiging"
+msgstr "Place creation"
+
+msgid "Bijzonderheid vervaardiging"
+msgstr "Special feature creation"
+
+msgid "Periode"
+msgstr "Period"
+
+msgid "Herkomstinformatie"
+msgstr "Provenance"
+
+msgid "Opschrift"
+msgstr "Caption"
+
+msgid "Onderwerp: wie"
+msgstr "Subject: who"
+
+msgid "Onderwerp: wat"
+msgstr "Subject: what"
+
+msgid "Eigenaar"
+msgstr "Owner"
+
+msgid "Referentie object"
+msgstr "Reference object"
+
+msgid "Referenties object"
+msgstr "References object"
+
+msgid "Gerelateerde objecten"
+msgstr "Related objects"
+
+msgid "Verhaal"
+msgstr "Story"
+
+msgid "Iconografie"
+msgstr "Iconography"
+
+msgid "Nieuws"
+msgstr "News"
+
+msgid "Titel"
+msgstr "Title"
+
+msgid "Gebruikersvoorwaarden"
+msgstr "Terms of Use"
+
+msgid "Toon alles"
+msgstr "Show all"
+
+msgid "Zoek naar objecten in de collecties"
+msgstr "Search objects in the collections"
+
+msgid "Overzicht"
+msgstr "Overview"
+
+msgid "Zoek een collectie"
+msgstr "Search a collection"
+
+msgid "Collecties"
+msgstr "Collections"

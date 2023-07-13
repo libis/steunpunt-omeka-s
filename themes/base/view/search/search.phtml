@@ -56,14 +56,20 @@ $this->headScript()->appendFile($this->assetUrl('jquery-ui.min.js', 'jQueryUI'))
 $this->headLink()->appendStylesheet($this->assetUrl('jquery-ui.min.css', 'jQueryUI'));
 $this->headLink()->appendStylesheet($assetUrl('css/search.css', 'Search'));
 $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javascript', ['defer' => 'defer']);
+
+
 ?>
 <section class="section breadcrumb-section">
   <div class="container">
     <nav class="breadcrumb" aria-label="breadcrumbs">
       <ul>
         <li><a href="<?php echo $site->url();?>">Home</a></li>
-        <li><a href="<?php echo $site->url();?>/page/collectie">Collectie</a></li>
-        <li>Objecten</li>
+        <?php if($searchPage->name() == "Objects"):?>
+          <li><a href="<?php echo $site->url();?>/page/collectie">Collection</a></li>
+        <?php else: ?>
+          <li><a href="<?php echo $site->url();?>/page/collectie">Collectie</a></li>
+        <?php endif;?>        
+        <li><?php echo $searchPage->name();?></li>
       </ul>
     </nav>
   </div>
@@ -91,7 +97,7 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
   <?php else: ?>
 
       <?php $this->htmlElement('body')->appendAttribute('class', 'search-page resource browse'); ?>
-      <h1 class="title is-2 is-family-secondary">Objecten (<?= $response->getTotalResults();?>)</h1>
+      <h1 class="title is-2 is-family-secondary"><?php echo $searchPage->name();?> (<?= $response->getTotalResults();?>)</h1>
 
   <?php endif; ?>
   
@@ -99,7 +105,7 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
     <form class="has-icons-right" action="" id="search-form">
       <div class="field has-addons">
         <div class="control">
-          <input class="input is-medium" type="text" name="q" id="q" placeholder="Zoeken" value="<?php echo htmlspecialchars($query->getQuery());?>"   aria-label="<?php echo $translate('Search'); ?>">
+          <input class="input is-medium" type="text" name="q" id="q" placeholder="<?php echo $translate('Search'); ?>" value="<?php echo htmlspecialchars($query->getQuery());?>"   aria-label="<?php echo $translate('Search'); ?>">
           <input name="sort" type="hidden" value="<?php echo $query->getSort();?>" />
         </div>
         <div class="control">
@@ -116,7 +122,6 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
 </section>
 <section class="section results">
   <div class="container is-fluid">
-    <?php //echo $query->getQuery().'&sort='.$query->getSort().'&'.json_encode($query->getFilters());?>
   <?php if (isset($response)): ?>
   <div class="columns">
     <div class="column is-one-quarter">

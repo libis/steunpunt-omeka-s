@@ -203,13 +203,13 @@ class Harvest extends AbstractJob
                 endif;
 
                 if(!$id_exists){
-                  try{
+                  //try{
                       $response_c = $this->api->create($args['resource_type'], $pre_record, [], []);
                       $response_c = null;
                       ++$stats['imported'];
-                    }catch(\Throwable $t){
-                      $this->logger->info($pre_record['dcterms:isVersionOf'][0]['@value']." error");
-                    }
+                    //}catch(\Throwable $t){
+                      $this->logger->info($pre_record['dcterms:identifier'][0]['@value']." error");
+                    //}
                 }else{
                   ++$stats['updated'];
                 }
@@ -254,6 +254,7 @@ class Harvest extends AbstractJob
     protected function itemExists($item, $id_version, $resource_type,$endpoint = "CA"){
       
         $query = [];
+        $this->logger->info($endpoint." - ".$id_version);
         if($endpoint == 'adlib'):
             $query['property'][0] = array(
             'property' => 10,
@@ -276,16 +277,16 @@ class Harvest extends AbstractJob
 
         foreach($results as $result):
           if($result):
-            //try{
+            try{
               //don't update files for to avoid redownload
               if(isset($item['o:media'])):                
-                //unset($item['o:media']);
+                unset($item['o:media']);
               endif;
-              $response = $this->api->update($resource_type, $result->id() ,$item, [], ['isPartial' => true, 'flushEntityManager' => true]);
+              $response = $this->api->update($resource_type, $result->id() ,$item, [], ['isPartial' => true]);
               $response = null;
-            /*}catch(\Throwable $t){
-              $this->logger->info($item['dcterms:isVersionOf'][0]['@value']." error");
-            }*/
+            }catch(\Throwable $t){
+              //$this->logger->info($item['dcterms:isVersionOf'][0]['@value']." error");
+            }
             return true;
           endif;
         endforeach;
@@ -425,7 +426,7 @@ class Harvest extends AbstractJob
                 if($localName == 'isPartOf' && $args['resource_type'] == 'items'){
                     foreach ($dcMetadata->$localName as $collection_id) {
                       if($setID = $this->collectionExistsKP($collection_id)):
-                        $itemSetIds[] = $setID;
+                        $itemSetIds[$setID] = $setID;
                       endif;
                     }
                 }    
@@ -444,10 +445,10 @@ class Harvest extends AbstractJob
                         $image_id = explode("id=",$imageUrl);
 
                         $image_id = end($image_id);
-                        if(str_contains($image_id,"/")){                            
+                        if(!is_numeric($image_id)){                            
                             continue;
                         }
-                        $this->logger->info($imageUrl);
+                        //$this->logger->info($imageUrl);
                         $media[$imgc]= [
                             'o:ingester' => 'url',
                             'o:source' => $imageUrl,
@@ -582,6 +583,10 @@ class Harvest extends AbstractJob
         foreach ($metadata->$localName as $value) {
             $texts = trim($value);
             $texts = str_replace("&amp;","&",$texts);
+
+            if($localName == 'date'):
+                $texts = str_replace("/","-",$texts);
+            endif;
 
             $texts = explode('||',$texts);
             foreach($texts as $text):

@@ -1,0 +1,141 @@
+<?php
+$translate = $this->plugin('translate');
+
+?>
+<div class="section browse-block">
+  <div class="container">
+    
+    <?php if ($this->heading): ?>
+      <h2 class="title is-3 is-family-secondary"><?php echo $this->heading; ?></h2>
+    <?php endif; ?>
+
+    <?php if($this->resources):?>
+    <div class="columns is-multiline">
+      <?php
+      $headingTerm = $this->siteSetting('browse_heading_property_term', 'dcterms:title');
+      $bodyTerm = $this->siteSetting('browse_body_property_term', 'dcterms:description');
+
+      foreach ($this->resources as $resource):
+          $heading = $resource->value($headingTerm, ['default' => $translate('[Untitled]')]);
+          $body = $resource->value('dcterms:description');
+          if($resourceType == 'item-set'):
+            $body = $resource->value('dcterms:description');
+          endif;
+          $type = $resource->resourceTemplate();
+          if($type):
+            $type= $type->label();
+          elseif($resourceType == 'item-set'):
+            $type= 'Collectie';
+          else:
+            $type= "Object";
+          endif;
+      ?>
+      <div class="column <?php echo $block->dataValue('columns');?>">
+        <?php
+          $mediaurl = "";
+          if($resourceType == 'item-set'):
+            $media = $resource->thumbnail();
+            if($media):
+              if(sizeof($this->resources) <= 2):
+                $mediaurl = str_replace('http:','',$media->assetUrl('large'));
+              else:
+                $mediaurl = str_replace('http:','',$media->assetUrl('medium'));
+              endif;
+            endif;
+          else:
+            $media = $resource->media();
+            if($media):
+              if(sizeof($this->resources) <= 2):
+                $mediaurl = str_replace('http:', '', $media[0]->thumbnailUrl('large'));
+              else:
+                $mediaurl = str_replace('http:', '', $media[0]->thumbnailUrl('medium'));
+              endif;
+            endif;
+          endif;
+
+          if($_SERVER['REQUEST_URI'] == '/'):
+            $url = 'https://blendeff.be/s/nl/'.str_replace("s//","",$resource->url());
+          else:  
+            $url = $resource->url();
+	  endif;  
+	  //$url = str_replace("
+	  //$url = $resource->url();
+
+          /*if($resourceType == 'item-set'):
+            $url = $block->page()->site()->url().'/search?q=&limit[item_set_id][0]='.$resource->id();
+          endif;*/
+          $date = '';
+        ?>
+        <div class="card equal-height">
+            <a class="card-link-wrapper" href="<?php echo $url;?>">
+              <div class="card-bg card-bg-img-2"
+                style="background:url(<?php echo  $mediaurl;?>) no-repeat center 20%;background-color:#45aab4;background-size: cover;"
+                >
+              </div>
+              <header class="card-header">
+                <p class="card-header-title title is-5 is-family-secondary">
+                    <span><?php echo $resource->value('dcterms:title');?></span>
+                </p>
+              </header>
+              <div class="card-content">
+                <div class="content">
+                  <?php if($resource->value('dcterms:date')):?>
+                      <p class="datering"><?php echo date('d-m-Y',strtotime($resource->value('dcterms:date')));?></p>
+                  <?php endif;?>
+                  <?php if ($body): ?>
+                    <p>
+                      <?php $trunc = implode(" ", array_slice(explode(" ", $body), 0, 21)); ?>
+                      <?php if(strlen($body) != strlen($trunc)):?>
+                        <?php echo $trunc.' ...';?>
+                      <?php else:?>
+                        <?php echo $trunc;?>
+                      <?php endif;?>
+                    </p>
+                  <?php endif; ?>
+                </div>
+              </div>
+              <!--<footer class="card-footer">
+                <a class="button is-primary" href="<?php echo $resource->url();?>">
+                  Lees meer
+                </a>
+              </footer>-->
+            </a>
+        </div>
+      </div>
+    <?php endforeach; ?>
+    </div>
+    <?php if ($this->linkText == 'Nieuwsarchief'):?>
+      <div class="has-text-right">
+        <a href="<?php echo $block->page()->site()->url().'/item/browse?resource_template_id=2&page=1&sort_by=dcterms%3Adate&sort_order=desc';?>" class="button is-primary">
+          <span><?php echo $this->linkText;?></span>
+          <span class="icon is-small">
+            <i class="fas fa-angle-right"></i>
+          </span>
+        </a>
+      </div>
+    <?php else:?>
+      <div class="has-text-right">
+        <a href="<?php echo $block->page()->site()->url().'/'.$resourceType.'?sort_by=title&sort_order=asc';?>" class="button is-primary">
+          <span><?php echo $this->linkText;?></span>
+          <span class="icon is-small">
+            <i class="fas fa-angle-right"></i>
+          </span>
+        </a>
+      </div>      
+    <?php endif;?>
+    <?php endif;?>
+  </div>
+  <script>
+  $(document).ready(function() {
+    // Check for click events on the navbar burger icon
+    $(".advanced-switch").unbind('click').bind('click', function (e) {
+      e.preventDefault();
+      $("div.advanced-search").toggleClass("closed open");
+    });
+    $(".advanced-close").unbind('click').bind('click', function (e) {
+      e.preventDefault();
+      $("div.advanced-search").toggleClass("closed open");
+    });
+  });
+  </script>
+</div>

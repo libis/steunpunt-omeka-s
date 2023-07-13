@@ -23,7 +23,7 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright','G
     <div class="column is-3" style="padding-top:0.3rem;padding-bottom:0.3rem;">
       <h4 class="title is-6" style="font-size:0.9rem;">
       <?php if ($propertyData['alternate_label']): ?>
-      <?php echo $escape($propertyData['alternate_label']); ?>
+      <?php echo $escape($translate($propertyData['alternate_label'])); ?>
       <?php else: ?>
       <?php echo $escape($translate($propertyData['property']->label())); ?>
       <?php endif; ?>
@@ -101,7 +101,11 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright','G
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
                     <?php $text = explode('$$',$value->asHtml());?>
                     <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms:medium][0]='.$text[0]; ?>"><?php echo $text[0]; ?></a>
-                    <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
+                    <?php if(sizeof($text) == 3):?>
+                      <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
+                    <?php else:?>
+                      <a target="_blank" href="<?php echo $text[1]; ?>"><i class="fas fa-info-circle"></i></a>
+                    <?php endif;?>  
                   <?php else:?>
                     <a href="<?php echo '/s/nl/objecten?q=&facet[dcterms:medium][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
                   <?php endif;?> 
@@ -119,6 +123,12 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright','G
                   <?php else:?>
                     <?php echo $value->asHtml(); ?>
                   <?php endif;?>
+                <?php elseif($propertyData['property']->term() == 'dcterms:dateAccepted'):?>
+                  <?php echo $value->asHtml();?>
+                  <?php if(isset($values['dcterms:temporal']['values'])): ;?>
+                 
+                    <a target="_blank" href="<?php echo $values['dcterms:temporal']['values'][0]->asHtml();?>"><i class="fas fa-info-circle"></i></a>
+                  <?php endif;?>                 
                 <?php elseif($propertyData['alternate_label'] == 'Periode'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
                     <?php $text = explode('$$',$value->asHtml());?>
@@ -189,7 +199,7 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright','G
                       ?>
                       <?php //echo $text;?>
                     <?php else:?>
-                    <?php echo  $value->asHtml(); ?>
+                    <?php echo  strip_tags($value); ?>
                     <?php endif;?>           
                 <?php elseif($propertyData['alternate_label'] == 'Onderwerp: wat'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
@@ -235,6 +245,7 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright','G
                 <?php elseif($propertyData['alternate_label'] == 'Vervaardiger'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
                     <?php $text = explode('$$',$value->asHtml());?>
+                    <?php if(isset($values['dcterms:creator']['values'][$i])):?>
                     <?php 
                       $medval = $values['dcterms:creator']['values'][$i]->asHtml();
                     ?>
@@ -244,6 +255,7 @@ $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright','G
                       <?php elseif(sizeof($text) == 2  && $text[1]):?>
                         <a target="_blank" href="<?php echo $text[1]; ?>"><i class="fas fa-info-circle"></i></a>
                       <?php endif;?>  
+                    <?php endif;?>  
                   <?php else:?>
                     <?php echo $value->asHtml(); ?>
                   <?php endif;?>                  

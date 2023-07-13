@@ -1,5 +1,6 @@
 <?php
 $escape = $this->plugin('escapeHtml');
+$translate = $this->plugin('translate');
 $siteTitle = $site->title();
 $this->htmlElement('html')->setAttribute('lang', $this->lang());
 $this->headMeta()->setCharset('utf-8');
@@ -105,13 +106,24 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
                 </div>
                 <div class="column">
                   <h1 class="title is-family-secondary is-1">Blendeff</h1>
-                  <h2 class="subtitle is-family-secondary is-4">Wetenschappelijke collecties en kunstverzamelingen KU Leuven</h2>
+                  <?php if($site->slug() == "nl"):?>
+                    <h2 class="subtitle is-family-secondary is-4">Wetenschappelijke collecties en kunstverzamelingen KU Leuven</h2>
+                  <?php else:?>
+                    <h2 class="subtitle is-family-secondary is-4">Scientific collections and art collections KU Leuven</h2>
+                  <?php endif;?>  
                   <?php if($home):?>
                     <div class="hero-text is-size-7">
                       <div class="content">
+                      <?php if($site->slug() == "nl"):?>
                         <p>
                           Van een zestiende-eeuws familieportret tot het skelet van een Groenlandse walvis. Van prehistorische schelpen tot Servranckx’ <em>Machine à émouvoir</em>. De universiteit heeft in haar lange geschiedenis een omvangrijk patrimonium aan waardevolle stukken en representatieve collecties bijeengebracht. Een academisch erfgoed dat met grote zorg en vakkundigheid wordt bewaard, voor nu en voor later.
                         </p>
+                        <?php else:?>
+                          <p>
+                          Ranging from a 16th-century family portrait to a bowhead whale skeleton. Or from prehistoric shells to Servranckx' Machine à émouvoir. In its long history, the university has amassed a vast patrimony of valuable exhibits and representative collections. An academic heritage preserved with great care and skill, for now and later.
+                        </p>
+                        <?php endif;?>  
+                        
                       </div>
                     </div>
                   <?php endif;?>
@@ -146,12 +158,12 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
             <div class="level-right">
               <p class="level-item">
                 </p><ul>
-                  <li><a href="<?php echo $site->url()?>/page/praktisch-informatie">Gebruiksvoorwaarden</a></li>
+                  <li><a href="<?php echo $site->url();?>/page/praktisch-informatie"><?php echo $translate("Gebruiksvoorwaarden");?></a></li>
                 </ul><p></p>
 
             </div>
           </nav>
-          <p style="font-size:0.9rem;">© KU Leuven | Last updated: 12-10-2021</p>
+          <p style="font-size:0.9rem;">© KU Leuven | Last updated: 23-06-2023</p>
       </div>
     </footer>
 

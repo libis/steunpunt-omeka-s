@@ -11,13 +11,13 @@ $this->htmlElement('body')->appendAttribute('class', 'item-set resource browse')
   <div class="container">
     <nav class="breadcrumb" aria-label="breadcrumbs">
       <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="<?php echo $site->url();?>/page/collectie">Collectie</a></li>
-        <li>Overzicht</li>
+        <li><a href="<?php echo $site->url();?>">Home</a></li>
+        <li><a href="<?php echo $site->url();?>/page/collectie"><?php echo $translate('Collectie'); ?></a></li>
+        <li><?php echo $translate('Overzicht'); ?></li>
       </ul>
     </nav>
     <h2 class="title is-family-secondary" style="margin-bottom:2rem;">
-      <?php echo $translate('Item sets'); ?>      
+      <?php echo $translate('Collecties'); ?>      
     </h2>
 
     <?php 
@@ -45,7 +45,7 @@ $this->htmlElement('body')->appendAttribute('class', 'item-set resource browse')
                 <div class="field has-addons">
                   <div class="control">
                     <input class="input" type="search" name="fulltext_search" value="<?php echo $searchValue; ?>"
-                        placeholder="Zoek een collectie"
+                        placeholder="<?php echo $translate('Zoek een collectie');?>"
                         aria-label="<?php echo $translate('Search'); ?>">
                   </div>
                   <div class="control">

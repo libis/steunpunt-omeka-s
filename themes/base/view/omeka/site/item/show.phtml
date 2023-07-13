@@ -6,6 +6,7 @@ $this->htmlElement('body')->appendAttribute('class', 'item resource show');
 $embedMedia = $this->siteSetting('item_media_embed', false);
 $itemMedia = $item->media();
 $template = $item->resourceTemplate();
+$lang = $site->slug();
 if($template):
   $type = $template->label();
 else:
@@ -18,17 +19,17 @@ endif;
       <ul>
         <li><a href="<?php echo $site->url();?>">Home</a></li>
         <?php if($type == 'Nieuws'):?>
-        <li><a href="<?php echo $site->url()."/item/browse?resource_template_id=2";?>">Nieuws</a></li>
+        <li><a href="<?php echo $site->url()."/item/browse?resource_template_id=2";?>"><?php echo $translate("Nieuws");?></a></li>
         <?php else:?>
-          <li><a href="<?php echo $site->url()."/page/collectie";?>">Collectie</a></li>
+          <li><a href="<?php echo $site->url()."/page/collectie";?>"><?php echo $translate("Collectie");?></a></li>
           <?php if(isset($_SERVER['HTTP_REFERER'])):?>
             <?php if(strpos($_SERVER['HTTP_REFERER'],'objecten?') !== false):?>
-              <li><a href="<?php echo $_SERVER['HTTP_REFERER'];?>">Objecten</a></li>
+              <li><a href="<?php echo $_SERVER['HTTP_REFERER'];?>"><?php echo $translate("Objecten");?></a></li>
             <?php else:?> 
-              <li><a href="https://blendeff.be/s/nl/objecten">Objecten</a></li>
+              <li><a href="<?php echo $site->url();?>/objecten"><?php echo $translate("Objecten");?></a></li>
             <?php endif;?>
           <?php else:?> 
-            <li><a href="https://blendeff.be/s/nl/objecten">Objecten</a></li>  
+            <li><a href="<?php echo $site->url();?>/objecten"><?php echo $translate("Objecten");?></a></li>  
           <?php endif;?>  
         <?php endif;?>
         <li><?php echo $item->displayTitle(); ?></li>
@@ -60,28 +61,7 @@ endif;
         ];
         $listlink = str_replace('representation','list',$viewerlink);
         // Instantiate a client object
-        $client = new Client($listlink, $config);
-        // The following request will be sent over a TLS secure connection.
-        /*try{
-          $response = $client->send();
-          if($response->getContent()):
-            $list = json_decode($response->getContent(),true);
-            foreach($list as $ie):
-              foreach($ie as $fl):
-                if($fl["usage_type"] == "VIEW" && $fl["representation_code"] == "LOW"):
-                  $fl = $fl["content"];  
-                  foreach($fl as $key=>$value):                  
-                    $fls[$key] = $key;  
-                  endforeach;  
-                endif;                          
-              endforeach;  
-            endforeach;          
-          endif;
-        }catch(Exception $e){
-
-        }*/
-        
-        
+        $client = new Client($listlink, $config);        
       endif;  
   endif;
 ?>
@@ -146,7 +126,7 @@ endif;
                      <?php }elseif($desc->type() == 'uri'){ ?>                      
                         <?php if (strpos($desc->asHtml(), 'blendeff') !== false): ?>
                           <div style="background:#eee;padding:0.5rem;font-size:0.9rem;">
-                            <span>Verhaal</span>              
+                            <span><?php echo $translate("Verhaal");?></span>              
                           </div>  
                         <?php endif;?> 
                      
@@ -225,9 +205,9 @@ endif;
             </div>
           
             <?php if($item->value('dcterms:isVersionOf') && $type == "Object KP"):?>
-                  <figcaption>
-                    <?php echo $item->value('dcterms:isVersionOf');?>
-                  </figcaption>
+              <figcaption>
+                <?php echo $item->value('dcterms:isVersionOf');?>
+              </figcaption>
             <?php endif;?>    
          </div>
        <?php endif;?>
@@ -238,7 +218,7 @@ endif;
            <?php if (count($itemSets) > 0): ?>
              <div class="columns">
                <div class="column is-3" style="padding-top:0.3rem;padding-bottom:0.3rem;">
-                 <h4 class="title is-6" style="font-size:0.9rem;">Collectie</h4>
+                 <h4 class="title is-6" style="font-size:0.9rem;"><?php echo $translate("Collectie");?></h4>
                </div>
                <div class="column" style="padding-top:0.3rem;padding-bottom:0.3rem;">
                  <?php foreach ($itemSets as $itemSet): ?>
@@ -253,30 +233,35 @@ endif;
               <span class="icon">
                 <i class="fas fa-images"></i>
               </span>
-              <span>Bekijk het object in de viewer</span>
+              <span><?php echo $translate("Bekijk het object in de viewer");?></span>
             </a>
            <?php endif; ?>
            <hr>
            <div style="text-align:right;">
-              <a target="_blank" class="button is-text is-small" href="https://blendeff.be/nl/item/<?php echo $item->value('dcterms:identifier');?>">
+              <a target="_blank" class="button is-text is-small" href="https://blendeff.be/<?php echo $lang;?>/item/<?php echo $item->value('dcterms:identifier');?>">
               <span class="icon">
                   <i class="fas fa-link"></i>
               </span>
-              <span>https://blendeff.be/nl/item/<?php echo $item->value('dcterms:identifier');?></span>
+              <span>https://blendeff.be/<?php echo $lang;?>/item/<?php echo $item->value('dcterms:identifier');?></span>
               </a>
            </div> 
          </div>
        </div>
      </div>
    </div>
-   <?php $refs =  $item->value('dcterms:references', array('all' => true)); ?>
-   <?php $descs =  $item->value('dcterms:description', array('all' => true)); ?>
+   <?php $refs =  $item->value('dcterms:references', array('all' => true,'lang' => $lang)); ?>   
+   <?php if(!$refs):?>
+    <?php $refs =  $item->value('dcterms:references', array('all' => true)); ?>
+   <?php endif;?>
+   <?php $descs =  $item->value('dcterms:description', array('all' => true,'lang' => $lang)); ?>
+   <?php if(!$descs):?>
+    <?php $descs =  $item->value('dcterms:description', array('all' => true)); ?>
+   <?php endif;?>
    <?php if($refs || $descs):?>
    <div class="container">
      <div class="columns">
        <div class="column is-12">
-         <div class="text-box" >
-           
+         <div class="text-box">           
            <?php if($descs):?>
                <?php foreach($descs as $desc):?>
                  <div style="margin-bottom:0.3rem;">
@@ -324,21 +309,21 @@ endif;
         </div>
       </div>
     <?php endif;?>                
-      <?php
-$plugins = $this->getHelperPluginManager();
-$hasNext = $plugins->has('previousResource');
-?>
-<?php if ($hasNext): ?>
-<div class="previous-next-items">
-    <?php if ($previous = $this->previousResource($resource)): ?>
-    <?= $previous->link($translate('Previous item'), null, ['class' => 'previous-item']) ?>
+    <?php
+      $plugins = $this->getHelperPluginManager();
+      $hasNext = $plugins->has('previousResource');
+    ?>
+    <?php if ($hasNext): ?>
+      <div class="previous-next-items">
+          <?php if ($previous = $this->previousResource($resource)): ?>
+          <?= $previous->link($translate('Previous item'), null, ['class' => 'previous-item']) ?>
+          <?php endif; ?>
+          <?php if ($next = $this->nextResource($resource)): ?>
+          <?= $next->link($translate('Next item'), null, ['class' => 'next-item']) ?>
+          <?php endif; ?>
+      </div>
     <?php endif; ?>
-    <?php if ($next = $this->nextResource($resource)): ?>
-    <?= $next->link($translate('Next item'), null, ['class' => 'next-item']) ?>
-    <?php endif; ?>
-</div>
-<?php endif; ?>
-    </div>
+  </div>
 </section>
 <?php endif;?>
 <?php

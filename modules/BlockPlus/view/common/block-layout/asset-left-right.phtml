@@ -3,12 +3,11 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var array $attachments Contains keys:
  *   - asset (AssetRepresentation)
- *   - page" (PageRepresentation)
+ *   - page (PageRepresentation)
  *   - caption (string): the html is purified according to settings
  *   - alt_link_title (string)
  *   Specific to the module version:
  *   - class (string)
- *   - title (string): deprecated alias of "alt_link_title"
  *   - url (string): deprecated, will be removed. Use "page", "caption", alt title, or original asset alt value instead.
  * @var array $assets Deprecated, alias of attachments.
  * @var string $heading
@@ -28,7 +27,7 @@ $assetElement = $plugins->get('assetElement');
 .clear { clear: both; }
 </style>
 
-<div class="block block-assets assets <?= $escape($className . ' ' . $alignment) ?>">
+<div class="block block-asset assets <?= $escape($className . ' ' . $alignment) ?>">
     <?php if (!empty($heading)): ?>
     <h2><?= $escape($heading) ?></h2>
     <?php endif; ?>
@@ -36,7 +35,7 @@ $assetElement = $plugins->get('assetElement');
     <?php foreach ($attachments as $attachment): ?>
     <div class="asset<?= empty($attachment['class']) ? '' : ' ' . $escapeAttr($attachment['class']) ?>">
         <?php if ($attachment['asset']): ?>
-            <?php $attachmentUrl = $attachment['page'] ? $attachment['page']->siteUrl() : $attachment['url']; ?>
+            <?php $attachmentUrl = $attachment['page'] ? $attachment['page']->siteUrl() : ($attachment['url'] ?? null); ?>
             <?php if ($attachmentUrl): ?>
         <a class="<?= ++$index % 2 ? 'align-left' : 'align-right' ?>" href="<?= $escapeAttr($attachmentUrl) ?>"<?php if (filter_var($attachmentUrl, FILTER_VALIDATE_URL)): ?> target="_blank"<?php endif; ?>>
             <?= $assetElement($attachment['asset'], ['alt' => $attachment['alt_link_title']]) ?>

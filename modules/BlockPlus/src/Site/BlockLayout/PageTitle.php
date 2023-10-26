@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace BlockPlus\Site\BlockLayout;
 
 use Laminas\View\Renderer\PhpRenderer;
@@ -49,6 +50,7 @@ class PageTitle extends AbstractBlockLayout
     {
         $vars = [
             'block' => $block,
+            'pageTitle' => $block->page()->title(),
         ];
         $template = $block->dataValue('template', self::PARTIAL_NAME);
         return $template !== self::PARTIAL_NAME && $view->resolver($template)

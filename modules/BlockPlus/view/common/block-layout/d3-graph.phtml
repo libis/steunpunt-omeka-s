@@ -3,7 +3,7 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
  * @var string $heading
- * @var string $params
+ * @var array $params
  */
 
 // Example of full json params:
@@ -32,7 +32,7 @@
 }
 */
 
-// When a resource is null (here, item_sets), there is not links for it (but some are
+// When a resource is null (here, item_sets), there won't be links for it (but some are
 // added here anyway, since the relations includes it.
 
 // Possible relations: items, item_sets, objects, subjects.
@@ -52,34 +52,13 @@
 */
 
 $plugins = $this->getHelperPluginManager();
-$escape = $plugins->get('escapeHtml');
 $api = $plugins->get('api');
+$escape = $plugins->get('escapeHtml');
 
 $filterLocale = (bool) $this->siteSetting('filter_locale_values');
 $lang = $filterLocale ? $this->lang() : null;
 
 $limitItemsByItemSet = 100;
-
-$params = $this->blockMetadata('params_json', $block) ?: [];
-if (empty($params)) {
-    echo '<p>';
-    echo 'A list of resources as json queries by resource name should be defined.';
-    echo '<br/>';
-    echo 'Example:';
-    echo '<br/>';
-    $query = ['items' => [
-        'property' => [[
-            'property' => 'dcterms:type',
-            'type' => 'res',
-            'text' => "40380",
-        ]]
-    ]];
-    echo sprintf('<code>%s</code></p>', json_encode($query, 448));
-    echo '<p>';
-    echo 'Key "config" for "forceCharge", "forceLinkDistance", "baseCircle", "topSize" is supported too.';
-    echo '</p>';
-    return;
-}
 
 $types = [
     'items' => 'item',
@@ -88,6 +67,8 @@ $types = [
     'annotations' => 'annotation',
 ];
 
+// TODO Extract the table from the database in one or two sql queries.
+// TODO Use /api or /api/infos.
 // TODO Add links with the same values (like references or indexes).
 $relationTypes = $params['relations'] ?? ['objects', 'subjects', 'item_sets', 'items'];
 
@@ -99,8 +80,6 @@ foreach (array_filter(array_intersect_key($params, $types), 'is_array') as $reso
 $resources = array_merge(...$resources);
 
 // The links sources and targets should be the keys of the nodes.
-// TODO Extract the table from the database in one or two sql queries.
-// TODO Use /api or /api/infos.
 $data = [
     'nodes' => [],
     'links' => [],
@@ -121,7 +100,7 @@ foreach ($resources as $resource) {
             $relations['objects'] = $resource->objectValues();
             break;
         case 'subjects':
-            $relations['subjects'] = array_merge(...array_values($resource->subjectValues()));
+            $relations['subjects'] = ($rsv = $resource->subjectValues()) ? array_merge(...array_values($rsv)) : [];
             break;
         case 'item_sets':
             if ($resourceName === 'items') {
@@ -144,6 +123,7 @@ foreach ($resources as $resource) {
             'id' => $resourceId,
             'title' => (string) $resource->displayTitle(null, $lang),
             'type' => $type,
+            // Not used for now.
             'class' => $resource->resourceClass() ? $resource->resourceClass()->label() : null,
             'total' => count($relations['objects'])
                 + count($relations['subjects'])
@@ -167,7 +147,7 @@ foreach ($resources as $resource) {
                 'class' => $relation->resourceClass() ? $relation->resourceClass()->label() : null,
                 // TODO Fetch all totals in one sql query for all resources.
                 'total' => (in_array('objects', $relationTypes) ? count($relation->objectValues()) : 0)
-                    + (in_array('subjects', $relationTypes) ? count(array_merge(...array_values($relation->subjectValues()))) : 0)
+                    + (in_array('subjects', $relationTypes) && ($rsv = $relation->subjectValues()) ? count(array_merge(...array_values($rsv))) : 0)
                     + (in_array('item_sets', $relationTypes) && $relationResourceName === 'item_sets' ? $api->search('items', ['item_set_id' => $relationId, 'limit' => 0])->getTotalResults() : 0)
                     + (in_array('items', $relationTypes) && $relationResourceName === 'items' ? count($relation->itemSets()) : 0),
             ];
@@ -175,7 +155,7 @@ foreach ($resources as $resource) {
         $data['links'][] = [
             'source' => $orderSource,
             'target' => $orderTarget,
-            // TODO Compute value.
+            // TODO Compute value here?
             'value' => 1,
         ];
     }
@@ -190,7 +170,6 @@ var d3GraphData = $jsonData;
 var d3GraphConfig = $jsonConfig;
 JS;
 $this->headScript()->appendScript($script);
-
 ?>
 
 <div class="block d3-graph">

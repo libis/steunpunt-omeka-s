@@ -8,6 +8,11 @@ use Laminas\View\Helper\AbstractHelper;
  * View helper for loading scripts necessary to use CKEditor on a page.
  *
  * Override core view helper to load a specific config.
+ *
+ * Used in various modules:
+ * @see \Omeka\View\Helper\CkEditor
+ * @see \BlockPlus\View\Helper\CkEditor
+ * @see \DataTypeRdf\View\Helper\CkEditor
  */
 class CkEditor extends AbstractHelper
 {
@@ -16,21 +21,43 @@ class CkEditor extends AbstractHelper
      */
     public function __invoke(): void
     {
+        static $loaded;
+
+        if (!is_null($loaded)) {
+            return;
+        }
+
+        $loaded = true;
+
         $view = $this->getView();
         $plugins = $view->getHelperPluginManager();
-        $setting = $plugins->get('setting');
         $assetUrl = $plugins->get('assetUrl');
         $escapeJs = $plugins->get('escapeJs');
         $params = $view->params();
 
-        $isSitePageAdmin = $params->fromRoute('__SITEADMIN__')
-            && $params->fromRoute('__CONTROLLER__') === 'Page'
-            && $params->fromRoute('action') === 'edit';
+        $isAdmin = $params->fromRoute('__ADMIN__');
+        $isSiteAdmin = $params->fromRoute('__SITEADMIN__');
+        $controller = $params->fromRoute('__CONTROLLER__');
+        $action = $params->fromRoute('action');
 
-        // The html mode is used only in site page edition for now.
+        $isSiteAdminPage = $isSiteAdmin
+            && ($controller === 'Page' || $controller === 'page')
+            && $action === 'edit';
+
+        $isSiteAdminResource = $isAdmin
+            && in_array($controller, ['Item', 'ItemSet', 'Media', 'Annotation', 'item', 'item-set', 'media', 'annotation'])
+            && ($action === 'edit' || $action === 'add')
+            // To avoid to prepare a factory to check if module DataTypeRdf
+            // is enabled, just check the class.
+            && class_exists('DataTypeRdf\Module');
+
         $script = '';
-        if ($isSitePageAdmin) {
-            $htmlMode = $setting('blockplus_html_mode');
+        $customConfigJs = 'js/ckeditor_config.js';
+        if ($isSiteAdminPage || $isSiteAdminResource) {
+            $setting = $plugins->get('setting');
+            $pageOrResource = $isSiteAdminPage ? 'page' : 'resource';
+            $module = $isSiteAdminPage ? 'blockplus' : 'datatyperdf';
+            $htmlMode = $setting($module . '_html_mode_' . $pageOrResource);
             if ($htmlMode && $htmlMode !== 'inline') {
                 $script = <<<JS
 CKEDITOR.config.customHtmlMode = '$htmlMode';
@@ -38,18 +65,24 @@ CKEDITOR.config.customHtmlMode = '$htmlMode';
 JS;
             }
 
-            $htmlConfig = $setting('blockplus_html_config');
-            $customConfigUrl = $htmlConfig && $htmlConfig !== 'default'
-                ? 'js/ckeditor_config_' . $htmlConfig . '.js'
-                : 'js/ckeditor_config.js';
-        } else {
-            $customConfigUrl = 'js/ckeditor_config.js';
+            $htmlConfig = $setting($module . '_html_config_' . $pageOrResource);
+            if ($htmlConfig && $htmlConfig !== 'default') {
+                $customConfigJs = $htmlConfig && $htmlConfig !== 'default'
+                    ? 'js/ckeditor_config_' . $htmlConfig . '.js'
+                    : 'js/ckeditor_config.js';
+            }
         }
 
-        $customConfigUrl = $escapeJs($assetUrl($customConfigUrl, 'BlockPlus'));
+        $customConfigUrl = $escapeJs($assetUrl($customConfigJs, 'BlockPlus'));
         $script .= <<<JS
 CKEDITOR.config.customConfig = '$customConfigUrl';
 JS;
+
+        // The footnotes icon is not loaded automaically, so add css.
+        // Only this css rule is needed.
+        // The js for block-plus-admin is already loaded with the blocks.
+        $view->headLink()
+            ->appendStylesheet($assetUrl('css/block-plus-admin.css', 'BlockPlus'));
 
         $view->headScript()
             // Don't use defer for now.

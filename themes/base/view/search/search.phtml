@@ -126,14 +126,6 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
   <div class="columns">
     <div class="column is-one-quarter">
       <aside class="facets">
-        
-        <?= $partial('search/facets', [
-          'searchPage' => $searchPage,
-          'query' => $query,
-          'response' => $response,
-          'itemSet' => $itemSet,
-          'site' => $site,
-      ]) ?>
       <form method="GET" id="psl-search-form">
           <div id="psl-search-form-date">
             <?php 
@@ -178,8 +170,16 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
           </div>  
           <div class="psl-tab-submit"><input type="submit" value="OK"/></div>      
         </form>
-              </aside>
-              </div>
+        <?= $partial('search/facets', [
+          'searchPage' => $searchPage,
+          'query' => $query,
+          'response' => $response,
+          'itemSet' => $itemSet,
+          'site' => $site,
+      ]) ?>
+      
+      </aside>
+    </div>
      
       <div class="column is-three-quarter">
           <?php if ($response->getTotalResults()): ?>

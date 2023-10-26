@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace BlockPlus\Form;
 
 use Laminas\Form\Element;
@@ -7,6 +8,11 @@ use Omeka\Form\Element\Asset;
 
 class PageMetadataFieldset extends Fieldset
 {
+    /**
+     * @var array
+     */
+    protected $pageTypes = [];
+
     public function init(): void
     {
         $pageTypes = $this->getPageTypes();
@@ -29,7 +35,7 @@ class PageMetadataFieldset extends Fieldset
                 ],
                 'attributes' => [
                     'id' => 'page-metadata-type',
-                    'required' => true,
+                    'required' => false,
                     'class' => 'chosen-select',
                     'data-placeholder' => 'Select the page type…', // @translate
                 ],
@@ -103,13 +109,13 @@ class PageMetadataFieldset extends Fieldset
         ;
     }
 
-    public function setPageTypes(array $pageTypes)
+    public function setPageTypes(array $pageTypes): self
     {
         $this->pageTypes = $pageTypes;
         return $this;
     }
 
-    public function getPageTypes()
+    public function getPageTypes(): array
     {
         return $this->pageTypes;
     }

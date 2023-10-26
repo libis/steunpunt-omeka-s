@@ -35,12 +35,11 @@ class SearchResults extends AbstractBlockLayout
         $block->setData($data);
     }
 
-    public function prepareForm(PhpRenderer $view)
+    public function prepareForm(PhpRenderer $view): void
     {
         $assetUrl = $view->plugin('assetUrl');
         $view->headLink()
-            ->prependStylesheet($assetUrl('css/advanced-search.css', 'Omeka'))
-            ->appendStylesheet($assetUrl('css/query-form.css', 'Omeka'));
+            ->prependStylesheet($assetUrl('css/advanced-search.css', 'Omeka'));
         $view->headScript()
             ->appendFile($assetUrl('js/advanced-search.js', 'Omeka'))
             ->appendFile($assetUrl('js/query-form.js', 'Omeka'))
@@ -181,6 +180,7 @@ class SearchResults extends AbstractBlockLayout
         ];
 
         $vars = [
+            'block' => $block,
             'heading' => $block->dataValue('heading'),
             'resourceType' => $resourceTypes[$resourceType],
             'resources' => $resources,

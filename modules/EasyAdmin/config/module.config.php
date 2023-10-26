@@ -3,33 +3,67 @@
 namespace EasyAdmin;
 
 return [
+    'service_manager' => [
+        'invokables' => [
+            Mvc\MvcListeners::class => Mvc\MvcListeners::class,
+        ],
+        'factories' => [
+            'Omeka\File\TempFileFactory' => Service\File\TempFileFactoryFactory::class,
+            'Omeka\File\Validator' => Service\File\ValidatorFactory::class,
+        ],
+    ],
+    'listeners' => [
+        Mvc\MvcListeners::class,
+    ],
     'view_manager' => [
         'template_path_stack' => [
             dirname(__DIR__) . '/view',
         ],
     ],
-    'form_elements' => [
+    'view_helpers' => [
+        'invokables' => [
+            /** Deprecated: use form group. */
+            'formNote' => Form\View\Helper\FormNote::class,
+            'lastBrowsePage' => View\Helper\LastBrowsePage::class,
+        ],
         'factories' => [
-            Form\JobsForm::class => Service\Form\JobsFormFactory::class,
+            'defaultSite' => Service\ViewHelper\DefaultSiteFactory::class,
+            'nextResource' => Service\ViewHelper\NextResourceFactory::class,
+            'previousNext' => Service\ViewHelper\PreviousNextFactory::class,
+            'previousResource' => Service\ViewHelper\PreviousResourceFactory::class,
+        ],
+        'delegators' => [
+            'Laminas\Form\View\Helper\FormElement' => [
+               Service\Delegator\FormElementDelegatorFactory::class,
+            ],
+        ],
+    ],
+    'form_elements' => [
+        'invokables' => [
+            Form\Element\Note::class => Form\Element\Note::class,
+            Form\Element\OptionalMultiCheckbox::class => Form\Element\OptionalMultiCheckbox::class,
+            Form\Element\OptionalRadio::class => Form\Element\OptionalRadio::class,
+            Form\SettingsFieldset::class => Form\SettingsFieldset::class,
+        ],
+        'factories' => [
+            Form\AddonsForm::class => Service\Form\AddonsFormFactory::class,
+            Form\CheckAndFixForm::class => Service\Form\CheckAndFixFormFactory::class,
         ],
     ],
     'controllers' => [
         'invokables' => [
-            'EasyAdmin\Controller\Job' => Controller\JobController::class,
+            'EasyAdmin\Controller\Addons' => Controller\AddonsController::class,
+            'EasyAdmin\Controller\CheckAndFix' => Controller\CheckAndFixController::class,
+            'Omeka\Controller\Maintenance' => Controller\MaintenanceController::class,
         ],
     ],
-    // TODO Merge bulk navigation and route with module BulkImport (require a main page?).
-    'navigation' => [
-        'AdminModule' => [
-            'easy-admin' => [
-                'label' => 'Job manager', // @translate
-                'route' => 'admin/easy-admin',
-                'controller' => 'job',
-                'resource' => 'EasyAdmin\Controller\Job',
-                'class' => 'o-icon-jobs',
-            ],
+    'controller_plugins' => [
+        'factories' => [
+            'easyAdminAddons' => Service\ControllerPlugin\AddonsFactory::class,
+            'specifyMediaType' => Service\ControllerPlugin\SpecifyMediaTypeFactory::class,
         ],
     ],
+    // TODO Remove these routes and use main admin/default.
     'router' => [
         'routes' => [
             'admin' => [
@@ -37,12 +71,11 @@ return [
                     'easy-admin' => [
                         'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
-                            // TODO The default route may be modified later.
                             'route' => '/easy-admin',
                             'defaults' => [
                                 '__NAMESPACE__' => 'EasyAdmin\Controller',
                                 '__ADMIN__' => true,
-                                'controller' => 'Job',
+                                'controller' => 'CheckAndFix',
                                 'action' => 'index',
                             ],
                         ],
@@ -53,16 +86,42 @@ return [
                                 'options' => [
                                     'route' => '/:controller[/:action]',
                                     'constraints' => [
-                                        'controller' => 'job',
+                                        'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
                                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                                     ],
                                     'defaults' => [
-                                        'controller' => 'Job',
+                                        'controller' => 'CheckAndFix',
                                         'action' => 'index',
                                     ],
                                 ],
                             ],
                         ],
+                    ],
+                ],
+            ],
+        ],
+    ],
+    'navigation' => [
+        'AdminModule' => [
+            'easy-admin' => [
+                'label' => 'Easy Admin', // @translate
+                'route' => 'admin/easy-admin/default',
+                'controller' => 'check-and-fix',
+                'resource' => 'Omeka\Controller\Admin\Module',
+                'privilege' => 'browse',
+                'class' => 'o-icon- fa-tools',
+                'pages' => [
+                    [
+                        'label' => 'Checks and fixes', // @translate
+                        'route' => 'admin/easy-admin/default',
+                        'controller' => 'check-and-fix',
+                        'class' => 'o-icon- fa-wrench',
+                    ],
+                    [
+                        'label' => 'Install addons', // @translate
+                        'route' => 'admin/easy-admin/default',
+                        'controller' => 'addons',
+                        'class' => 'o-icon- fa-puzzle-piece',
                     ],
                 ],
             ],
@@ -78,7 +137,18 @@ return [
             ],
         ],
     ],
-    // Keep empty config for automatic management.
     'easyadmin' => [
+        'settings' => [
+            'easyadmin_interface' => [
+                'resource_public_view',
+                // 'resource_previous_next',
+            ],
+            // Disable
+            'easyadmin_content_lock' => false,
+            // 86400 seconds = 24 hours.
+            'easyadmin_content_lock_duration' => 86400,
+            'easyadmin_maintenance_mode' => '',
+            'easyadmin_maintenance_text' => 'This site is down for maintenance. Please contact the site administrator for more information.', // @translate
+        ],
     ],
 ];

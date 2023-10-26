@@ -101,24 +101,25 @@ class SearchBlock extends AbstractBlockLayout
      */
     public function render(PhpRenderer $view, SitePageBlockRepresentation $block)
     {
+      $lang = $block->page()->site()->slug();  
+      $filters = array("languages" => $lang);
       $item = $view->api()->searchOne('items', array('item_set_id' => '19','sort_by' => 'created', 'sort_order' => 'desc'))->getContent();
-
 
       $references = $block->page()->site()->getServiceLocator()->get('ControllerPluginManager')->get('references');
 
-      $datums = $view->references()->list('dcterms:date',array(),array('raw'=>true));
+      $datums = $view->references()->list('dcterms:date',array(),array("lang" => $lang,"filters" => $filters));
       $datums = $datums['o:references'];
 
-      $titels = $view->references()->list('dcterms:title',array(),array('raw'=>true));
+      $titels = $view->references()->list('dcterms:title',array(),array("lang" => $lang,"filters" => $filters));
       $titels = $titels['o:references'];
 
-      $materials = $view->references()->list('dcterms:medium',array(),array('raw'=>true));
+      $materials = $view->references()->list('dcterms:medium',array(),array("lang" => $lang,"filters" => $filters));
       $materials = $materials['o:references'];
 
-      $personen = $view->references()->list('dcterms:creator',array(),array('raw'=>true));
+      $personen = $view->references()->list('dcterms:creator',array(),array("lang" => $lang,"filters" => $filters));
       $personen = $personen['o:references'];
 
-      $objectnamen = $view->references()->list('dcterms:alternative',array(),array('raw'=>true));
+      $objectnamen = $view->references()->list('dcterms:alternative',array(),array("lang" => $lang,"filters" => $filters));
       $objectnamen = $objectnamen['o:references'];
 
       return $view->partial('common/block-layout/search-block', [

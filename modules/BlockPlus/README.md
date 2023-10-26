@@ -12,6 +12,8 @@ page, search form, assets, item set showcase, exhibits, footnotes, etc.
 Furthermore, each block can use multiple templates, so it's possible to theme a
 block differently in different pages.
 
+Some resource page blocks are implemented too.
+
 
 Installation
 ------------
@@ -37,7 +39,8 @@ composer install --no-dev
 
 Then install it like any other Omeka module.
 
-See general end user documentation for [Installing a module].
+See general end user documentation for [Installing a module] and follow the
+config instructions.
 
 
 Usage
@@ -120,6 +123,7 @@ To use them, simply select the wanted template:
 
 The D3 graph adds the [D3 library] to display relations between items in a graph:
 links between subjects and objects, links between items and item sets, etc.
+An example of use can be seen on the digital library of the [Fondation de la Maison de Salins].
 
 #### External content
 
@@ -270,6 +274,23 @@ too. If you can't, try to check the option to use the Api version 1.1.
 In all cases, there is a [rate limit], but generally largely enough for a common
 digital library.
 
+### Resource page blocks (Omeka S v4)
+
+#### Block simple
+
+A block to customize in theme.
+
+#### Buttons Previous/Next
+
+This block requires the module [Easy Admin].
+
+Allow to display buttons previous resource and next resource in the list. The
+list is built from the user last browse query, else from natural order. The
+default order without previous browse or search can be set in site settings for
+items and item sets. For media, the order is defined in item.
+
+It can be used as a theme helper too (see below).
+
 ### Theme view helpers
 
 #### Page Metadata
@@ -332,6 +353,58 @@ if ($pagesMetadata):
 endif;
 ```
 
+#### Breadcrumbs
+
+A breadcrumb may be added on resources pages via the command `echo $this->breadcrumbs();`.
+The default template is `common/breadcrumbs.phtml`, so the breadcrumb can be
+themed. Some options are available too.
+By default, the breadcrumbs for an item use the first item set as the parent
+crumb. The first item set is the item set with the smallest id. If you want to
+use another item set, set it as resource in the property that is set in the main
+settings, or in the options of the view helper.
+
+#### Buttons Previous/Next
+
+These helpers require the module [Easy Admin].
+
+To use it, add the following code in the item, item set, or media show page:
+
+```php
+<?php
+$plugins = $this->getHelperPluginManager();
+$previousNext = $plugins->has('previousNext') ? $plugins->get('previousNext') : null;
+?>
+
+<?= $previousNext ? $previousNext($resource) : '' ?>
+```
+
+Two other helpers can be used to manually build the html code:
+
+```php
+<?php
+$plugins = $this->getHelperPluginManager();
+$hasPreviousNext = $plugins->has('previousNext');
+?>
+
+<?php if ($hasPreviousNext): ?>
+<div class="previous-next-items">
+    <?php if ($previous = $this->previousResource($resource)): ?>
+    <?= $previous->link($translate('Previous item'), null, ['class' => 'previous-item']) ?>
+    <?php endif; ?>
+    <?php if ($next = $this->nextResource($resource)): ?>
+    <?= $next->link($translate('Next item'), null, ['class' => 'next-item']) ?>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
+```
+
+#### Last browse page
+
+Allow to go back to the last list of results in order to browse inside item
+sets, items or media after a search without losing the search results. It can be
+appended automatically with helper "previousNext()" and option "back" set to
+true.
+
 
 TODO
 ----
@@ -339,9 +412,14 @@ TODO
 - [ ] Merge more similar blocks into a main block (with automatic upgrade).
 - [x] Integrate Shortcodes (module [Shortcode])
 - [x] Integrate Menu (module [Menu])
+- [ ] Merge module Menu inside BlockPlus?
+- [ ] Normalize breadcrumbs.
 - [ ] Integrate attachments for block Showcase
 - [ ] Integrate sidebar forms for block Showcase
 - [ ] Auto-create asset when image is uploaded in a Html field.
+- [ ] Update site of mirror page to get good url for $resource->siteUrl().
+- [ ] Merge PageDate with upstream PageDateTime.
+
 
 Warning
 -------
@@ -408,7 +486,7 @@ components (modernizr, smartresize, imagesloaded).
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2018-2022 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2018-2023 (see [Daniel-KM] on GitLab)
 * Copyright Codrops, 2013 ([image gallery], see vendor/ for more infos)
 * Copyright Andy Kirk, 2014-2021 (See https://github.com/andykirk)
 * Copyright Jan Sorgalla, 2014 (See http://sorgalla.com/jcarousel)
@@ -416,12 +494,13 @@ Copyright
 
 [Block Plus]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlockPlus
 [Omeka S]: https://omeka.org/s
-[Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
+[Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [shortcode as a page]: https://github.com/omeka/plugin-SimplePages/pull/24
 [Omeka Classic]: https://omeka.org/classic
 [Exhibit `file-text`]: https://omeka.org/classic/docs/Plugins/ExhibitBuilder
 [Fondation de la Maison de Salins]: https://collections.maison-salins.fr
 [D3 library]: https://d3js.org
+[Fondation de la Maison de Salins]: https://cooparchives.maison-salins.fr/s/fr/page/carte-heuristique
 [#1706]: https://github.com/omeka/omeka-s/issues/1706
 [Twitter]: https://twitter.com
 [Shortcode Carousel]: https://github.com/omeka/plugin-ShortcodeCarousel
@@ -438,6 +517,7 @@ Copyright
 [Shortcode]: https://gitlab.com/Daniel-KM/Omeka-S-module-Shortcode
 [user guide]: https://omeka.org/s/docs/user-manual/sites/site_pages/#media
 [BlockPlus.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlockPlus/-/releases
+[Easy Admin]: https://gitlab.com/Daniel-KM/Omeka-S-module-EasyAdmin
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlockPlus/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html

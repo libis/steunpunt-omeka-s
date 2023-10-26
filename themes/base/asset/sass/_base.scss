@@ -303,7 +303,9 @@ figcaption{
       font-weight: 500;
       transition: all 400ms ease-out;
 
-      span{padding-bottom:0.2rem;border-bottom: 2px solid $primary;}
+      span{padding-bottom:0.2rem;
+        //border-bottom: 2px solid $primary;
+      }
     }
 
     .thema-header{

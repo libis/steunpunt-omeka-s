@@ -16,16 +16,19 @@ trait PageBlockMetadataTrait
     /**
      * Get metadata of a block.
      *
-     * @param string $metadata
-     * @param SitePageBlockRepresentation $page
-     * @return \Omeka\Api\Representation\SitePageBlockRepresentation|mixed|false
+     * If the block is not available, only common page metadata are available.
      */
-    protected function metadataBlock(?string $metadata, SitePageBlockRepresentation $block)
+    protected function metadataBlock(?string $metadata = null, ?SitePageBlockRepresentation $block = null)
     {
         $view = $this->getView();
-        $page = $block->page();
+        $page = $block ? $block->page() : $this->currentPage();
+        if (!$page) {
+            return null;
+        }
 
         switch ($metadata) {
+            case 'block':
+                return $block;
             case 'page':
                 return $page;
             case 'title':
@@ -40,32 +43,51 @@ trait PageBlockMetadataTrait
             case 'credits':
             case 'summary':
             case 'tags':
-                return $block->dataValue($metadata);
+                return $block
+                    ? $block->dataValue($metadata)
+                    : null;
 
             case 'type_label':
+                if (!$block) {
+                    return null;
+                }
                 $type = $block->dataValue('type');
                 $pageTypes = $view->siteSetting('blockplus_page_types', []);
                 return $pageTypes[$type] ?? null;
 
             case 'featured':
-                return (bool) $block->dataValue('featured');
+                return $block
+                    ? (bool) $block->dataValue('featured')
+                    : false;
             case 'cover':
+            case 'cover_url':
+                if (!$block) {
+                    return null;
+                }
                 $asset = $block->dataValue('cover');
                 if (!$asset) {
                     return null;
                 }
                 try {
-                    return $view->api()->read('assets', ['id' => $asset])->getContent();
+                    /** @var \Omeka\Api\Representation\AssetRepresentation $asset */
+                    $asset = $view->api()->read('assets', ['id' => $asset])->getContent();
                 } catch (NotFoundException $e) {
                     return null;
                 }
+                return $metadata === 'cover_url' ? $asset->assetUrl() : $asset;
 
             case 'attachments':
+                if (!$block) {
+                    return [];
+                }
                 return $block->attachments();
 
-            case 'main_image':
-            // @deprecated Use "main_image", not "first_image".
             case 'first_image':
+                // @deprecated Use "main_image", not "first_image".
+            case 'main_image':
+                if (!$block) {
+                    return null;
+                }
                 $api = $view->api();
                 $asset = $block->dataValue('cover');
                 if ($asset) {
@@ -112,9 +134,22 @@ trait PageBlockMetadataTrait
                 }
                 return null;
 
+            case 'is_home_page':
+                return $view->isHomePage($page);
+
             case 'root':
                 $parents = $this->parentPages($page);
                 return empty($parents) ? $page : array_pop($parents);
+            case 'subroot':
+                $parents = $this->parentPages($page);
+                if (empty($parents)) {
+                    return null;
+                }
+                if (count($parents) === 1) {
+                    return $page;
+                }
+                array_pop($parents);
+                return array_pop($parents);
             case 'parent':
                 $parents = $this->parentPages($page);
                 return empty($parents) ? null : reset($parents);
@@ -156,25 +191,49 @@ trait PageBlockMetadataTrait
 
             case 'params':
             case 'params_raw':
+                if (!$block) {
+                    return null;
+                }
                 return $block->dataValue('params', '');
             case 'params_json':
             case 'params_json_array':
+                if (!$block) {
+                    return [];
+                }
                 return @json_decode($block->dataValue('params', ''), true) ?: [];
             case 'params_json_object':
+                if (!$block) {
+                    return (object) [];
+                }
                 return @json_decode($block->dataValue('params', '')) ?: (object) [];
+            case 'params_ini':
+                $reader = new \Laminas\Config\Reader\Ini();
+                return $reader->fromString($block->dataValue('params', ''));
             case 'params_key_value_array':
+                if (!$block) {
+                    return [];
+                }
                 $params = array_map('trim', explode("\n", trim($block->dataValue('params', ''))));
                 $list = [];
                 foreach ($params as $keyValue) {
-                    $list[] = array_map('trim', explode('=', $keyValue, 2));
+                    $list[] = array_map('trim', explode('=', $keyValue, 2)) + ['', ''];
                 }
                 return $list;
             case 'params_key_value':
+                if (!$block) {
+                    return [];
+                }
+                // no break
             default:
-                $params = array_filter(array_map('trim', explode("\n", trim($block->dataValue('params', '')))));
+                if (!$block) {
+                    return null;
+                }
+                $params = array_filter(array_map('trim', explode("\n", trim($block->dataValue('params', '')))), 'strlen');
                 $list = [];
                 foreach ($params as $keyValue) {
-                    list($key, $value) = array_map('trim', explode('=', $keyValue, 2));
+                    [$key, $value] = mb_strpos($keyValue, '=') === false
+                        ? [trim($keyValue), '']
+                        : array_map('trim', explode('=', $keyValue, 2));
                     if ($key !== '') {
                         $list[$key] = $value;
                     }

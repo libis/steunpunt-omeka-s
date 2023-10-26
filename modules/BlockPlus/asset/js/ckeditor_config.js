@@ -19,18 +19,28 @@ CKEDITOR.editorConfig = function( config ) {
         '/',
         {
             items: [
-                    'Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', '-',
+                    'Bold', 'Italic', 'Underline', 'Strike', '-',
                     'NumberedList', 'BulletedList', 'Indent', 'Outdent', 'Blockquote', '-',
+                    'RemoveFormat',
                     'Footnotes', '-',
                     'Maximize',
                 ],
         },
     ];
 
+    config.stylesSet = 'default:../../../../application/asset/js/custom-ckeditor-styles.js';
     // Disable content filtering
     config.allowedContent = true;
-    config.extraPlugins = 'footnotes,sourcedialog';
+    // Add extra plugins
+    config.extraPlugins = [
+        'sourcedialog' ,
+        'removeformat',
+        'footnotes',
+    ];
 
     // Add some css to support attributes to "section", "li" and "sup" for footnotes.
     config.extraAllowedContent = 'section(footnotes);header;li[id,data-footnote-id];a[href,id,rel];cite;sup[data-footnote-id]';
+
+    // Allow other scripts to modify configuration.
+    $(document).trigger('o:ckeditor-config', config);
 };

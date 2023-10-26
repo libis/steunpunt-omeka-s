@@ -43,25 +43,36 @@ class Harvest extends AbstractJob
     protected $resource_type;
 
     protected $dcProperties;
+    protected $dwcProperties;
 
     public function perform()
     {
         $this->logger = $this->getServiceLocator()->get('Omeka\Logger');
         $this->api = $this->getServiceLocator()->get('Omeka\ApiManager');
 
-        // Set Dc Properties for mapping
-        $dcProperties = $this->api->search('properties', ['vocabulary_id' => 1], ['responseContent' => 'resource'])->getContent();
+        $args = $this->job->getArgs();
         $elements = [];
+        $dcProperties = $this->api->search('properties', ['vocabulary_id' => 1], ['responseContent' => 'resource'])->getContent();
         foreach ($dcProperties as $property) {
             $elements[$property->getId()] = $property->getLocalName();
         }
         $this->dcProperties = $elements;
 
+        if(str_contains($args['endpoint'],"dwc")):
+            // Set dwc Properties for mapping
+            $elements = [];
+            $dwcProperties = $this->api->search('properties', ['vocabulary_id' => 6], ['responseContent' => 'resource'])->getContent();
+            foreach ($dwcProperties as $property) {
+                $elements[$property->getId()] = $property->getLocalName();
+            }
+            $this->dwcProperties = $elements;
+        endif;
+        
+        
+
         $filters = $this->getArg('filters', ['whitelist' => [], 'blacklist' => []]);
         $whitelist = &$filters['whitelist'];
-        $blacklist = &$filters['blacklist'];
-
-        $args = $this->job->getArgs();
+        $blacklist = &$filters['blacklist'];       
 
         $comment = null;
         $stats = [
@@ -110,6 +121,9 @@ class Harvest extends AbstractJob
             case 'dcq':
                 $method = '_anyDctermsToJson';
                 break;
+            case 'oai_dwc':
+                $method = '_dwcToJson';
+                break;    
             default:
                 $this->logger->err(sprintf(
                     'The format "%s" is not managed by the module currently.',
@@ -196,13 +210,19 @@ class Harvest extends AbstractJob
                     }
                 }
                 $pre_record = $this->{$method}($record, $args['item_set_id'],$args);
+                
                 if($args['endpoint'] == 'https://adlib.icts.kuleuven.be/webapi/oai.ashx' || $args['endpoint'] == 'https://kup-apw.adlibhosting.com/axiellweboai/oai.ashx'):
+                    $importid = $pre_record['dcterms:identifier'][0]['@value'];
                     $id_exists = $this->itemExists($pre_record, $pre_record['dcterms:identifier'][0]['@value'],$args['resource_type'],'adlib');
+                elseif(str_contains($args['endpoint'],"dwc")):
+                    $importid = $pre_record['dwc:catalogNumber'][0]['@value'];
+                    $id_exists = $this->itemExists($pre_record, $pre_record['dwc:catalogNumber'][0]['@value'],$args['resource_type'],'dwc');
                 else:   
+                    $importid = $pre_record['dcterms:isVersionOf'][0]['@value'];
                     $id_exists = $this->itemExists($pre_record, $pre_record['dcterms:isVersionOf'][0]['@value'],$args['resource_type']);
                 endif;
 
-                if(!$id_exists){
+                if(!$id_exists && $importid){
                   //try{
                       $response_c = $this->api->create($args['resource_type'], $pre_record, [], []);
                       $response_c = null;
@@ -254,7 +274,10 @@ class Harvest extends AbstractJob
     protected function itemExists($item, $id_version, $resource_type,$endpoint = "CA"){
       
         $query = [];
-        $this->logger->info($endpoint." - ".$id_version);
+        if(!$id_version):
+            //$this->logger->info($endpoint." - ".$id_version." - no id found");
+            return false;
+        endif;  
         if($endpoint == 'adlib'):
             $query['property'][0] = array(
             'property' => 10,
@@ -262,6 +285,13 @@ class Harvest extends AbstractJob
             'type' => 'eq',
             'joiner' => 'and'
             );
+        elseif($endpoint == 'dwc'):
+            $query['property'][0] = array(
+            'property' => 312,
+            'text' => $id_version,
+            'type' => 'eq',
+            'joiner' => 'and'
+            );    
         else:
             $query['property'][0] = array(
             'property' => 27,
@@ -318,7 +348,7 @@ class Harvest extends AbstractJob
     }
 
     protected function collectionExistsKP($id){
-	//find matching identifier
+	    //find matching title
         $query = [];
         $query['property'][0] = array(
           'property' => 1,
@@ -326,17 +356,13 @@ class Harvest extends AbstractJob
           'type' => 'eq',
           'joiner' => 'and'
         );
-	//$query["site_id"]=1;
 
         $results = '';
         $response = $this->api->search('item_sets',$query);
         $results = $response->getContent();
-	//$this->logger->info(sizeof($results));
         foreach($results as $result):
           if($result):
-		//	  return $result->id();
-	//	  $this->logger->info("collectie gevonden in titel");
-		return $result->id();
+		    return $result->id();
           endif;
         endforeach;
 
@@ -346,20 +372,17 @@ class Harvest extends AbstractJob
           'text' => $id,
           'type' => 'eq',
           'joiner' => 'and'
-  );
-	//$query["site_id"]=1;
+        );
 
         $results = '';
         $response = $this->api->search('item_sets',$query);
         $results = $response->getContent();
 
         foreach($results as $result):
-		if($result):
-	//		 $this->logger->info("collectie gevonden in alt titel");
+		if($result):	    
             return $result->id();
           endif;
         endforeach;
-	 //$this->logger->info($id);
         return false;
     }
 
@@ -467,6 +490,8 @@ class Harvest extends AbstractJob
                 }
             }
         }
+
+
 
         $meta = $elementTexts;
         //$meta['o:item_set'] = ['o:id' => $itemSetId];
@@ -576,16 +601,135 @@ class Harvest extends AbstractJob
         return $meta;
     }
 
-    protected function extractValues(SimpleXMLElement $metadata, $propertyId)
+    private function _dwcToJson(SimpleXMLElement $record, $itemSetId, $args)
+    {
+        //dwc
+        $dwcMetadata = $record
+            ->metadata
+            ->children('oai_dwc',true)
+            ->children('dwc',true);
+
+        $elementTexts = [];
+        $itemSetIds= [];
+
+        foreach ($this->dwcProperties as $propertyId => $localName) {
+            //$this->logger->info($localName);
+            if (isset($dwcMetadata->$localName)) {
+                $this->logger->info($localName);
+                $elementTexts["dwc:$localName"] = $this->extractValues($dwcMetadata, $propertyId,"dwc");
+                 //looks for matching item set
+                if($localName == 'collectionCode' && $args['resource_type'] == 'items'){
+                    foreach ($dwcMetadata->$localName as $collection_id) {
+                      if($setID = $this->collectionExistsKP($collection_id)):
+                        $itemSetIds[$setID] = $setID;
+                      endif;
+                    }
+                }    
+
+                //create common PID
+                if($localName == 'catalogNumber'):
+                    foreach ($dwcMetadata->$localName as $idno) {
+                        $idnos[] = $idno;
+                    }
+                endif;  
+               
+            }
+        }
+
+        $dcMetadata = $record
+            ->metadata
+            ->children('oai_dwc',true)
+            ->children('dcterms',true);
+
+        foreach ($this->dcProperties as $propertyId => $localName) {
+            //$this->logger->info($localName);
+            if (isset($dcMetadata->$localName)) {
+                $this->logger->info($localName);
+                $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
+
+                //add media if Beeld or Collectie                
+                if($localName == 'relation'){                
+                    $imgc=0;
+                    foreach ($dcMetadata->$localName as $imageUrl) {
+                        if(str_contains($imageUrl,"ca_object")):
+                            if (filter_var($imageUrl, FILTER_VALIDATE_URL) === false){
+                                continue;
+                            }
+
+                            $imageUrl = $imageUrl.'';  
+                        
+                            $media[$imgc]= [
+                                'o:ingester' => 'url',
+                                'o:source' => $imageUrl,
+                                'ingest_url' => $imageUrl,
+                                'dcterms:title' => [
+                                    [
+                                        'type' => 'literal',
+                                        '@language' => '',
+                                        '@value' => 'img - '.$imgc,
+                                        'property_id' => 1,
+                                    ],
+                                ],
+                            ];
+                            $imgc++;
+                        endif;
+                    }                    
+                }
+            }
+        }        
+
+        $meta = $elementTexts;
+        //set item set
+        foreach($itemSetIds as $collectionId):
+            if($collectionId && $args['resource_type'] == 'items'):
+                $meta['o:item_set'][] = ['o:id' => $collectionId];
+            endif;        
+        endforeach;
+
+          //media
+          $imgs = array();
+          foreach($media as $img):
+              $imgs[] = $img;
+          endforeach;
+          $meta['o:media'] = $imgs;
+
+        //resource template?
+        if($args['resource_template']):
+            $meta['o:resource_template'] = ["o:id" => $args['resource_template']];
+        endif;
+
+        foreach ($idnos as $idno) {
+            $meta['dcterms:identifier'][] = [
+                'property_id' => 10,
+                'type' => 'literal',
+                'is_public' => false,
+                '@value' => $idno.'',
+                '@language' => ''
+            ];
+        }
+
+        return $meta;
+    }
+
+    protected function extractValues(SimpleXMLElement $metadata, $propertyId,$voc = "dcterms")
     {
         $data = [];
-        $localName = $this->dcProperties[$propertyId];
+        if($voc == "dcterms"):
+            $localName = $this->dcProperties[$propertyId];
+        elseif($voc == "dwc"):
+            $localName = $this->dwcProperties[$propertyId];
+        endif;    
         foreach ($metadata->$localName as $value) {
             $texts = trim($value);
             $texts = str_replace("&amp;","&",$texts);
 
             if($localName == 'date'):
                 $texts = str_replace("/","-",$texts);
+            endif;
+
+            if($localName == 'dateAccepted'):
+                $texts = explode(" (",$texts);
+                $texts = $texts[0];
             endif;
 
             $texts = explode('||',$texts);
@@ -605,6 +749,8 @@ class Harvest extends AbstractJob
                   'type' => $type,
                   'is_public' => true,
               ];
+
+              $this->logger->info($text);
 
               switch ($type) {
                   case 'uri':
@@ -628,6 +774,10 @@ class Harvest extends AbstractJob
                       if($language == "be" || $language == "nl-BE"){
                         $language = "nl";
                       }
+
+                      if($localName == 'alternative' && !$language):
+                        $language = "nl";
+                      endif;  
 
                       $val['@value'] = $text;
                       $val['@language'] = $language;

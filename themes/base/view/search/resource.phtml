@@ -34,6 +34,7 @@
  */
 
 $hyperlink = $this->plugin('hyperlink');
+$lang = $site->slug();
 ?>
 
   <div class="grid-item">
@@ -45,8 +46,15 @@ $hyperlink = $this->plugin('hyperlink');
           <?php endif; ?>
       </div>
       <div class="resource-metadata">
-          <h4 class="title is-6 is-family-secondary"><span><?= $resource->displayTitle() ?></span></h4>
-          <?php if ($body = $resource->displayDescription()): ?>
+          <h4 class="title is-6 is-family-secondary"><span><?= $resource->value('dcterms:title', array('lang' => $lang)) ?></span></h4>
+          <?php 
+            $body = $resource->value('dcterms:description', array('lang' => $lang));
+            if(!$body){
+              $body = $resource->value('dcterms:description');
+            }
+          ?>
+          
+          <?php if ($body): ?>
               <div class="description">
                 <?php if ($body): ?>
                   <p>

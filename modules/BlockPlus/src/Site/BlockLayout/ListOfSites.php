@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace BlockPlus\Site\BlockLayout;
 
 use Laminas\View\Renderer\PhpRenderer;
@@ -108,6 +109,7 @@ class ListOfSites extends AbstractBlockLayout
         $sites = $response->getContent();
 
         $vars = [
+            'block' => $block,
             'heading' => $block->dataValue('heading', ''),
             'sites' => $sites,
             'pagination' => $pagination,

@@ -1,0 +1,65 @@
+#user-bar,.hero-head, .logo-column, .search-menu, .burger-menu, .breadcrumb-section, .slider-nav{
+    display: none;
+}
+
+.has-text-centered{
+    text-align: center;
+}
+
+.over-footer{
+    margin-bottom: 4rem;;
+}
+
+footer{
+    background: #ccc;
+    padding:1rem;
+}
+
+footer img{
+    height:50px;
+}
+
+footer .level-right{
+    display: none;
+}
+
+.slick-track div{
+    display:none;
+}
+
+.slick-track div:first-of-type{
+    display:block;
+}
+
+.hero-overlay, .hero-body{
+    background:#fff;
+}
+
+body {
+    font: 13pt 'Raleway', sans-serif;
+    line-height: 1.3;
+    background: #fff !important;
+    color: #000;
+}
+
+p{
+    font: 13pt 'Manrope', sans-serif;
+}
+
+.hero h1{
+    font-size: 25pt;
+    margin-bottom:0.5rem;
+}
+
+.hero h2{
+    font-size: 13pt;
+}
+
+h4{
+    margin-top:0.5rem;
+    margin-bottom: 0rem;;
+}
+
+.text-box{
+    margin-bottom:1.5rem;
+}

@@ -2,7 +2,7 @@
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $this->htmlElement('body')->appendAttribute('class', 'item resource browse');
-
+$lang = $site->slug();
 $query = $this->params()->fromQuery();
 $itemSetShow = isset($itemSet);
 if ($itemSetShow):
@@ -56,21 +56,21 @@ $sortHeadings = [
 <section class="section">
   <div class="container">
     <?php if ($itemSetShow): ?>
-        <h1 class="title is-2 is-family-secondary"><?php echo $itemSet->displayTitle(); ?></h1>
+        <h1 class="title is-2 is-family-secondary"><?php echo $itemSet->value('dcterms:title', array('lang' => $lang)); ?></h1>
         <div class="columns">
-          <?if($itemSet->value('dcterms:description') || $itemSet->value('dcterms:provenance')):?>
+          <?if($itemSet->value('dcterms:description', array('lang' => $lang)) || $itemSet->value('dcterms:provenance', array('lang' => $lang))):?>
 
             <div class="column is-8">
-              <?if($itemSet->value('dcterms:description')):?>
+              <?if($itemSet->value('dcterms:description', array('lang' => $lang))):?>
               <div class="content text-box">
                 <h4 class="title is-4"><?php echo $translate("Beschrijving");?></h4>
-                <?php echo $itemSet->value('dcterms:description')->asHtml(); ?>
+                <?php echo $itemSet->value('dcterms:description', array('lang' => $lang))->asHtml(); ?>
               </div>
               <?php endif;?>
-              <?if($itemSet->value('dcterms:provenance')):?>
+              <?if($itemSet->value('dcterms:provenance', array('lang' => $lang))):?>
               <div class="content text-box">
                 <h4 class="title is-4"><?php echo $translate("Geschiedenis");?></h4>
-                <?php echo $itemSet->value('dcterms:provenance')->asHtml(); ?>
+                <?php echo $itemSet->value('dcterms:provenance', array('lang' => $lang))->asHtml(); ?>
               </div>
               <?php endif;?>
               <div class="content text-box">
@@ -132,8 +132,8 @@ $sortHeadings = [
             if ($itemSetShow && $i==6):
               continue;
             endif;  
-            $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]')]) : $item->displayTitle();
-            $body = $bodyTerm ? $item->value($bodyTerm) : $item->displayDescription();
+            $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]')]) : $item->value('dcterms:title', array('lang' => $lang));
+            $body = $item->value('dcterms:description', array("lang" => $lang));
             $media = $item->media();
             if($media):
                 $mediaurl = str_replace('http:', '', $media[0]->thumbnailUrl('medium'));
@@ -154,9 +154,9 @@ $sortHeadings = [
                       <span><?php echo $heading;?></span>
                   </p>
                 </header>
+                <?php if ($body): ?>
                 <div class="card-content">
-                  <div class="content">
-                    <?php if ($body): ?>
+                  <div class="content">                    
                       <p>
                         <?php $trunc = implode(" ", array_slice(explode(" ", $body), 0, 21)); ?>
                         <?php if(strlen($body) != strlen($trunc)):?>
@@ -164,10 +164,10 @@ $sortHeadings = [
                         <?php else:?>
                           <?php echo $trunc;?>
                         <?php endif;?>
-                      </p>
-                    <?php endif; ?>
+                      </p>                    
                   </div>
                 </div>
+                <?php endif; ?>
               </a>
             </div>
           </div>
@@ -220,8 +220,14 @@ $sortHeadings = [
 
       <?php if ($itemSetShow): ?>
         <div class="has-text-right">
-          <a href="<?php echo 'https://blendeff.be/s/nl/objecten?q=&facet[item_set_ss][0]='.$itemSet->displayTitle();?>" class="button is-primary">
-            <span><?php echo "Bekijk alle objecten uit deze collectie";?></span>
+          <?php if($lang == "en"):?>
+            <a href="<?php echo 'https://blendeff.be/s/'.$lang.'/objects?q=&facet[item_set_id][0]='.$itemSet->id();?>" class="button is-primary">
+          
+          <? else:?>
+            <a href="<?php echo 'https://blendeff.be/s/'.$lang.'/objecten?q=&facet[item_set_id][0]='.$itemSet->id();?>" class="button is-primary">
+          
+          <?php endif;?>  
+            <span><?php echo $translate("Bekijk alle objecten uit deze collectie");?></span>
             <span class="icon is-small">
               <i class="fas fa-angle-right"></i>
             </span>

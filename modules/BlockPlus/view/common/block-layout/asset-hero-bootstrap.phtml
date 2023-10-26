@@ -3,12 +3,11 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var array $attachments Contains keys:
  *   - asset (AssetRepresentation)
- *   - page" (PageRepresentation)
+ *   - page (PageRepresentation)
  *   - caption (string): the html is purified according to settings
  *   - alt_link_title (string)
  *   Specific to the module version:
  *   - class (string)
- *   - title (string): deprecated alias of "alt_link_title"
  *   - url (string): deprecated, will be removed. Use "page", "caption", alt title, or original asset alt value instead.
  * @var array $assets Deprecated, alias of attachments.
  * @var string $heading
@@ -38,7 +37,7 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
         <div class="row mt-5">
             <div class="col-md-6  offset-3 mt-5">
                 <h1 class="lorem text-uppercase text-center text-justify"><?= $attachment['caption'] ?></h1>
-                <?php $attachmentUrl = $attachment['page'] ? $attachment['page']->siteUrl() : $attachment['url']; ?>
+                <?php $attachmentUrl = $attachment['page'] ? $attachment['page']->siteUrl() : ($attachment['url'] ?? null); ?>
                 <?php if ($attachment['alt_link_title'] && $attachmentUrl): ?>
                 <a href="<?= $escapeAttr($attachmentUrl) ?>"><button class="btn knowmore"><?= $escape($attachment['alt_link_title']) ?></button></a>
                 <?php endif; ?>

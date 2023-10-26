@@ -3,6 +3,14 @@
 namespace BlockPlus;
 
 return [
+    'service_manager' => [
+        'invokables' => [
+            Mvc\MvcListeners::class => Mvc\MvcListeners::class,
+        ],
+    ],
+    'listeners' => [
+        Mvc\MvcListeners::class,
+    ],
     'view_manager' => [
         'template_path_stack' => [
             dirname(__DIR__) . '/view',
@@ -12,19 +20,27 @@ return [
         'invokables' => [
             'assetElement' => View\Helper\AssetElement::class,
             'blockMetadata' => View\Helper\BlockMetadata::class,
+            'breadcrumbs' => View\Helper\Breadcrumbs::class,
             'ckEditor' => View\Helper\CkEditor::class,
+            'formNote' => Form\View\Helper\FormNote::class,
+            'isHomePage' => View\Helper\IsHomePage::class,
             'pageMetadata' => View\Helper\PageMetadata::class,
             'pagesMetadata' => View\Helper\PagesMetadata::class,
+            'primaryItemSet' => View\Helper\PrimaryItemSet::class,
             'thumbnailUrl' => View\Helper\ThumbnailUrl::class,
         ],
-        'factories' => [
-            'assetUrl' => Service\ViewHelper\AssetUrlFactory::class,
+        'delegators' => [
+            'Laminas\Form\View\Helper\FormElement' => [
+                Service\Delegator\FormElementDelegatorFactory::class,
+            ],
         ],
     ],
     'block_layouts' => [
         'invokables' => [
             'block' => Site\BlockLayout\Block::class,
-            'browsePreview' => Site\BlockLayout\BrowsePreview::class,
+            // Use a delegator instead of a factory in order to inject HtmlPurifier.
+            // 'browsePreview' => Site\BlockLayout\BrowsePreview::class,
+            'buttons' => Site\BlockLayout\Buttons::class,
             'd3Graph' => Site\BlockLayout\D3Graph::class,
             'division' => Site\BlockLayout\Division::class,
             'itemSetShowcase' => Site\BlockLayout\ItemSetShowcase::class,
@@ -53,18 +69,34 @@ return [
             'resourceText' => Service\BlockLayout\ResourceTextFactory::class,
             'showcase' => Service\BlockLayout\ShowcaseFactory::class,
         ],
+        'delegators' => [
+            \Omeka\Site\BlockLayout\BrowsePreview::class => [
+                Service\BlockLayout\BrowsePreviewDelegatorFactory::class
+            ],
+        ],
         'aliases' => [
             'itemShowcase' => 'itemShowCase',
+        ],
+    ],
+    'resource_page_block_layouts' => [
+        'invokables' => [
+            'block' => Site\ResourcePageBlockLayout\Block::class,
+            'previousNext' => Site\ResourcePageBlockLayout\PreviousNext::class,
         ],
     ],
     'form_elements' => [
         'invokables' => [
             Form\Element\BlockShowTitleSelect::class => Form\Element\BlockShowTitleSelect::class,
+            Form\Element\DataTextarea::class => Form\Element\DataTextarea::class,
+            Form\Element\Note::class => Form\Element\Note::class,
+            Form\Element\OptionalMultiCheckbox::class => Form\Element\OptionalMultiCheckbox::class,
             Form\Element\OptionalRadio::class => Form\Element\OptionalRadio::class,
+            Form\Element\OptionalSelect::class => Form\Element\OptionalSelect::class,
             // Blocks.
             Form\AssetFieldset::class => Form\AssetFieldset::class,
             Form\BlockFieldset::class => Form\BlockFieldset::class,
             Form\BrowsePreviewFieldset::class => Form\BrowsePreviewFieldset::class,
+            Form\ButtonsFieldset::class => Form\ButtonsFieldset::class,
             Form\D3GraphFieldset::class => Form\D3GraphFieldset::class,
             Form\DivisionFieldset::class => Form\DivisionFieldset::class,
             Form\ExternalContentFieldset::class => Form\ExternalContentFieldset::class,
@@ -79,7 +111,6 @@ return [
             Form\PageTitleFieldset::class => Form\PageTitleFieldset::class,
             Form\RedirectToUrlFieldset::class => Form\RedirectToUrlFieldset::class,
             Form\ResourceTextFieldset::class => Form\ResourceTextFieldset::class,
-            Form\SearchFormFieldset::class => Form\SearchFormFieldset::class,
             Form\SearchResultsFieldset::class => Form\SearchResultsFieldset::class,
             Form\SeparatorFieldset::class => Form\SeparatorFieldset::class,
             Form\ShowcaseFieldset::class => Form\ShowcaseFieldset::class,
@@ -91,10 +122,12 @@ return [
             Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
         ],
         'factories' => [
+            Form\Element\OptionalPropertySelect::class => Service\Form\Element\OptionalPropertySelectFactory::class,
             Form\Element\SitesPageSelect::class => Service\Form\Element\SitesPageSelectFactory::class,
             Form\Element\TemplateSelect::class => Service\Form\Element\TemplateSelectFactory::class,
             Form\Element\ThumbnailTypeSelect::class => Service\Form\Element\ThumbnailTypeSelectFactory::class,
             Form\PageMetadataFieldset::class => Service\Form\PageMetadataFieldsetFactory::class,
+            Form\SearchFormFieldset::class => Service\Form\SearchFormFieldsetFactory::class,
         ],
     ],
     'translator' => [
@@ -107,12 +140,6 @@ return [
             ],
         ],
     ],
-    'assets' => [
-        // Override internals assets. Only for Omeka assets: modules can use another filename.
-        'internals' => [
-            'js/site-page-edit.js' => 'BlockPlus',
-        ],
-    ],
     'js_translate_strings' => [
         'Class', // @translate
         'Url (deprecated)', // @translate
@@ -120,16 +147,34 @@ return [
     ],
     'blockplus' => [
         'settings' => [
-            'blockplus_html_mode' => '',
-            'blockplus_html_config' => '',
+            'blockplus_html_mode_page' => 'inline',
+            'blockplus_html_config_page' => 'default',
+            'blockplus_property_itemset' => '',
         ],
         'site_settings' => [
+            // Page metadata.
             'blockplus_page_types' => [
                 'home' => 'Home', // @translate
                 'exhibit' => 'Exhibit', // @translate
                 'exhibit_page' => 'Exhibit page', // @translate
                 'simple' => 'Simple page', // @translate
             ],
+            // Breadcrumbs.
+            'blockplus_breadcrumbs_crumbs' => [
+                'home',
+                'collections',
+                'itemset',
+                'itemsetstree',
+                'current',
+            ],
+            'blockplus_breadcrumbs_prepend' => [],
+            'blockplus_breadcrumbs_collections_url' => '',
+            'blockplus_breadcrumbs_separator' => '',
+            'blockplus_breadcrumbs_homepage' => false,
+            // Previous/Next resources.
+            'blockplus_items_order_for_itemsets' => [],
+            'blockplus_prevnext_items_query' => '',
+            'blockplus_prevnext_item_sets_query' => '',
         ],
         'block_settings' => [
             // The new source upstream "asset" block stores assets as attachments.
@@ -156,6 +201,7 @@ return [
             ],
             'browsePreview' => [
                 'heading' => '',
+                'html' => '',
                 'resource_type' => 'items',
                 'query' => '',
                 'limit' => 12,
@@ -168,6 +214,11 @@ return [
                 'sort_headings' => [],
                 'resource_template' => null,
                 'link-text' => 'Browse all', // @translate
+                'template' => '',
+            ],
+            'buttons' => [
+                'heading' => '',
+                'buttons' => [],
                 'template' => '',
             ],
             'd3Graph' => [
@@ -305,6 +356,10 @@ return [
             ],
             'searchForm' => [
                 'heading' => '',
+                'html' => '',
+                'link' => '',
+                'search_config' => null,
+                'selector' => '',
                 'template' => '',
             ],
             'searchResults' => [

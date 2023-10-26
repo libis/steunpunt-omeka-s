@@ -1,5 +1,6 @@
-<?php $siteurl = 'https://blendeff.be/s/'.$block->page()->site()->slug();?>
-<?php
+<?php 
+$siteurl = 'https://blendeff.be/s/'.$block->page()->site()->slug();
+$lang = $block->page()->site()->slug();
 $translate = $this->plugin('translate');
 ?>
 <div class="section search-block">
@@ -29,7 +30,11 @@ $translate = $this->plugin('translate');
                   <i class="fas fa-angle-right"></i>
                 </span>
               </button>
-              <a class="button is-primary" href="<?php echo $siteurl;?>/<?php echo $block->dataValue('type');?>"><?php echo $translate("Toon alles");?></a>
+              <?php if($lang == "nl"):?>
+                <a class="button is-primary" href="<?php echo $siteurl;?>/objecten"><?php echo $translate("Toon alles");?></a>
+              <?php else:?>
+                <a class="button is-primary" href="<?php echo $siteurl;?>/objects"><?php echo $translate("Toon alles");?></a>
+              <?php endif;?>              
             </div>
         </div>
         <div class="columns advanced-search closed">

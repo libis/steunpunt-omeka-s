@@ -80,7 +80,6 @@ class ThemaBlock extends AbstractBlockLayout
           "sort_by"=> "alphabetic",
           "per_page"=> "",
           "lang" => $site->slug(),
-          "filters" => array("languages" => $site->slug())
         );
         $values = $view->references()->list('dcterms:type', array('site_id' => '1'),$options);
 

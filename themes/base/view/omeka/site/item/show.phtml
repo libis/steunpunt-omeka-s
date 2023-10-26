@@ -13,6 +13,7 @@ else:
   $type = "";
 endif;
 ?>
+
 <section class="section breadcrumb-section">
   <div class="container">
     <nav class="breadcrumb" aria-label="breadcrumbs">
@@ -244,6 +245,12 @@ endif;
               </span>
               <span>https://blendeff.be/<?php echo $lang;?>/item/<?php echo $item->value('dcterms:identifier');?></span>
               </a>
+
+              <button class="button is-small is-text is-outlined" onclick="window.print();" alt="print">
+              <span class="icon">
+                  <i class="fa fa-print"></i>
+              </span>
+              </button>
            </div> 
          </div>
        </div>
@@ -257,7 +264,11 @@ endif;
    <?php if(!$descs):?>
     <?php $descs =  $item->value('dcterms:description', array('all' => true)); ?>
    <?php endif;?>
-   <?php if($refs || $descs):?>
+   <?php $bio_ref =  $item->value('dwc:associatedReferences', array('all' => true,'lang' => $lang)); ?>
+   <?php if(!$bio_ref):?>
+    <?php $bio_ref =  $item->value('dwc:associatedReferences', array('all' => true)); ?>
+   <?php endif;?>
+   <?php if($refs || $descs || $bio_ref):?>
    <div class="container">
      <div class="columns">
        <div class="column is-12">
@@ -285,6 +296,14 @@ endif;
                  </div>
               <?php endforeach;?>
            <?php endif;?>
+
+           <?php if($bio_ref):?>
+               <?php foreach($bio_ref as $desc):?>
+                 <div style="margin-bottom:0.3rem;">                   
+                    <?php echo $desc->asHtml();?>
+                 </div>
+              <?php endforeach;?>
+           <?php endif;?>   
            
            <?php if($refs):?>
              <hr />
@@ -308,21 +327,7 @@ endif;
           </div>
         </div>
       </div>
-    <?php endif;?>                
-    <?php
-      $plugins = $this->getHelperPluginManager();
-      $hasNext = $plugins->has('previousResource');
-    ?>
-    <?php if ($hasNext): ?>
-      <div class="previous-next-items">
-          <?php if ($previous = $this->previousResource($resource)): ?>
-          <?= $previous->link($translate('Previous item'), null, ['class' => 'previous-item']) ?>
-          <?php endif; ?>
-          <?php if ($next = $this->nextResource($resource)): ?>
-          <?= $next->link($translate('Next item'), null, ['class' => 'next-item']) ?>
-          <?php endif; ?>
-      </div>
-    <?php endif; ?>
+    <?php endif;?> 
   </div>
 </section>
 <?php endif;?>

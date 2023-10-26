@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace BlockPlus\Site\BlockLayout;
 
 use Laminas\View\Renderer\PhpRenderer;
@@ -56,6 +57,7 @@ class ItemWithMetadata extends AbstractBlockLayout
         }
 
         $vars = [
+            'block' => $block,
             'heading' => $block->dataValue('heading', ''),
             'attachments' => $attachments,
         ];

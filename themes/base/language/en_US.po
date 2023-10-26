@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-09-05 00:00+0000\n"
-"PO-Revision-Date: 2023-07-13 10:43+0200\n"
+"PO-Revision-Date: 2023-08-03 11:46+0200\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -104,17 +104,38 @@ msgstr "News"
 msgid "Titel"
 msgstr "Title"
 
-msgid "Gebruikersvoorwaarden"
-msgstr "Terms of Use"
-
 msgid "Toon alles"
 msgstr "Show all"
 
 msgid "Zoek naar objecten in de collecties"
 msgstr "Search objects in the collections"
 
+msgid "Bekijk alle objecten uit deze collectie"
+msgstr "Discover all objects in this collection"
+
+msgid "Geschiedenis"
+msgstr "History"
+
+msgid "Praktische info"
+msgstr "Practical info"
+
+msgid "Thema"
+msgstr "Theme"
+
+msgid "Referenties"
+msgstr "References"
+
+msgid "Omvang"
+msgstr "Size"
+
 msgid "Overzicht"
 msgstr "Overview"
+
+msgid "Beschrijving"
+msgstr "Description"
+
+msgid "Gebruiksvoorwaarden"
+msgstr "Practical information"
 
 msgid "Zoek een collectie"
 msgstr "Search a collection"

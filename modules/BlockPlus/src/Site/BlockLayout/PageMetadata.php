@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace BlockPlus\Site\BlockLayout;
 
 use Laminas\View\Renderer\PhpRenderer;
@@ -75,7 +76,12 @@ HTML;
         $html .= $view->blockAttachmentsForm($block);
         $html .= '</div>';
 
-        return $html;
+        // Fix https://github.com/Daniel-KM/Omeka-S-module-BlockPlus/issues/11.
+        $replace = [
+            '<span class="selected-asset" style="display: none;">' => '<span class="selected-asset-page-metadata" style="display: none;">',
+            '<span class="selected-asset">' => '<span class="selected-asset-page-metadata">',
+        ];
+        return str_replace(array_keys($replace), array_values($replace), $html);
     }
 
     public function render(PhpRenderer $view, SitePageBlockRepresentation $block)

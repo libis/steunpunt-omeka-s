@@ -23,7 +23,7 @@ class Twitter extends AbstractBlockLayout
     /**
      * The user agent should be allowed by Twitter.
      */
-    const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/96.0';
+    const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:115.0) Gecko/20100101 Firefox/115.0';
 
     /**
      * The url to get the user id.
@@ -62,6 +62,7 @@ class Twitter extends AbstractBlockLayout
 
     public function onHydrate(SitePageBlock $block, ErrorStore $errorStore): void
     {
+        // TODO Check why direct messenger is used and not plugin, and why error store is not used.
         $messenger = new Messenger;
 
         $data = $block->getData();
@@ -174,6 +175,7 @@ class Twitter extends AbstractBlockLayout
         }
 
         $vars = [
+            'block' => $block,
             'heading' => $vars['heading'],
             'account' => $accountData,
             'messages' => $messages,
@@ -611,7 +613,7 @@ class Twitter extends AbstractBlockLayout
         return $this->guestToken;
     }
 
-    protected function cacheMessagesForBlock(SitePageBlockRepresentation $block, array $messages)
+    protected function cacheMessagesForBlock(SitePageBlockRepresentation $block, array $messages): void
     {
         // The user may be anonymous, so use the entity manager.
         /** @var \Doctrine\ORM\EntityManager $entityManager */

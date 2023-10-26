@@ -11,7 +11,11 @@ $translate = $this->plugin('translate');
     <div class="columns is-multiline">
       <?php
       $i = 0;
+      //echo sizeof($this->values["o:references"]);
+      //var_dump($this->values["o:references"]);
+      $lang = $block->page()->site()->slug();
       foreach ($this->values["o:references"] as $key=>$value):
+        if($lang == $value["lang"]):
       ?>
       <div class="column is-3">
         <?php
@@ -39,6 +43,7 @@ $translate = $this->plugin('translate');
         </div>
       </div>
       <?php $i++;?>
+      <?php endif;?>
     <?php endforeach; ?>
     </div>
     <?php endif;?>

@@ -8,15 +8,13 @@ Easy Admin (module for Omeka S)
 [Easy Admin] is a module for [Omeka S] that allows to manage Omeka from the
 admin interface:
 
-- launch simple tasks, that can be any job of any module;
+- buttons to public view and previous/next resources in admin resource show page;
+- content lock to avoid concurrent edition;
 - install modules;
-- update modules;
-- maintenance state;
-- checks database and files.
-
-Note: install/update modules is currently managed by module [Easy Install] and
-the maintenance is currently managed by module [Maintenance]. They will be
-included soon.
+- update modules (in a future version);
+- maintenance state for public and admin even when no migration;
+- checks database and files;
+- launch simple tasks, that can be any job of any module.
 
 Checks and fixes that are doable:
 
@@ -41,6 +39,8 @@ Checks and fixes that are doable:
 - check and fix the encoding (iso-8859 to utf-8) of resource values and page
   contents
 
+And many more.
+
 
 Installation
 ------------
@@ -63,9 +63,69 @@ Then install it like any other Omeka module and follow the config instructions.
 
 See general end user documentation for [installing a module].
 
+In some cases, in particular when the server is behind a proxy, a firewall or a
+specific infrastructure, your may need to add credentials in your config (omeka
+file "config/local.config.php"), depending on your linux distribution:
+
+```php
+    'http_client' => [
+        // 'adapter' => \Laminas\Http\Client\Adapter\Curl::class,
+        'sslcapath' => '/usr/local/etc/ssl/certs/',
+        'sslcafile' => 'ca.crt',
+        // 'sslcapath' => '/etc/pki/tls/certs/',
+        // 'sslcafile' => 'ca-bundle.crt',
+    ],
+```
+
+In some cases, the path should be absolute:
+
+```php
+    'http_client' => [
+        // 'adapter' => \Laminas\Http\Client\Adapter\Curl::class,
+        'sslcapath' => '/usr/local/etc/ssl/certs',
+        'sslcafile' => '/usr/local/etc/ssl/certs/ca.crt',
+        // 'sslcapath' => '/etc/pki/tls/certs',
+        // 'sslcafile' => '/etc/pki/tls/certs/ca-bundle.crt',
+    ],
+```
+
+You can find more information on the params in [Laminas help].
+
 
 Usage
 -----
+
+### Buttons in resource page
+
+The option can be enabled in main settings.
+
+#### Button "Public view"
+
+Display a button "Public view" in resource show pages. The link is the resource
+page of  the default user site or the default site.
+
+#### Buttons to previous next resources
+
+Allow to get the previous or the next resources, that simplifies browsing like
+in Omeka Classic.
+
+### Checks and fixes
+
+Go to the menu "Bulk Check", select your process, set your options if needed,
+and click the submit buttons. The results are available in logs currently.
+
+
+### Install and update modules and themes
+
+Simply select either the desired module or the desired theme and click "upload".
+
+See more details on [modules] and [themes].
+
+### Content lock
+
+This feature is inspired by Drupal [Content Lock] mechanism and allows to block
+concurrent editing: when a user is editing a resource, other users cannot edit
+it until submission.
 
 ### Tasks and cron tasks
 
@@ -150,13 +210,6 @@ php /path/to/omeka/application/data/scripts/perform-job.php --job-id 1 --server-
 ```
 
 
-Checks
-------
-
-Go to the menu "Bulk Check", select your process, set your options if needed,
-and click the submit buttons. The results are available in logs currently.
-
-
 TODO
 ----
 
@@ -217,10 +270,11 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2017-2022 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2017-2023 (see [Daniel-KM] on GitLab)
 
 This module is a merge and improvement of previous modules [Easy Install], [Next],
 [Maintenance] and [Bulk Check].
+The idea of [Easy Install] comes from the plugin [Escher] for [Omeka Classic].
 
 
 [Easy Admin]: https://gitlab.com/Daniel-KM/Omeka-S-module-EasyAdmin
@@ -230,17 +284,23 @@ This module is a merge and improvement of previous modules [Easy Install], [Next
 [Next]: https://gitlab.com/Daniel-KM/Omeka-S-module-Next
 [Maintenance]: https://gitlab.com/Daniel-KM/Omeka-S-module-Maintenance
 [Installing a module]: https://omeka.org/s/docs/user-manual/modules/
+[EasyAdmin.zip]: https://github.com/Daniel-KM/Omeka-S-module-EasyAdmin/releases
+[Laminas help]: https://docs.laminas.dev/laminas-http/client/adapters
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-EasyAdmin/issues
 [Archive Repertory]: https://gitlab.com/Daniel-KM/Omeka-S-module-ArchiveRepertory
 [omeka/omeka-s#1257]: https://github.com/omeka/omeka-s/pull/1257
 [Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
 [Log]: https://gitlab.com/Daniel-KM/Omeka-S-module-Log
+[Content Lock]: https://www.drupal.org/project/content_lock
 [Iiif Server]: https://gitlab.com/Daniel-KM/Omeka-S-module-IiifServer
 [Image Server]: https://gitlab.com/Daniel-KM/Omeka-S-module-ImageServer
+[modules]: https://daniel-km.github.io/UpgradeToOmekaS/omeka_s_modules.html
+[themes]: https://daniel-km.github.io/UpgradeToOmekaS/omeka_s_themes.html
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
-[MIT]: https://github.com/sandywalker/webui-popover/blob/master/LICENSE.txt
+[Escher]: https://github.com/AcuGIS/Escher
+[Omeka Classic]: https://omeka.org/classic
 [GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"

@@ -88,6 +88,7 @@ class AbstractFacet extends AbstractHelper
         }
 
         unset($this->queryBase['page']);
+        
         if (!isset($facetsData[$facetField])) {
             $facetsData[$facetField] = $this->prepareFacetData($facetField, $facetValues, $options);
         }
@@ -113,7 +114,7 @@ class AbstractFacet extends AbstractHelper
             $query = $this->queryBase;
 
             // The facet value is compared against a string (the query args).
-            $facetValueLabel = (string) $this->facetValueLabel($facetField, $facetValueValue);
+            $facetValueLabel = (string) $this->facetValueLabel($facetField, $facetValueValue,$options);
             if (strlen($facetValueLabel)) {
                 if (isset($query['facet'][$facetField]) && array_search($facetValueValue, $query['facet'][$facetField]) !== false) {
                     $values = $query['facet'][$facetField];
@@ -152,12 +153,14 @@ class AbstractFacet extends AbstractHelper
      *
      * @todo Remove search of facet labels: use values from the response.
      */
-    protected function facetValueLabel(string $facetField, string $value): ?string
+    protected function facetValueLabel(string $facetField, string $value, array $options): ?string
     {
         if (!strlen($value)) {
             return null;
         }
 
+        $lang = $options['languages'][0];
+        
         switch ($facetField) {
             case 'resource_name':
             case 'resource_type':
@@ -262,10 +265,17 @@ class AbstractFacet extends AbstractHelper
                 if ($this->siteId) {
                     $data['site_id'] = $this->siteId;
                 }
+                //echo $this->route;
                 /** @var \Omeka\Api\Representation\ItemSetRepresentation $resource */
                 $resource = $this->api->searchOne('item_sets', $data)->getContent();
+                if($resource->value('dcterms:title', array('lang' => $lang))){
+                    $label = $resource->value('dcterms:title', array('lang' => $lang));
+                }else{
+                    $label = $resource->value('dcterms:title');
+                }
+               
                 return $resource
-                    ? (string) $resource->displayTitle()
+                    ? (string) $label
                     // Manage the case where a resource was indexed but removed.
                     // In public side, the item set should belong to a site too.
                     : null;

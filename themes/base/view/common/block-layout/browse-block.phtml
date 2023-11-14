@@ -1,6 +1,6 @@
 <?php
 $translate = $this->plugin('translate');
-
+$lang = $block->page()->site()->slug();
 ?>
 <div class="section browse-block">
   <div class="container">
@@ -16,11 +16,12 @@ $translate = $this->plugin('translate');
       $bodyTerm = $this->siteSetting('browse_body_property_term', 'dcterms:description');
 
       foreach ($this->resources as $resource):
-          $heading = $resource->value($headingTerm, ['default' => $translate('[Untitled]')]);
+          $heading = $resource->value('dcterms:title', array('lang' => $lang));
           $body = $resource->value('dcterms:description');
-          if($resourceType == 'item-set'):
+          $body = $resource->value('dcterms:description', array('lang' => $lang));
+          if(!$body){
             $body = $resource->value('dcterms:description');
-          endif;
+          }
           $type = $resource->resourceTemplate();
           if($type):
             $type= $type->label();
@@ -74,7 +75,7 @@ $translate = $this->plugin('translate');
               </div>
               <header class="card-header">
                 <p class="card-header-title title is-5 is-family-secondary">
-                    <span><?php echo $resource->value('dcterms:title');?></span>
+                    <span><?php echo $resource->value('dcterms:title', array('lang' => $lang));?></span>
                 </p>
               </header>
               <div class="card-content">

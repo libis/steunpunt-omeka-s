@@ -102,7 +102,7 @@ class SearchBlock extends AbstractBlockLayout
     public function render(PhpRenderer $view, SitePageBlockRepresentation $block)
     {
       $lang = $block->page()->site()->slug();  
-      $filters = array("languages" => $lang);
+      $filters = array("languages" => $lang.',null');
       $item = $view->api()->searchOne('items', array('item_set_id' => '19','sort_by' => 'created', 'sort_order' => 'desc'))->getContent();
 
       $references = $block->page()->site()->getServiceLocator()->get('ControllerPluginManager')->get('references');

@@ -895,6 +895,8 @@ SQL;
                 'output' => 'associative',
             ];
 
+            //var_dump($options);
+
             // TODO Make References manages individual options for each field (limit, order, languages, range).
             $values = $references
                 ->setMetadata($fields)

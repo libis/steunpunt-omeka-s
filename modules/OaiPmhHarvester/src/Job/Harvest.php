@@ -44,6 +44,7 @@ class Harvest extends AbstractJob
 
     protected $dcProperties;
     protected $dwcProperties;
+    protected $abcdProperties;
 
     public function perform()
     {
@@ -62,10 +63,17 @@ class Harvest extends AbstractJob
             // Set dwc Properties for mapping
             $elements = [];
             $dwcProperties = $this->api->search('properties', ['vocabulary_id' => 6], ['responseContent' => 'resource'])->getContent();
+            $abcdProperties = $this->api->search('properties', ['vocabulary_id' => 9], ['responseContent' => 'resource'])->getContent();
+            
             foreach ($dwcProperties as $property) {
                 $elements[$property->getId()] = $property->getLocalName();
             }
             $this->dwcProperties = $elements;
+
+            foreach ($abcdProperties as $property) {
+                $elements[$property->getId()] = $property->getLocalName();
+            }
+            $this->abcdProperties = $elements;
         endif;
         
         
@@ -636,6 +644,20 @@ class Harvest extends AbstractJob
             }
         }
 
+        //abcd
+        $abcdMetadata = $record
+            ->metadata
+            ->children('oai_dwc',true)
+            ->children('abcd',true);       
+
+        foreach ($this->abcdProperties as $propertyId => $localName) {
+            $this->logger->info($localName);
+            if (isset($abcdMetadata->$localName)) {
+                $this->logger->info($localName);
+                $elementTexts["abcd:$localName"] = $this->extractValues($abcdMetadata, $propertyId,"abcd");                            
+            }
+        }
+
         $dcMetadata = $record
             ->metadata
             ->children('oai_dwc',true)
@@ -644,7 +666,7 @@ class Harvest extends AbstractJob
         foreach ($this->dcProperties as $propertyId => $localName) {
             //$this->logger->info($localName);
             if (isset($dcMetadata->$localName)) {
-                $this->logger->info($localName);
+                //$this->logger->info($localName);
                 $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
 
                 //add media if Beeld or Collectie                
@@ -718,6 +740,8 @@ class Harvest extends AbstractJob
             $localName = $this->dcProperties[$propertyId];
         elseif($voc == "dwc"):
             $localName = $this->dwcProperties[$propertyId];
+        elseif($voc == "abcd"):
+            $localName = $this->abcdProperties[$propertyId];
         endif;    
         foreach ($metadata->$localName as $value) {
             $texts = trim($value);
@@ -729,6 +753,17 @@ class Harvest extends AbstractJob
 
             if($localName == 'dateAccepted'):
                 $texts = explode(" (",$texts);
+                if($texts[0] == "19de eeuw (eerste kwart)"):
+                    $texts[0] =  "19de eeuw";
+                elseif($texts[0] == "20ste eeuw (Interbellum)" || $texts[0] == "vanaf 1975"):    
+                    $texts[0] =  "20ste eeuw";
+                endif;    
+
+                if($texts[0] == "19th century (first quarter)"):
+                    $texts[0] =  "19th century";
+                elseif($texts[0] == "20th century (Interbellum)" || $texts[0] == "from 1975"):    
+                    $texts[0] =  "20th century";
+                endif;    
                 $texts = $texts[0];
             endif;
 

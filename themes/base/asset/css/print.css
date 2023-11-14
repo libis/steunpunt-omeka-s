@@ -1,5 +1,34 @@
-#user-bar,.hero-head, .logo-column, .search-menu, .burger-menu, .breadcrumb-section, .slider-nav{
+#user-bar,.hero-head, .logo-column, .search-menu, .burger-menu, .breadcrumb-section, .slider-nav, .print-button{
     display: none;
+}
+
+.slick-slide, .slick-track {
+    width:100% !important;
+    height:400px !important;    
+}
+
+.slick-slide img{
+    margin: auto auto;
+    max-height: none !important;
+    max-height:400px !important;    
+    max-width: 100% !important;
+    padding-bottom: 10px;
+}
+
+figcaption{
+    text-align: center;
+    margin: 0 auto;
+    width:400px;    
+    padding-bottom: 20px;
+    font-size: 12pt;
+}
+
+.button.is-primary{
+    display:none;
+}
+
+.column, .columns, .container, .section, #print-id{
+    font-size:13pt;
 }
 
 .has-text-centered{
@@ -10,9 +39,27 @@
     margin-bottom: 4rem;;
 }
 
+/* Wichtige Elemente definieren */    
+p, address, li, dt, dd, blockquote {
+    font-size: 100%
+    }
+    
+    /* Zeichensatz fuer Code Beispiele */
+    code, pre { font-family: "Courier New", Courier, mono}
+    
+    ul, ol {
+    list-style: square; margin-left: 18pt;
+    margin-bottom: 20pt;    
+    }
+    
+    li {
+    line-height: 1.6em;
+    }    
+
 footer{
-    background: #ccc;
+    background-color: #ccc;
     padding:1rem;
+    display: none;
 }
 
 footer img{
@@ -44,11 +91,25 @@ body {
 
 p{
     font: 13pt 'Manrope', sans-serif;
+    font-size: 100%;
+}
+
+.column h4{
+    font-size: 16pt !important;
+}
+.value, .text-box div, button span {
+    font-size: 14pt !important;
 }
 
 .hero h1{
-    font-size: 25pt;
+    font-size: 35pt;
     margin-bottom:0.5rem;
+}
+.hero h2{
+    font-size: 25pt;
+}
+.is-2{
+    font-size: 20pt;
 }
 
 .hero h2{

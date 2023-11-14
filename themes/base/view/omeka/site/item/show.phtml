@@ -33,17 +33,26 @@ endif;
             <li><a href="<?php echo $site->url();?>/objecten"><?php echo $translate("Objecten");?></a></li>  
           <?php endif;?>  
         <?php endif;?>
-        <li><?php echo $item->displayTitle(); ?></li>
+        <?php if($type == 'Nieuws'):?>
+          <li><?php echo $item->value('dcterms:title'); ?></li>  
+        <?php else:?>  
+          <li><?php echo $item->value('dcterms:title', array('lang' => $lang)); ?></li>    
+        <?php endif;?>
       </ul>
     </nav>
   </div>
 </section>
 <section class="section">
   <div class="container">
-    <h1 class="title is-2 is-family-secondary"><?php echo $item->displayTitle(); ?></h1>
+    <?php 
+      $title = preg_replace('/\(([^\]]+)\)/', '<span style="font-style:italic;">($1)</span>', $item->value('dcterms:title', array('lang' => $lang)));
+    ?>
     <?php if($type == 'Nieuws'):?>
-      <!--<h2 class="subtitle is-6"><?php echo date('d-m-Y',strtotime($item->value('dcterms:date'))); ?></h2>-->
-    <?php endif;?>
+      <h1 class="title is-2 is-family-secondary"><?php echo $item->value('dcterms:title'); ?></h1>    
+    <?php else:?>  
+      <h1 class="title is-2 is-family-secondary"><?php echo $title; ?></h1>    
+    <?php endif;?>  
+    
   </div>
 </section>
 
@@ -218,12 +227,12 @@ endif;
            <?php $itemSets = $item->itemSets(); ?>
            <?php if (count($itemSets) > 0): ?>
              <div class="columns">
-               <div class="column is-3" style="padding-top:0.3rem;padding-bottom:0.3rem;">
-                 <h4 class="title is-6" style="font-size:0.9rem;"><?php echo $translate("Collectie");?></h4>
+               <div class="column is-4" style="padding-top:0.3rem;padding-bottom:0.3rem;">
+                 <h4 class="title is-7" style="font-size:0.9rem;"><?php echo $translate("Collectie");?></h4>
                </div>
                <div class="column" style="padding-top:0.3rem;padding-bottom:0.3rem;">
                  <?php foreach ($itemSets as $itemSet): ?>
-                 <div class="value" style="font-size:0.9rem;"><a href="<?php echo $escape($itemSet->url()); ?>"><?php echo $itemSet->displayTitle(); ?></a></div>
+                 <div class="value" style="font-size:0.9rem;"><a href="<?php echo $escape($itemSet->url()); ?>"><?php echo $itemSet->value('dcterms:title', array('lang' => $lang)); ?></a></div>
                  <?php endforeach; ?>
                </div>
              </div>
@@ -246,7 +255,7 @@ endif;
               <span>https://blendeff.be/<?php echo $lang;?>/item/<?php echo $item->value('dcterms:identifier');?></span>
               </a>
 
-              <button class="button is-small is-text is-outlined" onclick="window.print();" alt="print">
+              <button class="button is-small is-text is-outlined print-button" onclick="window.print();" alt="print">
               <span class="icon">
                   <i class="fa fa-print"></i>
               </span>

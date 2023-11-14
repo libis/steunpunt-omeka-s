@@ -69,7 +69,7 @@ class AbstractFacetElement extends AbstractFacet
             $query = $queryBase;
 
             // The facet value is compared against a string (the query args).
-            $facetValueLabel = (string) $this->facetValueLabel($facetField, $facetValue);
+            $facetValueLabel = (string) $this->facetValueLabel($facetField, $facetValue,$options);
             if (strlen($facetValueLabel)) {
                 if (isset($query['facet'][$facetField]) && array_search($facetValue, $query['facet'][$facetField]) !== false) {
                     // Facet range is managed differently: the first facet is "from", the second is "to".

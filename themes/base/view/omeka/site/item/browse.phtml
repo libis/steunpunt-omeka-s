@@ -110,17 +110,7 @@ $sortHeadings = [
 
     <?php if(sizeof($items) > 0):?>
       <?php if (!$itemSetShow): ?>
-      <!--<div class="level" style="margin:10px 0 20px 0;">
-        <div class="level-left">
-
-        </div>
-        <div class="level-right">
-          <div class="level-item">
-            <?php echo $this->sortSelector($sortHeadings); ?>
-          </div>
-
-         </div>
-      </div>-->
+      
       <?php endif;?>  
       <?php $this->trigger('view.browse.before'); ?>
       <div class="columns is-multiline">
@@ -132,7 +122,7 @@ $sortHeadings = [
             if ($itemSetShow && $i==6):
               continue;
             endif;  
-            $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]')]) : $item->value('dcterms:title', array('lang' => $lang));
+            $heading = $item->value('dcterms:title', array('lang' => $lang));
             $body = $item->value('dcterms:description', array("lang" => $lang));
             $media = $item->media();
             if($media):
@@ -185,7 +175,7 @@ $sortHeadings = [
                 <div class="browse-text" style="padding:1.5rem">
                   <a class="card-link-wrapper" href="<?php echo $item->url();?>">
                   <h3 class="title is-5 is-family-secondary">
-                      <span><?php echo $heading;?></span>
+                      <span><?php echo $item->value('dcterms:title'); ?></span>
                   </h3>
                   <div class="content">
                     <?php $date =  $item->value('dcterms:date');?>

@@ -31,7 +31,7 @@ $lang = $URI[2];
     </div>
   <?php endif; ?>
   <div class="columns ">
-    <div class="column is-3" style="padding-top:0.3rem;padding-bottom:0.3rem;">
+    <div class="column is-4" style="padding-top:0.3rem;padding-bottom:0.3rem;">
       <h4 class="title is-6" style="font-size:0.9rem;">
       <?php if ($propertyData['alternate_label']): ?>
       <?php echo $escape($translate($propertyData['alternate_label'])); ?>
@@ -236,7 +236,19 @@ $lang = $URI[2];
                 <?php elseif($propertyData['alternate_label'] == 'Wetenschappelijke naam'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
                     <?php $text = explode('$$',$value->asHtml());?>
-                    <?php echo $text[0];?>
+                    <?php 
+                    if(str_contains($text[0],"(")):
+                      $name = explode("(",$text[0]);
+                      $name[0] = "<span style='font-style:italic'>".$name[0]."</span>";
+                      $name = implode("(",$name);
+                    else:  
+                      $name = explode(",",$text[0]);
+                      $name[0] = "<span style='font-style:italic'>".$name[0]."</span>";
+                      $name = implode(",",$name);
+                    endif;  
+                    echo '<a href="'.$search_url.'?q='.strip_tags($name).'">'.$name.'</a>';
+                    ?>
+
                     <?php $text[1] = html_entity_decode($text[1]); ?>
                     <a target="_blank" href="<?php echo strip_tags($text[1]); ?>"><i class="fas fa-info-circle"></i></a>
                   <?php else:?>
@@ -258,7 +270,12 @@ $lang = $URI[2];
                   <?php else:?>
                     <a href="<?php echo $search_url.'?q=&facet[dcterms:alternative][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>                  
                   <?php endif;?>       
-
+                <?php elseif($propertyData['alternate_label'] == 'Verwervingsbron'):?>
+                  <?php $bron = explode("$$",$value->asHtml());?>
+                  <a href="<?php echo $search_url.'?q='.$bron[0]; ?>"><?php echo $bron[0]; ?></a>                  
+                  <?php if(!empty($bron[1])):?>
+                    <a target="_blank" href="<?php echo $bron[1]; ?>"><i class="fas fa-info-circle"></i></a>                 
+                  <?php endif;?>  
                 <?php elseif($propertyData['alternate_label'] == 'Gerelateerde objecten'):?>
                   <?php 
                   $objecten = $value->asHtml();
@@ -270,7 +287,7 @@ $lang = $URI[2];
                     $rel = $items = $this->api()->searchOne('items',$query);
                     $rel = $rel->getContent();
                     if($rel):
-                      $rel_arr[$rel->displayTitle().rand()] = '<div><a href="'.$rel->url().'">'.$rel->displayTitle().'</a></div>';
+                      $rel_arr[$rel->value('dcterms:title',array("lang" => $lang)).rand()] = '<div><a href="'.$rel->url().'">'.$rel->value('dcterms:title',array("lang" => $lang)).'</a></div>';
                     endif;
                   endforeach;
                   ksort($rel_arr);

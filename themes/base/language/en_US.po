@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-09-05 00:00+0000\n"
-"PO-Revision-Date: 2023-08-03 11:46+0200\n"
+"PO-Revision-Date: 2024-02-23 15:00+0100\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -142,3 +142,39 @@ msgstr "Search a collection"
 
 msgid "Collecties"
 msgstr "Collections"
+
+msgid "Aantal objecten"
+msgstr "Number of objects"
+
+msgid "Aantal individuen"
+msgstr "Number of individuals"
+
+msgid "Preparatie-/bewaarmethode"
+msgstr "Preparation type"
+
+msgid "Levenscyclus"
+msgstr "Life stage"
+
+msgid "Verwervingsbron"
+msgstr "Acquisition source"
+
+msgid "Wetenschappelijke naam"
+msgstr "Scientific name"
+
+msgid "Volksnaam"
+msgstr "Vernacular name"
+
+msgid "Land"
+msgstr "Country"
+
+msgid "Verzamelaar"
+msgstr "Collector"
+
+msgid "Geslacht"
+msgstr "Sex"
+
+msgid "Onderdeel van het organisme"
+msgstr "Part of organism"
+
+msgid "Locatie"
+msgstr "Locality"

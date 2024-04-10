@@ -224,7 +224,31 @@ $lang = $URI[2];
                       ?>
                     <?php else:?>
                     <?php echo  strip_tags($value); ?>
-                    <?php endif;?>           
+                    <?php endif;?>      
+                    
+                <?php elseif($propertyData['alternate_label'] == 'Verzamelaar'):?>
+                  <?php 
+                    $text = explode("$$",$value->asHtml());
+                    echo '<a href="/s/nl/objecten?q=&filter[0][join]=and&filter[0][field]=abcd:fullName&filter[0][type]=in&filter[0][value]='.$text[0].'">'.$text[0].'</a>';
+                  ?>      
+                <?php elseif($propertyData['alternate_label'] == 'Locatie'):?>
+                  <?php echo $value->asHtml();?>
+                  <?php if(isset($values['dwc:municipality']['values'])):?>                                         
+                      <?php                       
+                      $text = $values['dwc:municipality']['values'][0];
+                      //check if municipality contains a url
+                      if(str_contains($text,"http")):?>
+                        <a target="_blank" href="<?= $text ?>"><i class="fas fa-info-circle"></i></a>
+                      <?php else:  
+                        //no url? check for geonames id in brackets
+                        preg_match_all("/\\[(.*?)\\]/", $text, $matches); 
+                        $id = $matches[1][1];
+                        $id = explode("id:",$id);
+                        $id = $id[1];?>                    
+                        <a target="_blank" href="<?php echo 'https://www.geonames.org/'. $id; ?>"><i class="fas fa-info-circle"></i></a>
+                      <?php endif;?>
+                  <?php endif;?>  
+                               
                 <?php elseif($propertyData['alternate_label'] == 'Onderwerp: wat'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
                     <?php $text = explode('$$',$value->asHtml());?>
@@ -235,22 +259,27 @@ $lang = $URI[2];
                   <?php endif;?>    
                 <?php elseif($propertyData['alternate_label'] == 'Wetenschappelijke naam'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
-                    <?php $text = explode('$$',$value->asHtml());?>
-                    <?php 
+                    <?php $text = explode('$$',$value.'');?>
+                    <?php                    
+                    $text[0] = str_replace("((","(",$text[0]);
+                    $text[0] = str_replace("))",")",$text[0]);
+                    $text[0] = str_replace("()","",$text[0]);
                     if(str_contains($text[0],"(")):
                       $name = explode("(",$text[0]);
                       $name[0] = "<span style='font-style:italic'>".$name[0]."</span>";
-                      $name = implode("(",$name);
+                      $only_name = $name[0];
                     else:  
                       $name = explode(",",$text[0]);
                       $name[0] = "<span style='font-style:italic'>".$name[0]."</span>";
-                      $name = implode(",",$name);
+                      $only_name = $name[0];
                     endif;  
-                    echo '<a href="'.$search_url.'?q='.strip_tags($name).'">'.$name.'</a>';
+                    
+                    echo '<a href="'.$search_url.'?q=&filter[0][join]=and&filter[0][field]=dwc:scientificName&filter[0][type]=in&filter[0][value]='.strip_tags($only_name).'">'.$text[0].'</a>';
                     ?>
-
-                    <?php $text[1] = html_entity_decode($text[1]); ?>
-                    <a target="_blank" href="<?php echo strip_tags($text[1]); ?>"><i class="fas fa-info-circle"></i></a>
+                    <?php if($text[1]):?>
+                      <?php $text[1] = html_entity_decode($text[1]); ?>
+                      <a target="_blank" href="<?php echo strip_tags($text[1]); ?>"><i class="fas fa-info-circle"></i></a>
+                    <?php endif;?>
                   <?php else:?>
                     <?php echo $value->asHtml(); ?>
                   <?php endif;?>           
@@ -270,9 +299,9 @@ $lang = $URI[2];
                   <?php else:?>
                     <a href="<?php echo $search_url.'?q=&facet[dcterms:alternative][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>                  
                   <?php endif;?>       
-                <?php elseif($propertyData['alternate_label'] == 'Verwervingsbron'):?>
+                <?php elseif($propertyData['alternate_label'] == 'Verwervingsbron'):?>                
                   <?php $bron = explode("$$",$value->asHtml());?>
-                  <a href="<?php echo $search_url.'?q='.$bron[0]; ?>"><?php echo $bron[0]; ?></a>                  
+                  <a href="<?php echo $search_url.'?q=&filter[0][join]=and&filter[0][field]=abcd:acquisitionSourceText&filter[0][type]=in&filter[0][value]='.$bron[0]; ?>"><?php echo $bron[0]; ?></a>                  
                   <?php if(!empty($bron[1])):?>
                     <a target="_blank" href="<?php echo $bron[1]; ?>"><i class="fas fa-info-circle"></i></a>                 
                   <?php endif;?>  
@@ -295,24 +324,28 @@ $lang = $URI[2];
                     echo $value;
                   endforeach;  
                   ?>  
-                <?php elseif($propertyData['alternate_label'] == 'Vervaardiger'):?>
-                  
-                  <?php if(strpos($value->asHtml(), '$$') !== false):?>
-                    <?php $text = explode('$$',$value->asHtml());?>
+                <?php elseif($propertyData['alternate_label'] == 'Vervaardiger'):?>                  
+                  <?php if(strpos($value->asHtml(), '$$') !== false):?>                   
                     <?php 
-                    $cre_r = array();$medval = "";
-                    foreach($values['dcterms:creator']['values'] as $cre):
-                      if(str_contains($text[0],$cre->asHtml())):
-                      $medval = $cre->asHtml();
-                      endif;
-                    endforeach;?>
-                    <?php if($medval):?>                    
-                      <a href="<?php echo $search_url.'?q=&facet[dcterms:creator][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
-                      <?php if(sizeof($text) == 3):?>
-                        <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
-                      <?php elseif(sizeof($text) == 2  && $text[1]):?>
-                        <a target="_blank" href="<?php echo $text[1]; ?>"><i class="fas fa-info-circle"></i></a>
+                    $text = explode('$$',$value->asHtml());
+                    if($text[1]):
+                      $cre_r = array();$medval = "";
+                      foreach($values['dcterms:creator']['values'] as $cre):
+                        if(str_contains($text[0],$cre->asHtml())):
+                        $medval = $cre->asHtml();
+                        endif;
+                      endforeach;
+                      ?>
+                      <?php if($medval):?>                    
+                        <a href="<?php echo $search_url.'?q=&facet[dcterms:creator][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
+                        <?php if(sizeof($text) == 3):?>
+                          <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
+                        <?php elseif(sizeof($text) == 2  && $text[1]):?>
+                          <a target="_blank" href="<?php echo $text[1]; ?>"><i class="fas fa-info-circle"></i></a>
+                        <?php endif;?>  
                       <?php endif;?>  
+                    <?php else:?>
+                      <?php echo $text[0]; ?>
                     <?php endif;?>  
                   <?php else:?>
                     <?php echo $value->asHtml(); ?>

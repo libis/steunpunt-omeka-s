@@ -98,16 +98,7 @@
             <li class="search-facet">
                 <h4 style="font-weight:bold;"><?= $translate($facetLabel($name)) ?></h4>
                 
-                <?php 
-                if($facetLabel($name) == "Collection" || $facetLabel($name) == "Collectie"):
-                    $sort_r = [];
-                    foreach ($facetValues as $k=>$facetValue):
-                        //var_dump($facetValue['count']);
-                        $sort_r[$facetValue['count']] = $facetValue;        
-                    endforeach;
-                    krsort($sort_r);
-                    $facetValues = $sort_r;
-                endif;?>      
+                     
 
                 <?php if ($facetType === 'Select'): ?>
                 <?= $facetSelect($name, $facetValues, $options) ?>

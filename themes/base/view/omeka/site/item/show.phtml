@@ -46,9 +46,15 @@ endif;
   <div class="container">
     <?php 
       $title = preg_replace('/\(([^\]]+)\)/', '<span style="font-style:italic;">($1)</span>', $item->value('dcterms:title', array('lang' => $lang)));
+      $id =  $item->value('dcterms:identifier');    
+      if(str_contains($id,"PAL")):
+        $title = '<span style="font-style:italic;">'.$title.'</span>';
+      endif;  
     ?>
     <?php if($type == 'Nieuws'):?>
       <h1 class="title is-2 is-family-secondary"><?php echo $item->value('dcterms:title'); ?></h1>    
+    <?php elseif($type != 'Object Biologie'):?>  
+      <h1 class="title is-2 is-family-secondary"><?php echo $item->value('dcterms:title', array('lang' => $lang)); ?></h1>    
     <?php else:?>  
       <h1 class="title is-2 is-family-secondary"><?php echo $title; ?></h1>    
     <?php endif;?>  
@@ -63,6 +69,7 @@ endif;
       $relation = $relations[0];
       if(strpos($relation->asHtml(),'resolver') !== false):
         $viewerlink = $relation->asHtml();
+        $viewerlink = str_replace('stream','representation',$viewerlink);
         // Set the configuration parameters
         $config = [
           'adapter'      => Client\Adapter\Socket::class,

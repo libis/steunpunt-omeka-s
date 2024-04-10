@@ -87,15 +87,27 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
                       ]);
                     ?>
                   </div>
-                  <!--<div class="navbar-item">
+                  <div class="navbar-item">
                     <div style="color:#fff;">
+                      <?php $currenturl =  "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";?>
                       <?php if($site->slug() == "nl"):?>
-                        NL&nbsp;|&nbsp;<a style="font-weight:bold" href="https://blendeff.be/s/en">EN</a>
+                        <?php 
+                        $currenturl = str_replace("objecten","objects",$currenturl);
+                        $currenturl = str_replace("/nl","/en",$currenturl);
+                        if($currenturl == "https://blendeff.be/"):
+                          $currenturl = "https://blendeff.be/s/en";
+                        endif;  
+                        ?>
+                        NL&nbsp;|&nbsp;<a style="font-weight:bold" href="<?php echo $currenturl;?>">EN</a>
                       <?php else:?>
-                        <a style="font-weight:bold" href="https://blendeff.be/s/nl">NL</a>&nbsp;|&nbsp;EN
+                        <?php 
+                        $currenturl = str_replace("objects","objecten",$currenturl);
+                        $currenturl = str_replace("/en","/nl",$currenturl);
+                        ?>
+                        <a style="font-weight:bold" href="<?php echo $currenturl;?>">NL</a>&nbsp;|&nbsp;EN
                       <?php endif;?>  
                     </div>  
-                  </div>-->
+                  </div>
                   <div class="navbar-item">
                      <button class="button is-primary" id="showSearch">
                         <span class="icon is-small">

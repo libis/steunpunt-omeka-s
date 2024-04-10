@@ -13,12 +13,25 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 $displayCount = !empty($options['display_count']);
 ?>
 
+<?php 
+   
+    if($name == "item_set_id"):
+        $sort_r = [];
+        foreach ($facetValues as $k=>$facetValue):            
+            $sort_r[$facetValue['label']] = $facetValue;        
+        endforeach;
+        ksort($sort_r);
+        $facetValues = $sort_r;
+    endif;
+?> 
+
 <ul class="search-facet-items">
 <?php if(sizeof($facetValues) > 10):?>
                     <input class="form-control txtSearch" type="text" placeholder="filter">
                 <?php endif;?>
     <?php foreach ($facetValues as $facetValue): ?>
     <li class="search-facet-item <?= $facetValue['active'] ? 'active' : 'inactive' ?>">
+    
         <a href="<?= $escapeAttr($facetValue['url']) ?>"><?= $escape($facetValue['label']) ?></a>
         <?php if ($displayCount): ?>
         (<span class="count"><?= $facetValue['count'] ?></span>)

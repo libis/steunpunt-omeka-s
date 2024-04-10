@@ -75,7 +75,11 @@ $lang = $block->page()->site()->slug();
               </div>
               <header class="card-header">
                 <p class="card-header-title title is-5 is-family-secondary">
-                    <span><?php echo $resource->value('dcterms:title', array('lang' => $lang));?></span>
+                    <?php if($resource->value('dcterms:title', array('lang' => $lang))):?>
+                       <span><?php echo $resource->value('dcterms:title', array('lang' => $lang));?></span>
+                    <?php else:?>
+                      <span><?php echo $resource->value('dcterms:title')?></span>
+                    <?php endif;?>
                 </p>
               </header>
               <div class="card-content">
@@ -95,11 +99,6 @@ $lang = $block->page()->site()->slug();
                   <?php endif; ?>
                 </div>
               </div>
-              <!--<footer class="card-footer">
-                <a class="button is-primary" href="<?php echo $resource->url();?>">
-                  Lees meer
-                </a>
-              </footer>-->
             </a>
         </div>
       </div>

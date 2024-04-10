@@ -4,13 +4,13 @@
 
 .slick-slide, .slick-track {
     width:100% !important;
-    height:400px !important;    
+    height:350px !important;    
 }
 
 .slick-slide img{
     margin: auto auto;
     max-height: none !important;
-    max-height:400px !important;    
+    max-height:350px !important;    
     max-width: 100% !important;
     padding-bottom: 10px;
 }
@@ -20,7 +20,7 @@ figcaption{
     margin: 0 auto;
     width:400px;    
     padding-bottom: 20px;
-    font-size: 12pt;
+    font-size: 10pt;
 }
 
 .button.is-primary{
@@ -28,7 +28,7 @@ figcaption{
 }
 
 .column, .columns, .container, .section, #print-id{
-    font-size:13pt;
+    font-size:11pt;
 }
 
 .has-text-centered{
@@ -90,30 +90,27 @@ body {
 }
 
 p{
-    font: 13pt 'Manrope', sans-serif;
+    font: 11pt 'Manrope', sans-serif;
     font-size: 100%;
 }
 
 .column h4{
-    font-size: 16pt !important;
+    font-size: 12pt !important;
 }
 .value, .text-box div, button span {
-    font-size: 14pt !important;
+    font-size: 12pt !important;
 }
 
 .hero h1{
-    font-size: 35pt;
+    font-size: 25pt;
     margin-bottom:0.5rem;
 }
-.hero h2{
-    font-size: 25pt;
-}
 .is-2{
-    font-size: 20pt;
+    font-size: 15pt;
 }
 
 .hero h2{
-    font-size: 13pt;
+    font-size: 12pt;
 }
 
 h4{

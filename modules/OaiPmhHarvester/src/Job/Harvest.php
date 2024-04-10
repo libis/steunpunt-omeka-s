@@ -45,6 +45,7 @@ class Harvest extends AbstractJob
     protected $dcProperties;
     protected $dwcProperties;
     protected $abcdProperties;
+    protected $efgProperties;
 
     public function perform()
     {
@@ -64,7 +65,8 @@ class Harvest extends AbstractJob
             $elements = [];
             $dwcProperties = $this->api->search('properties', ['vocabulary_id' => 6], ['responseContent' => 'resource'])->getContent();
             $abcdProperties = $this->api->search('properties', ['vocabulary_id' => 9], ['responseContent' => 'resource'])->getContent();
-            
+            $efgProperties = $this->api->search('properties', ['vocabulary_id' => 18], ['responseContent' => 'resource'])->getContent();
+           
             foreach ($dwcProperties as $property) {
                 $elements[$property->getId()] = $property->getLocalName();
             }
@@ -74,6 +76,11 @@ class Harvest extends AbstractJob
                 $elements[$property->getId()] = $property->getLocalName();
             }
             $this->abcdProperties = $elements;
+
+            foreach ($efgProperties as $property) {
+                $elements[$property->getId()] = $property->getLocalName();
+            }
+            $this->efgProperties = $elements;
         endif;
         
         
@@ -132,6 +139,9 @@ class Harvest extends AbstractJob
             case 'oai_dwc':
                 $method = '_dwcToJson';
                 break;    
+            case 'oai_abcd':
+                $method = '_abcdToJson';
+                break;        
             default:
                 $this->logger->err(sprintf(
                     'The format "%s" is not managed by the module currently.',
@@ -222,9 +232,12 @@ class Harvest extends AbstractJob
                 if($args['endpoint'] == 'https://adlib.icts.kuleuven.be/webapi/oai.ashx' || $args['endpoint'] == 'https://kup-apw.adlibhosting.com/axiellweboai/oai.ashx'):
                     $importid = $pre_record['dcterms:identifier'][0]['@value'];
                     $id_exists = $this->itemExists($pre_record, $pre_record['dcterms:identifier'][0]['@value'],$args['resource_type'],'adlib');
-                elseif(str_contains($args['endpoint'],"dwc")):
+                elseif(str_contains($args['endpoint'],"bio")):
                     $importid = $pre_record['dwc:catalogNumber'][0]['@value'];
                     $id_exists = $this->itemExists($pre_record, $pre_record['dwc:catalogNumber'][0]['@value'],$args['resource_type'],'dwc');
+                elseif(str_contains($args['endpoint'],"aard")):
+                        $importid = $pre_record['abcd:id'][0]['@value'];
+                        $id_exists = $this->itemExists($pre_record, $pre_record['abcd:id'][0]['@value'],$args['resource_type'],'aard');
                 else:   
                     $importid = $pre_record['dcterms:isVersionOf'][0]['@value'];
                     $id_exists = $this->itemExists($pre_record, $pre_record['dcterms:isVersionOf'][0]['@value'],$args['resource_type']);
@@ -300,6 +313,13 @@ class Harvest extends AbstractJob
             'type' => 'eq',
             'joiner' => 'and'
             );    
+        elseif($endpoint == 'aard'):
+            $query['property'][0] = array(
+            'property' => 1986,
+            'text' => $id_version,
+            'type' => 'eq',
+            'joiner' => 'and'
+            );        
         else:
             $query['property'][0] = array(
             'property' => 27,
@@ -623,7 +643,6 @@ class Harvest extends AbstractJob
         foreach ($this->dwcProperties as $propertyId => $localName) {
             //$this->logger->info($localName);
             if (isset($dwcMetadata->$localName)) {
-                $this->logger->info($localName);
                 $elementTexts["dwc:$localName"] = $this->extractValues($dwcMetadata, $propertyId,"dwc");
                  //looks for matching item set
                 if($localName == 'collectionCode' && $args['resource_type'] == 'items'){
@@ -639,8 +658,7 @@ class Harvest extends AbstractJob
                     foreach ($dwcMetadata->$localName as $idno) {
                         $idnos[] = $idno;
                     }
-                endif;  
-               
+                endif;              
             }
         }
 
@@ -651,10 +669,26 @@ class Harvest extends AbstractJob
             ->children('abcd',true);       
 
         foreach ($this->abcdProperties as $propertyId => $localName) {
-            $this->logger->info($localName);
             if (isset($abcdMetadata->$localName)) {
-                $this->logger->info($localName);
                 $elementTexts["abcd:$localName"] = $this->extractValues($abcdMetadata, $propertyId,"abcd");                            
+            }
+
+            if($localName == 'id'):
+                foreach ($dwcMetadata->$localName as $idno) {
+                    $idnos[] = $idno;
+                }
+            endif;  
+        }
+
+        //efg
+        $efgMetadata = $record
+            ->metadata
+            ->children('oai_dwc',true)
+            ->children('efg',true);       
+
+        foreach ($this->efgProperties as $propertyId => $localName) {
+            if (isset($efgMetadata->$localName)) {
+                $elementTexts["efg:$localName"] = $this->extractValues($efgMetadata, $propertyId,"efg");                            
             }
         }
 
@@ -724,7 +758,139 @@ class Harvest extends AbstractJob
             $meta['dcterms:identifier'][] = [
                 'property_id' => 10,
                 'type' => 'literal',
-                'is_public' => false,
+                'is_public' => true,
+                '@value' => $idno.'',
+                '@language' => ''
+            ];
+        }
+
+        return $meta;
+    }
+
+    private function _abcdToJson(SimpleXMLElement $record, $itemSetId, $args)
+    {
+        //dwc
+        $dwcMetadata = $record
+            ->metadata
+            ->children('oai_abcd',true)
+            ->children('dwc',true);
+
+        $elementTexts = [];
+        $itemSetIds= [];
+
+        foreach ($this->dwcProperties as $propertyId => $localName) {
+            //$this->logger->info($localName);
+            if (isset($dwcMetadata->$localName)) {
+                $elementTexts["dwc:$localName"] = $this->extractValues($dwcMetadata, $propertyId,"dwc");                   
+            }
+        }
+
+        //abcd
+        $abcdMetadata = $record
+            ->metadata
+            ->children('oai_abcd',true)
+            ->children('abcd',true);       
+
+        foreach ($this->abcdProperties as $propertyId => $localName) {
+            if (isset($abcdMetadata->$localName)) {
+                $elementTexts["abcd:$localName"] = $this->extractValues($abcdMetadata, $propertyId,"abcd");                            
+            }
+
+              //looks for matching item set
+              if($localName == 'sourceID' && $args['resource_type'] == 'items'){
+                foreach ($abcdMetadata->$localName as $collection_id) {
+                  if($setID = $this->collectionExistsKP($collection_id)):
+                    $itemSetIds[$setID] = $setID;
+                  endif;
+                }
+            }    
+
+            if($localName == 'id'):
+                foreach ($abcdMetadata->$localName as $idno) {
+                    $idnos[] = $idno;
+                }
+            endif;  
+        }
+
+        //efg
+        $efgMetadata = $record
+            ->metadata
+            ->children('oai_abcd',true)
+            ->children('efg',true);       
+
+        foreach ($this->efgProperties as $propertyId => $localName) {
+            if (isset($efgMetadata->$localName)) {
+                $elementTexts["efg:$localName"] = $this->extractValues($efgMetadata, $propertyId,"efg");                            
+            }
+        }
+
+        $dcMetadata = $record
+            ->metadata
+            ->children('oai_abcd',true)
+            ->children('dcterms',true);
+
+        foreach ($this->dcProperties as $propertyId => $localName) {
+            //$this->logger->info($localName);
+            if (isset($dcMetadata->$localName)) {
+                //$this->logger->info($localName);
+                $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
+
+                //add media if Beeld or Collectie                
+                if($localName == 'relation'){                
+                    $imgc=0;
+                    foreach ($dcMetadata->$localName as $imageUrl) {
+                        if(str_contains($imageUrl,"ca_object")):
+                            if (filter_var($imageUrl, FILTER_VALIDATE_URL) === false){
+                                continue;
+                            }
+
+                            $imageUrl = $imageUrl.'';  
+                        
+                            $media[$imgc]= [
+                                'o:ingester' => 'url',
+                                'o:source' => $imageUrl,
+                                'ingest_url' => $imageUrl,
+                                'dcterms:title' => [
+                                    [
+                                        'type' => 'literal',
+                                        '@language' => '',
+                                        '@value' => 'img - '.$imgc,
+                                        'property_id' => 1,
+                                    ],
+                                ],
+                            ];
+                            $imgc++;
+                        endif;
+                    }                    
+                }
+            }
+        }        
+
+        $meta = $elementTexts;
+        //set item set
+        foreach($itemSetIds as $collectionId):
+            if($collectionId && $args['resource_type'] == 'items'):
+                $meta['o:item_set'][] = ['o:id' => $collectionId];
+            endif;        
+        endforeach;
+
+          //media
+          $imgs = array();
+          foreach($media as $img):
+              $imgs[] = $img;
+          endforeach;
+          $meta['o:media'] = $imgs;
+
+        //resource template?
+        if($args['resource_template']):
+            $meta['o:resource_template'] = ["o:id" => $args['resource_template']];
+        endif;
+
+        foreach ($idnos as $idno) {
+            $meta['dcterms:identifier'][] = [
+                'property_id' => 10,
+                'type' => 'literal',
+                'is_public' => true,
                 '@value' => $idno.'',
                 '@language' => ''
             ];
@@ -742,10 +908,12 @@ class Harvest extends AbstractJob
             $localName = $this->dwcProperties[$propertyId];
         elseif($voc == "abcd"):
             $localName = $this->abcdProperties[$propertyId];
+        elseif($voc == "efg"):
+            $localName = $this->efgProperties[$propertyId];    
         endif;    
         foreach ($metadata->$localName as $value) {
             $texts = trim($value);
-            $texts = str_replace("&amp;","&",$texts);
+            $texts = str_replace("&amp;","&",$texts);            
 
             if($localName == 'date'):
                 $texts = str_replace("/","-",$texts);
@@ -773,11 +941,14 @@ class Harvest extends AbstractJob
                   continue;
               }
 
+              if($text == "$$"):
+                continue;
+                endif;    
+
               // Extract xsi type if any.
               $attributes = iterator_to_array($value->attributes('xsi', true));
               $type = empty($attributes['type']) ? null : trim($attributes['type']);
               $type = in_array(strtolower($type), ['dcterms:uri', 'uri']) ? 'uri' : 'literal';
-
              
               $val = [
                   'property_id' => $propertyId,
@@ -785,7 +956,7 @@ class Harvest extends AbstractJob
                   'is_public' => true,
               ];
 
-              $this->logger->info($text);
+              //$this->logger->info($text);
 
               switch ($type) {
                   case 'uri':

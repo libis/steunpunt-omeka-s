@@ -19,13 +19,13 @@ $this->htmlElement('body')->appendAttribute('class', 'item-set resource browse')
     <h2 class="title is-family-secondary" style="margin-bottom:2rem;">
       <?php echo $translate('Collecties'); ?>      
     </h2>
-
     <?php 
-        if(isset($_GET["property"]["0"])):
-          if($_GET["property"]["0"]["property"] == "dcterms:type" || $_GET["property"]["0"]["property"] == "8"):
-            echo "<h3 class='subtitle' style='margin-bottom:2rem;'>".$itemSets[0]->value("dcterms:type",array("lang"=>$lang))."</h3>";
-          endif; 
-        endif;
+      if(isset($_GET["property"]["0"])):
+        if($_GET["property"]["0"]["property"] == "dcterms:type" || $_GET["property"]["0"]["property"] == "8"):
+          $get_theme = $_GET["property"]["0"]["text"];           
+          echo "<h3 class='subtitle' style='margin-bottom:2rem;'>".htmlspecialchars($get_theme)."</h3>";
+        endif; 
+      endif;
     ?>  
   </div>
 </section>

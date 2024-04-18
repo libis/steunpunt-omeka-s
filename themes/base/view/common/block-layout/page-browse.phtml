@@ -23,7 +23,7 @@ $translate = $this->plugin('translate');
       foreach ($pages as $page):
         $created = $page->page()->created();
         $created = $created->format('Y-m-d H:i:s');
-        $sort_pages[$created] = $page;
+        $sort_pages[$created.$page->page()->slug()] = $page;
       endforeach;  
 
       krsort($sort_pages);

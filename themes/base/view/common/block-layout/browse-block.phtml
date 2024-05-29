@@ -55,7 +55,7 @@ $lang = $block->page()->site()->slug();
           endif;
 
           if($_SERVER['REQUEST_URI'] == '/'):
-            $url = 'https://blendeff.be/s/nl/'.str_replace("s//","",$resource->url());
+            $url = 'https://blendeff.be/s/nl'.str_replace("s//","",$resource->url());
           else:  
             $url = $resource->url();
 	  endif;  

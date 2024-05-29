@@ -49,12 +49,12 @@ endif;
       $id =  $item->value('dcterms:identifier');   
      
       if(str_contains($id,"PAL")):        
-        $title = '<span style="font-style:italic;">'.$title.'</span>';
+        $title = '<span style="font-style:italic;">'.$title.'</span>';        
       endif;  
     ?>
     <?php if($type == 'Nieuws'):?>
       <h1 class="title is-2 is-family-secondary"><?php echo $item->value('dcterms:title'); ?></h1>    
-    <?php elseif($type == 'Object Biologie' || $type == "Object Aardwetenschappen"):?>  
+    <?php elseif($type == 'Object Biologie' || str_contains($id,"PAL")):?>  
       <h1 class="title is-2 is-family-secondary"><?php echo $title; ?></h1> 
     <?php else:?>           
       <h1 class="title is-2 is-family-secondary"><?php echo $item->value('dcterms:title', array('lang' => $lang)); ?></h1>         

@@ -48,16 +48,15 @@ $isPartial = !$site;
 $skipFormAction = !empty($skipFormAction);
 
 // Used in case of a redirect of item-set/show to search, when used like item/browse.
-$itemSetId = $this->params()->fromRoute('item-set-id');
+//$itemSetId = $this->params()->fromRoute('item-set-id');
 // TODO Use site item set ?
-$itemSet = $itemSetId ? $api->searchOne('item_sets', ['id' => $itemSetId])->getContent() : null;
-
+//$itemSet = $itemSetId ? $api->searchOne('item_sets', ['id' => $itemSetId])->getContent() : null;
+$itemSetId = false;
+$itemSet = "";
 $this->headScript()->appendFile($this->assetUrl('jquery-ui.min.js', 'jQueryUI'));
 $this->headLink()->appendStylesheet($this->assetUrl('jquery-ui.min.css', 'jQueryUI'));
 $this->headLink()->appendStylesheet($assetUrl('css/search.css', 'Search'));
 $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javascript', ['defer' => 'defer']);
-
-
 ?>
 <section class="section breadcrumb-section">
   <div class="container">

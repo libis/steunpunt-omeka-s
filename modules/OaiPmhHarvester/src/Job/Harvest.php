@@ -621,6 +621,11 @@ class Harvest extends AbstractJob
         endforeach;
         $meta['o:media'] = $imgs;
 
+        if($args['resource_template'] == "4"):
+            $meta["o:site"][] = 1;
+            $meta["o:site"][] = 10;
+        endif;
+
         //resource template?
         if($args['resource_template']):
           $meta['o:resource_template'] = ["o:id" => $args['resource_template']];

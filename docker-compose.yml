@@ -3,7 +3,7 @@ version: '3'
 services:
 
   omeka-s:
-    image: registry.docker.libis.be/omeka_s_v4:latest
+    build: ./
     ports:
       - "9012:80"
     volumes:
@@ -13,5 +13,4 @@ services:
       - ./config/:/var/www/html/config/
       - ./htaccess:/var/www/html/.htaccess
       - ./imagemagick-policy.xml:/var/www/html/imagemagick-policy.xml
-      - ./import-cron:/etc/cron.d/import-cron
     restart: "no"

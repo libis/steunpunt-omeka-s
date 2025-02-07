@@ -136,8 +136,13 @@ $lang = $URI[2];
                 <?php elseif($propertyData['alternate_label'] == 'Plaats vervaardiging'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
                     <?php $text = explode('$$',$value->asHtml());?>
-                   <?php echo $text[0]; ?>
-                    <a target="_blank" href="<?php echo 'https://www.geonames.org/'.$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
+                    <?php echo $text[0]; ?>
+                    <?php if(trim($text[1])):?>
+                      <?php $url = trim($text[1]);?>
+                    <?php else:?>
+                      <?php $url = "https://www.geonames.org/";?>
+                    <?php endif;?>  
+                    <a target="_blank" href="<?php echo $url.$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
                   <?php else:?>
                     <?php echo $value->asHtml(); ?>
                   <?php endif;?>   

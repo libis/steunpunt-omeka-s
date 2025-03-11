@@ -8,3 +8,14 @@
 ?>
 
 <?= $this->pagination() ?>
+
+<script>
+$(document).ready(function() {
+    $('.pagination-next').contents().filter(function() {
+        return this.nodeType === 3; 
+    }).remove();
+    $('.pagination-previous').contents().filter(function() {
+        return this.nodeType === 3; 
+    }).remove();
+});
+</script>

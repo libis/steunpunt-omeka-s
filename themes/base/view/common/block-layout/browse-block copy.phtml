@@ -107,7 +107,7 @@ $translate = $this->plugin('translate');
     <?php endforeach; ?>
     </div>
     <?php if ($this->linkText == 'Nieuwsarchief'):?>
-      <div class="has-text-right">
+      <div class="has-text-left-mobile has-text-right">
         <a href="<?php echo $block->page()->site()->url().'/item/browse?resource_template_id=2&page=1&sort_by=dcterms%3Adate&sort_order=desc';?>" class="button is-primary">
           <span><?php echo $this->linkText;?></span>
           <span class="icon is-small">
@@ -116,7 +116,7 @@ $translate = $this->plugin('translate');
         </a>
       </div>
     <?php else:?>
-      <div class="has-text-right">
+      <div class="has-text-left-mobile has-text-right">
         <a href="<?php echo $block->page()->site()->url().'/'.$resourceType.'?sort_by=title&sort_order=asc';?>" class="button is-primary">
           <span><?php echo $this->linkText;?></span>
           <span class="icon is-small">

@@ -170,7 +170,7 @@ endif;
     </div>
   </section>
 <?php else:?>
-  <section class="section">
+  <section class="section item-page">
     <div class="container" style="margin-bottom:1.5rem;">
       <div class="columns">
         <?php if (!$embedMedia && $itemMedia): ?>
@@ -255,7 +255,7 @@ endif;
             </a>
            <?php endif; ?>
            <hr>
-           <div style="text-align:right;">
+           <div class="has-text-left-mobile has-text-right">
               <a target="_blank" class="button is-text is-small" href="https://blendeff.be/<?php echo $lang;?>/item/<?php echo $item->value('dcterms:identifier');?>">
               <span class="icon">
                   <i class="fas fa-link"></i>
@@ -362,13 +362,14 @@ $subjectValues = $item->subjectValues();
       slidesToScroll: 1,
       arrows: false,
       fade: true,
-      centerMode: true
+      centerMode: true,
     });
     $('.slider-nav').slick({
       slidesToShow: 10,
       slidesToScroll: 1,
       asNavFor: '.slider-for',
-      focusOnSelect: true
+      focusOnSelect: true,
+      variableWidth: true
     });
 
     $('.slide-wrap').on('contextmenu', 'img', function(e){ 

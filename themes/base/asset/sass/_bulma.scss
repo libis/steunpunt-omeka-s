@@ -15,14 +15,14 @@ $border: #b3b3b3;
 
 //card
 $card-shadow: none;
-$card-header-background-color: transparent !default
-$card-header-padding: 0.75rem 1rem !default
+$card-header-background-color: transparent !default;
+$card-header-padding: 0.75rem 1rem !default;
 $card-header-shadow: none;
-$card-header-weight: 600 !default
-$card-content-background-color: transparent !default
-$card-content-padding: 1.5rem !default
-$card-footer-background-color: transparent !default
-$card-footer-padding: 0.75rem !default
+$card-header-weight: 600 !default;
+$card-content-background-color: transparent !default;
+$card-content-padding: 1.5rem !default;
+$card-footer-background-color: transparent !default;
+$card-footer-padding: 0.75rem !default;
 $card-footer-border-top: 1px solid $border;
 
 //box
@@ -32,12 +32,12 @@ $box-background-color: #fff;
 $box-color: $text;
 $box-padding: 1.5rem !default;
 
-$modal-background-background-color:rgba($primary,0.86);
+$modal-background-background-color: $primary;
 
 //form
 $control-radius:0;
 $input-radius:0;
 
 
-
-@import "../../../../node_modules/bulma/bulma.sass";
+@import "../../node_modules/bulma/bulma.sass";
+//@import "../../../../node_modules/bulma/bulma.sass";

@@ -162,6 +162,12 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
 
     </header>
 
+    <div class="scroll-to-top-button">
+      <svg class="svg-inline--fa fa-angle-top fa-lg" data-prefix="fas" data-icon="angle-top" role="img" viewBox="0 0 256 512" fill="none" xmlns="http://www.w3.org/2000/svg" data-fa-i2svg>
+        <path fill="#ffffff" d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"/>
+      </svg>
+    </div>
+
     <div class="over-footer" id="printid">
       <?php echo $this->content; ?>
     </div>
@@ -216,6 +222,25 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
                  'maxDepth' => $this->themeSetting('nav_depth') - 1
              ]);
            ?>
+           <div style="color:#fff;">
+              <?php $currenturl =  "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";?>
+              <?php if($site->slug() == "nl"):?>
+                <?php 
+                $currenturl = str_replace("objecten","objects",$currenturl);
+                $currenturl = str_replace("/nl","/en",$currenturl);
+                if($currenturl == "https://blendeff.be/"):
+                  $currenturl = "https://blendeff.be/s/en";
+                endif;  
+                ?>
+                NL&nbsp;|&nbsp;<a style="font-weight:bold" href="<?php echo $currenturl;?>">EN</a>
+              <?php else:?>
+                <?php 
+                $currenturl = str_replace("objects","objecten",$currenturl);
+                $currenturl = str_replace("/en","/nl",$currenturl);
+              ?>
+              <a style="font-weight:bold" href="<?php echo $currenturl;?>">NL</a>&nbsp;|&nbsp;EN
+              <?php endif;?>  
+            </div>  
          </div>
          <button class="burger-menu-close modal-close is-large"></button>
       </div>
@@ -238,6 +263,10 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
     });
     $(".burger-menu-close").click(function() {
        $(".burger-menu").removeClass("is-active");
+    });
+
+    $(".scroll-to-top-button").on("click", function() {
+        $("body, html").animate({ scrollTop: 0 }, 800);
     });
   });
   </script>

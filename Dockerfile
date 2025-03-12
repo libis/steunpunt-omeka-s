@@ -43,6 +43,11 @@ RUN usermod -u 1000 www-data \
 &&  mv /var/www/omeka-s /var/www/html/ \
 &&  chown -R www-data:www-data /var/www/html/
 
+# Content
+COPY .htaccess /var/www/html
+COPY themes /var/www/html/themes
+COPY modules /var/www/html/modules
+
 # Cron
 COPY import-cron /etc/cron.d/import-cron
 RUN chmod 0744 /etc/cron.d/import-cron

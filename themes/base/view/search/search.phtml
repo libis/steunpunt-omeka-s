@@ -83,7 +83,7 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
       <?php $itemSet = $this->api()->read('item_sets', ['id' => $itemSetId])->getContent(); ?>
       <?php $this->vars()->offsetSet('itemSet', $itemSet); ?>
       <?php $this->vars()->offsetSet('resourceType', 'item_sets'); // TODO Check if really needed. ?>
-      <?php $this->htmlElement('body')->appendAttribute('class', 'search-page item-set resource browse'); ?>
+      <?php $this->htmlElement('body')->appendAttribute('class', 'page search-page item-set resource browse'); ?>
       <?= $this->pageTitle($itemSet->displayTitle(), 2) ?>
       <h1 class="title is-2 is-family-secondary"><?= $translate('Item set') ?></h1>
       <div class="metadata">
@@ -95,7 +95,7 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
 
   <?php else: ?>
 
-      <?php $this->htmlElement('body')->appendAttribute('class', 'search-page resource browse'); ?>
+      <?php $this->htmlElement('body')->appendAttribute('class', 'page search-page resource browse'); ?>
       <h1 class="title is-2 is-family-secondary"><?php echo $searchPage->name();?> (<?= $response->getTotalResults();?>)</h1>
 
   <?php endif; ?>
@@ -122,8 +122,19 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
 <section class="section results">
   <div class="container is-fluid">
   <?php if (isset($response)): ?>
+  <div class="filter-nav">
+    <div class="filter-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M3.9 54.9C10.5 40.9 24.5 32 40 32l432 0c15.5 0 29.5 8.9 36.1 22.9s4.6 30.5-5.2 42.5L320 320.9 320 448c0 12.1-6.8 23.2-17.7 28.6s-23.8 4.3-33.5-3l-64-48c-8.1-6-12.8-15.5-12.8-25.6l0-79.1L9 97.3C-.7 85.4-2.8 68.8 3.9 54.9z" fill="none" stroke="black" transform="scale(0.9) translate(25,25)"/>
+      </svg>
+    </div>
+    <a role="button" class="close-icon">
+        <span></span>
+        <span></span>
+    </a>
+  </div>
   <div class="columns">
-    <div class="column is-one-quarter">
+    <div class="column is-one-quarter mobile-facets">
       <aside class="facets">
       <form method="GET" id="psl-search-form">
           <div id="psl-search-form-date">
@@ -289,4 +300,66 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
     dateFrom.parents('.field').hide();
     dateTo.parents('.field').hide();
   });
+
+function clickOnButton(facetsList, filterNav, filterIcon, page) {
+  var filterOpen = facetsList.hasClass("open-facets-list");
+  var filterNav = $(".filter-nav");
+  
+  if (!filterOpen) {
+      facetsList.addClass("open-facets-list");
+      filterNav.addClass("filter-nav-fixed");
+      filterIcon.addClass("active-item");
+      page.addClass("pageFixed");
+  } 
+  else {
+      facetsList.removeClass("open-facets-list");
+      filterNav.removeClass("filter-nav-fixed");
+      filterIcon.removeClass("active-item");
+      page.removeClass("pageFixed");
+  }
+}
+
+function setupFilterIcon() {
+  if ($(window).width() < 1024) {
+      const filterIcon = $(".filter-icon");
+      const closeIcon = $(".close-icon");
+      const page = $('.page');
+      var facetsList = $('.facets').first().parent();
+
+      if (filterIcon.length || closeicon.length) {
+        facetsList.addClass("mobile-facets");
+
+        filterIcon.on("click", function() {
+            clickOnButton(facetsList, filterNav, filterIcon, page);
+        });
+
+        closeIcon.on("click", function() {
+            clickOnButton(facetsList, filterNav, filterIcon, page);
+        });
+      }
+  } 
+  else {
+      const filterIcon = $(".filter-icon");
+      const page = $('.page');
+      var facetsList = $('.facets').first().parent();
+
+      if (filterIcon.length) {
+        var filterNav = $(".filter-nav");
+        facetsList.removeClass("open-facets-list");
+        filterNav.removeClass("filter-nav-fixed");
+        filterIcon.removeClass("active-item");
+        page.removeClass("pageFixed");
+        facetsList.removeClass("mobile-facets");
+      }
+  }
+}
+
+$(window).on('load', function() {
+  setupFilterIcon();
+});
+
+// On resize
+$(window).on('resize', function() {
+  setupFilterIcon();
+});
 </script>

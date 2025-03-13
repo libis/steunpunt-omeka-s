@@ -252,6 +252,7 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
         // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
         //$(".navbar-burger").toggleClass("is-active");
         $(".burger-menu").toggleClass("is-active");
+        $(".page").addClass("pageFixed");
     });
 
     $("#showSearch").click(function() {
@@ -263,6 +264,7 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
     });
     $(".burger-menu-close").click(function() {
        $(".burger-menu").removeClass("is-active");
+       $(".page").removeClass("pageFixed");
     });
 
     $(".scroll-to-top-button").on("click", function() {

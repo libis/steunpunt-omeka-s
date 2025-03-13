@@ -2,7 +2,7 @@
 use Laminas\Http\Client;
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
-$this->htmlElement('body')->appendAttribute('class', 'item resource show');
+$this->htmlElement('body')->appendAttribute('class', 'page item resource show');
 $embedMedia = $this->siteSetting('item_media_embed', false);
 $itemMedia = $item->media();
 $template = $item->resourceTemplate();
@@ -363,6 +363,7 @@ $subjectValues = $item->subjectValues();
       arrows: false,
       fade: true,
       centerMode: true,
+      adaptiveHeight: true,
     });
     $('.slider-nav').slick({
       slidesToShow: 10,

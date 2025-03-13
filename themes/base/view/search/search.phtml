@@ -251,55 +251,19 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
   </div>
 </section>
 <script>
-  $('#psl-search-form').on('submit',function(e){
-      e.preventDefault();
-      const params = new URLSearchParams(window.location.search)
-      
-      params.set('dcterms:date[from]',$('[name="dcterms:date[from]"]').val());     
-      params.set('dcterms:date[to]',$('[name="dcterms:date[to]"]').val());     
-      window.location.href = location.protocol + '//' + location.host + location.pathname+'?'+params.toString();
-  });
-  $(document).ready(function() {
-    var dateFrom = $('#psl-search-form input[name="dcterms:date[from]"]');
-    var dateTo = $('#psl-search-form input[name="dcterms:date[to]"]');
-    var dateMin =1000;
-    var dateMax = 2023;
-    var currentDate = '';
-    console.log(dateFrom.val() + "," + dateTo.val());
+$(".facet-active").on("click touchstart", function(e) {
+  e.preventDefault();
+  var href = $(this).attr("href");
+  localStorage.setItem('openPopUp', 'true');
+  window.location.href = href;
+});
 
-    $('#psl-search-form-date-slider').slider({
-        range: true,
-        min: dateMin,
-        max: dateMax,        
-        step: 10,
-       
-        //values: [dateFrom.val() || dateMin, dateTo.val() || dateMax],
-        values: [<?php echo $from;?>, <?php echo $to;?>],
-        change: function(event, ui) {
-            var from = ui.values[0] > dateMin ? ui.values[0] : '';
-            var to = ui.values[1] < dateMax ? ui.values[1] : '';
-            if (from != dateFrom.val()) {
-                dateFrom.val(from).change();
-            }
-            if (to != dateTo.val()) {
-                dateTo.val(to).change();
-            }
-
-            var fromv = from;
-            if(from == 0){
-              fromv = 1000;
-            }
-            var tov = to;
-            if(to == ''){
-              tov = 2023;
-            }
-            $('.currentDate').text((fromv) + ' - ' + tov);
-        }
-    });
-
-    dateFrom.parents('.field').hide();
-    dateTo.parents('.field').hide();
-  });
+$(".search-facet-item").on("click touchstart", function(e) {
+  e.preventDefault();
+  var href = $(this).find("a").attr("href");
+  localStorage.setItem('openPopUp', 'true');
+  window.location.href = href;
+});
 
 function clickOnButton(facetsList, filterNav, filterIcon, page) {
   var filterOpen = facetsList.hasClass("open-facets-list");
@@ -321,6 +285,8 @@ function clickOnButton(facetsList, filterNav, filterIcon, page) {
 
 function setupFilterIcon() {
   if ($(window).width() < 1024) {
+      var openPopUp = localStorage.getItem('openPopUp');
+      
       const filterIcon = $(".filter-icon");
       const closeIcon = $(".close-icon");
       const page = $('.page');
@@ -329,11 +295,20 @@ function setupFilterIcon() {
       if (filterIcon.length || closeicon.length) {
         facetsList.addClass("mobile-facets");
 
-        filterIcon.on("click", function() {
+        if(openPopUp == "true") {
+          var filterNav = $(".filter-nav");
+          facetsList.addClass("open-facets-list");
+          filterNav.addClass("filter-nav-fixed");
+          filterIcon.addClass("active-item");
+          page.addClass("pageFixed");
+          localStorage.removeItem('openPopUp');
+        }
+
+        filterIcon.on("click touchstart", function() {
             clickOnButton(facetsList, filterNav, filterIcon, page);
         });
 
-        closeIcon.on("click", function() {
+        closeIcon.on("click touchstart", function() {
             clickOnButton(facetsList, filterNav, filterIcon, page);
         });
       }
@@ -354,12 +329,65 @@ function setupFilterIcon() {
   }
 }
 
-$(window).on('load', function() {
+$(window).ready(function() {
   setupFilterIcon();
 });
 
 // On resize
 $(window).on('resize', function() {
   setupFilterIcon();
+});
+
+$('#psl-search-form').on('submit',function(e){
+  e.preventDefault();
+  const params = new URLSearchParams(window.location.search)
+
+  localStorage.setItem('openPopUp', 'true');
+  
+  params.set('dcterms:date[from]',$('[name="dcterms:date[from]"]').val());     
+  params.set('dcterms:date[to]',$('[name="dcterms:date[to]"]').val());     
+  window.location.href = location.protocol + '//' + location.host + location.pathname+'?'+params.toString();
+});
+
+$(document).ready(function() {
+  var dateFrom = $('#psl-search-form input[name="dcterms:date[from]"]');
+  var dateTo = $('#psl-search-form input[name="dcterms:date[to]"]');
+  var dateMin =1000;
+  var dateMax = 2023;
+  var currentDate = '';
+  console.log(dateFrom.val() + "," + dateTo.val());
+
+  $('#psl-search-form-date-slider').slider({
+      range: true,
+      min: dateMin,
+      max: dateMax,        
+      step: 10,
+      
+      //values: [dateFrom.val() || dateMin, dateTo.val() || dateMax],
+      values: [<?php echo $from;?>, <?php echo $to;?>],
+      change: function(event, ui) {
+          var from = ui.values[0] > dateMin ? ui.values[0] : '';
+          var to = ui.values[1] < dateMax ? ui.values[1] : '';
+          if (from != dateFrom.val()) {
+              dateFrom.val(from).change();
+          }
+          if (to != dateTo.val()) {
+              dateTo.val(to).change();
+          }
+
+          var fromv = from;
+          if(from == 0){
+            fromv = 1000;
+          }
+          var tov = to;
+          if(to == ''){
+            tov = 2023;
+          }
+          $('.currentDate').text((fromv) + ' - ' + tov);
+      }
+  });
+
+  dateFrom.parents('.field').hide();
+  dateTo.parents('.field').hide();
 });
 </script>

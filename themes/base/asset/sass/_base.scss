@@ -668,6 +668,7 @@ figcaption{
       flex-direction: row;
       justify-content: center;
       align-items: center;
+      cursor: pointer;
 
       svg {
         width: 40px;
@@ -691,6 +692,7 @@ figcaption{
       height: 50px;
       position: relative;
       display: block;
+      cursor: pointer;
 
       span {
         background-color: #000000;
@@ -719,6 +721,10 @@ figcaption{
     z-index: 999;
     padding: .75rem 30px;
   }
+}
+
+.ui-slider-handle {
+  touch-action: none; 
 }
 
 #search-form{
@@ -977,18 +983,37 @@ figcaption{
 //news-overview page
 @media screen and (max-width: 768px) {
   .news-items-section {
-    .news-item {
-      .columns {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
+    .columns.is-multiline {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      margin-top: 30px;
 
-        .column {
-          padding: 0;
+      .news-item {
+        .columns {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+  
+          .column {
+            padding: 0;
+  
+            a:has(img) {
+              display: block;
+              height: 100%;
+              width: 100%;
+  
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
+            }
+          }
         }
       }
     }
-}
+  }
 }
 
 //footer

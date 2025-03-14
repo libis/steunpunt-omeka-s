@@ -266,77 +266,85 @@ $(".search-facet-item").on("click touchstart", function(e) {
 });
 
 function clickOnButton(facetsList, filterNav, filterIcon, page) {
-  var filterOpen = facetsList.hasClass("open-facets-list");
-  var filterNav = $(".filter-nav");
-  
-  if (!filterOpen) {
-      facetsList.addClass("open-facets-list");
-      filterNav.addClass("filter-nav-fixed");
-      filterIcon.addClass("active-item");
-      page.addClass("pageFixed");
-  } 
-  else {
-      facetsList.removeClass("open-facets-list");
-      filterNav.removeClass("filter-nav-fixed");
-      filterIcon.removeClass("active-item");
-      page.removeClass("pageFixed");
-  }
+    var filterOpen = facetsList.classList.contains("open-facets-list");
+
+    if (!filterOpen) {
+        facetsList.classList.add("open-facets-list");
+        filterNav.classList.add("filter-nav-fixed");
+        filterIcon.classList.add("active-item");
+        page.classList.add("pageFixed");
+    } else {
+        facetsList.classList.remove("open-facets-list");
+        filterNav.classList.remove("filter-nav-fixed");
+        filterIcon.classList.remove("active-item");
+        page.classList.remove("pageFixed");
+    }
 }
 
 function setupFilterIcon() {
-  if ($(window).width() < 1024) {
-      var openPopUp = localStorage.getItem('openPopUp');
-      
-      const filterIcon = $(".filter-icon");
-      const closeIcon = $(".close-icon");
-      const page = $('.page');
-      var facetsList = $('.facets').first().parent();
+    if (window.innerWidth < 1024) {
+        var openPopUp = localStorage.getItem('openPopUp');
+        
+        var filterIcon = document.querySelector(".filter-icon");
+        var closeIcon = document.querySelector(".close-icon");
+        var page = document.querySelector('.page');
+        var facetsList = document.querySelector('.facets').parentElement;
 
-      if (filterIcon.length || closeicon.length) {
-        facetsList.addClass("mobile-facets");
+        if (filterIcon || closeIcon) {
+            facetsList.classList.add("mobile-facets");
 
-        if(openPopUp == "true") {
-          var filterNav = $(".filter-nav");
-          facetsList.addClass("open-facets-list");
-          filterNav.addClass("filter-nav-fixed");
-          filterIcon.addClass("active-item");
-          page.addClass("pageFixed");
-          localStorage.removeItem('openPopUp');
+            if (openPopUp === "true") {
+                var filterNav = document.querySelector(".filter-nav");
+                facetsList.classList.add("open-facets-list");
+                filterNav.classList.add("filter-nav-fixed");
+                filterIcon.classList.add("active-item");
+                page.classList.add("pageFixed");
+                localStorage.removeItem('openPopUp');
+            }
+
+            // Verwijder bestaande event listeners
+            filterIcon.removeEventListener("click", filterIconClickHandler);
+            closeIcon.removeEventListener("click", closeIconClickHandler);
+
+            // Voeg nieuwe event listeners toe
+            filterIcon.addEventListener("click", filterIconClickHandler);
+            closeIcon.addEventListener("click", closeIconClickHandler);
         }
+    } else {
+        var filterIcon = document.querySelector(".filter-icon");
+        var page = document.querySelector('.page');
+        var facetsList = document.querySelector('.facets').parentElement;
 
-        filterIcon.on("click touchstart", function() {
-            clickOnButton(facetsList, filterNav, filterIcon, page);
-        });
-
-        closeIcon.on("click touchstart", function() {
-            clickOnButton(facetsList, filterNav, filterIcon, page);
-        });
-      }
-  } 
-  else {
-      const filterIcon = $(".filter-icon");
-      const page = $('.page');
-      var facetsList = $('.facets').first().parent();
-
-      if (filterIcon.length) {
-        var filterNav = $(".filter-nav");
-        facetsList.removeClass("open-facets-list");
-        filterNav.removeClass("filter-nav-fixed");
-        filterIcon.removeClass("active-item");
-        page.removeClass("pageFixed");
-        facetsList.removeClass("mobile-facets");
-      }
-  }
+        if (filterIcon) {
+            var filterNav = document.querySelector(".filter-nav");
+            facetsList.classList.remove("open-facets-list");
+            filterNav.classList.remove("filter-nav-fixed");
+            filterIcon.classList.remove("active-item");
+            page.classList.remove("pageFixed");
+            facetsList.classList.remove("mobile-facets");
+        }
+    }
 }
 
-$(window).ready(function() {
-  setupFilterIcon();
-});
+function filterIconClickHandler() {
+    var filterNav = document.querySelector(".filter-nav");
+    var filterIcon = document.querySelector(".filter-icon");
+    var page = document.querySelector('.page');
+    var facetsList = document.querySelector('.facets').parentElement;
+    clickOnButton(facetsList, filterNav, filterIcon, page);
+}
 
-// On resize
-$(window).on('resize', function() {
-  setupFilterIcon();
-});
+function closeIconClickHandler() {
+    var filterNav = document.querySelector(".filter-nav");
+    var filterIcon = document.querySelector(".filter-icon");
+    var page = document.querySelector('.page');
+    var facetsList = document.querySelector('.facets').parentElement;
+    clickOnButton(facetsList, filterNav, filterIcon, page);
+}
+
+window.addEventListener('load', setupFilterIcon);
+window.addEventListener('resize', setupFilterIcon);
+
 
 $('#psl-search-form').on('submit',function(e){
   e.preventDefault();

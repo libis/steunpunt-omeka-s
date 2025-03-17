@@ -114,6 +114,12 @@ figcaption{
   }
 }
 
+@media screen and (min-width: 1024px) {
+  .pageFixed {
+    position: unset;
+  }
+}
+
 //modal-menu
 .field.has-addons .control:not(:last-child){
   width: 100%;
@@ -748,7 +754,7 @@ figcaption{
   }
 }
 
-.mobile-facets {
+.facets-group {
   width: 100%;
   position: fixed;
   right: 0;
@@ -769,10 +775,34 @@ figcaption{
   }
 }
 
-.mobile-facets.open-facets-list {
+.facets-group.open-facets-list {
   display: block;
   transform: translateX(0%);
   width: 100%;
+}
+
+@media screen and (min-width: 1024px) {
+  .facets-group {
+    width: 25%;
+    position: unset;
+    height: auto;
+    transform: translateX(0%);
+    background-color: transparent;
+    z-index: 0;
+    padding: .75rem;
+
+    .facets {
+      width: auto;
+      display: block;
+      height: auto;
+      overflow-x: auto;
+      padding: 0;
+    }
+  }
+
+  .facets-group.facets-group.open-facets-list {
+    width: 25%;
+  }
 }
 
 .grid-item{

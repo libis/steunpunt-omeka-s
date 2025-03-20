@@ -24,7 +24,7 @@ return [
         ],
         // View "search" is kept to simplify migration.
         'controller_map' => [
-            Controller\IndexController::class => 'search',
+            Controller\SearchController::class => 'search',
         ],
         'strategies' => [
             'ViewJsonStrategy',
@@ -33,15 +33,18 @@ return [
     'view_helpers' => [
         'invokables' => [
             'facetActive' => View\Helper\FacetActive::class,
+            'facetActives' => View\Helper\FacetActives::class,
             'facetCheckbox' => View\Helper\FacetCheckbox::class,
             'facetCheckboxes' => View\Helper\FacetCheckboxes::class,
+            'facetCheckboxesTree' => View\Helper\FacetCheckboxesTree::class,
             'facetLabel' => View\Helper\FacetLabel::class,
             'facetLink' => View\Helper\FacetLink::class,
             'facetLinks' => View\Helper\FacetLinks::class,
+            'facetLinksTree' => View\Helper\FacetLinksTree::class,
             'facetSelect' => View\Helper\FacetSelect::class,
             'facetSelectRange' => View\Helper\FacetSelectRange::class,
             'formMultiText' => Form\View\Helper\FormMultiText::class,
-            'formNote' => Form\View\Helper\FormNote::class,
+            'getSearchConfig' => View\Helper\GetSearchConfig::class,
             'hiddenInputsFromFilteredQuery' => View\Helper\HiddenInputsFromFilteredQuery::class,
             'searchFilters' => View\Helper\SearchFilters::class,
             'searchForm' => View\Helper\SearchForm::class,
@@ -57,16 +60,21 @@ return [
             // Used in AdvancedResourceTemplate, AdvancedSearch and BlockPlus.
             'assetUrl' => Service\ViewHelper\AssetUrlFactory::class,
             'cleanQuery' => Service\ViewHelper\CleanQueryFactory::class,
+            // Used in AdvancedSearch and Annotate.
             'easyMeta' => Service\ViewHelper\EasyMetaFactory::class,
             'matchedRouteName' => Service\ViewHelper\MatchedRouteNameFactory::class,
             'mediaTypeSelect' => Service\ViewHelper\MediaTypeSelectFactory::class,
             'searchEngineConfirm' => Service\ViewHelper\SearchEngineConfirmFactory::class,
-            'searchRequestToResponse' => Service\ViewHelper\SearchRequestToResponseFactory::class,
             'searchSuggesterConfirm' => Service\ViewHelper\SearchSuggesterConfirmFactory::class,
+            // Allow to call EasyMeta, used in AdvancedSearch and Annotate.
+            View\Helper\EasyMeta::class => Service\ViewHelper\EasyMetaFactory::class,
         ],
         'delegators' => [
             'Laminas\Form\View\Helper\FormElement' => [
                 Service\Delegator\FormElementDelegatorFactory::class,
+            ],
+            \Omeka\View\Helper\UserBar::class => [
+                Service\ViewHelper\UserBarDelegatorFactory::class,
             ],
         ],
     ],
@@ -81,7 +89,6 @@ return [
             Form\Element\ArrayText::class => Form\Element\ArrayText::class,
             Form\Element\DataTextarea::class => Form\Element\DataTextarea::class,
             Form\Element\MultiText::class => Form\Element\MultiText::class,
-            Form\Element\Note::class => Form\Element\Note::class,
             Form\Element\OptionalMultiCheckbox::class => Form\Element\OptionalMultiCheckbox::class,
             Form\Element\OptionalRadio::class => Form\Element\OptionalRadio::class,
             Form\Element\OptionalSelect::class => Form\Element\OptionalSelect::class,
@@ -117,7 +124,7 @@ return [
     'controllers' => [
         'invokables' => [
             Controller\Admin\IndexController::class => Controller\Admin\IndexController::class,
-            Controller\IndexController::class => Controller\IndexController::class,
+            Controller\SearchController::class => Controller\SearchController::class,
         ],
         'factories' => [
             Controller\Admin\SearchConfigController::class => Service\Controller\Admin\SearchConfigControllerFactory::class,
@@ -132,7 +139,6 @@ return [
         'factories' => [
             'apiSearch' => Service\ControllerPlugin\ApiSearchFactory::class,
             'apiSearchOne' => Service\ControllerPlugin\ApiSearchOneFactory::class,
-            'searchForm' => Service\ControllerPlugin\SearchFormFactory::class,
             'searchResources' => Service\ControllerPlugin\SearchResourcesFactory::class,
             'totalJobs' => Service\ControllerPlugin\TotalJobsFactory::class,
         ],
@@ -277,12 +283,62 @@ return [
     ],
     'navigation' => [
         'AdminModule' => [
-            'search' => [
+            'advanced-search' => [
                 'label' => 'Search manager', // @translate
                 'route' => 'admin/search',
                 'resource' => Controller\Admin\IndexController::class,
                 'privilege' => 'browse',
                 'class' => 'o-icon-search',
+                'pages' => [
+                    [
+                        'route' => 'admin/search/engine',
+                        'visible' => false,
+                        'pages' => [
+                            [
+                                'route' => 'admin/search/engine-id',
+                                'visible' => false,
+                            ],
+                        ],
+                    ],
+                    [
+                        'route' => 'admin/search/config',
+                        'visible' => false,
+                        'pages' => [
+                            [
+                                'route' => 'admin/search/config-id',
+                                'visible' => false,
+                            ],
+                        ],
+                    ],
+                    [
+                        'route' => 'admin/search/suggester',
+                        'visible' => false,
+                        'pages' => [
+                            [
+                                'route' => 'admin/search/suggester-id',
+                                'visible' => false,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        'AdvancedSearch\Config' => [
+            [
+                'label' => 'Manage', // @translate
+                'route' => 'admin/search/config-id',
+                'resource' => Controller\Admin\SearchConfigController::class,
+                'action' => 'edit',
+                'privilege' => 'edit',
+                'useRouteMatch' => true,
+            ],
+            [
+                'label' => 'Configure', // @translate
+                'route' => 'admin/search/config-id',
+                'resource' => Controller\Admin\SearchConfigController::class,
+                'action' => 'configure',
+                'privilege' => 'edit',
+                'useRouteMatch' => true,
             ],
         ],
     ],
@@ -320,19 +376,24 @@ return [
             'advancedsearch_main_config' => 1,
             'advancedsearch_configs' => [1],
             'advancedsearch_api_config' => '',
+            // TODO Remove this option if there is no issue with sync or async (except multiple search engines).
+            'advancedsearch_index_batch_edit' => 'sync',
             'advancedsearch_batch_size' => 100,
             // Hidden value.
             'advancedsearch_all_configs' => [1 => 'find'],
         ],
         'site_settings' => [
-            'advancedsearch_restrict_used_terms' => true,
             'advancedsearch_search_fields' => [
+                'common/advanced-search/sort',
                 'common/advanced-search/fulltext',
                 'common/advanced-search/properties',
                 'common/advanced-search/resource-class',
+                // 'common/advanced-search/resource-template',
                 'common/advanced-search/item-sets',
                 'common/advanced-search/date-time',
                 'common/advanced-search/has-media',
+                'common/advanced-search/ids',
+                // Modules.
                 'common/advanced-search/media-type',
                 'common/advanced-search/data-type-geography',
                 'common/numeric-data-types-advanced-search',
@@ -344,6 +405,8 @@ return [
         'block_settings' => [
             'searchingForm' => [
                 'heading' => '',
+                'html' => '',
+                'link' => '',
                 // Name "search_page" is kept to simplify migration.
                 'search_page' => null,
                 'display_results' => false,
@@ -357,17 +420,16 @@ return [
         // config/local.config.php) are not managed by this module.
         'search_fields' => [
             // From view/common/advanced-search'.
+            'common/advanced-search/sort' => ['label' => 'Sort'], // @translate
             'common/advanced-search/fulltext' => ['label' => 'Full text'], // @translate
             'common/advanced-search/properties' => ['label' => 'Properties'], // @translate
             'common/advanced-search/resource-class' => ['label' => 'Classes'], // @translate
             'common/advanced-search/resource-template' => ['label' => 'Templates', 'default' => false], // @translate
-            'common/advanced-search/resource-template-restrict' => ['label' => 'Templates (restricted)', 'default' => false], // @translate
+            // This partial is managed separately by a core option.
+            //'common/advanced-search/resource-template-restrict' => ['label' => 'Templates (restricted)', 'default' => false], // @translate
             'common/advanced-search/item-sets' => ['label' => 'Item sets'], // @translate
             'common/advanced-search/owner' => ['label' => 'Owner', 'default' => false], // @translate
             'common/advanced-search/site' => ['label' => 'Site', 'default' => false], // @translate
-            'common/advanced-search/sort' => ['label' => 'Sort', 'default' => false], // @translate
-            // This partial is managed separately by a core option.
-            // 'common/advanced-search/resource-template-restrict' => ['label' => 'Resource template restrict'],
             // From module advanced search plus.
             'common/advanced-search/date-time' => ['label' => 'Date time'], // @translate
             'common/advanced-search/has-media' => ['label' => 'Has media'], // @translate

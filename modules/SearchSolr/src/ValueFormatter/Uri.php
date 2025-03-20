@@ -5,7 +5,7 @@ namespace SearchSolr\ValueFormatter;
 /**
  * Formatter that includes only uris, mainly for value with data type uri.
  */
-class Uri implements ValueFormatterInterface
+class Uri extends AbstractValueFormatter
 {
     public function getLabel(): string
     {
@@ -16,9 +16,9 @@ class Uri implements ValueFormatterInterface
     {
         if (is_object($value)) {
             if ($value instanceof \Omeka\Api\Representation\ValueRepresentation) {
-                $value = trim($value->uri());
+                $value = trim((string) $value->uri());
             } elseif ($value instanceof \Omeka\Api\Representation\AssetRepresentation) {
-                $value = trim($value->assetUrl());
+                $value = trim((string) $value->assetUrl());
             } else {
                 return [];
             }

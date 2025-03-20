@@ -64,7 +64,7 @@ if (version_compare($oldVersion, '3.3.6.3', '<')) {
     // connection.
     // $searchConfigPaths = $api->search('search_configs', [], ['returnScalar' => 'path'])->getContent();
     $sql = <<<'SQL'
-SELECT `id`, `path` FROM `search_config` ORDER BY `id`;
+SELECT `id`, `path` FROM `search_config` ORDER BY `id` ASC;
 SQL;
     $searchConfigPaths = $connection->fetchAllAssociative($sql);
     $searchConfigPaths = array_column($searchConfigPaths, 'path', 'id');
@@ -290,5 +290,108 @@ SQL;
         '<a href="https://en.wikipedia.org/wiki/Soundex">', '</a>'
     );
     $message->setEscapeHtml(false);
+    $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.7', '<')) {
+    $message = new Message(
+        'Some new options were added to manage facets.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.10', '<')) {
+    $sql = <<<'SQL'
+UPDATE `search_config`
+SET
+    `settings` = REPLACE(`settings`, '"display_button"', '"display_submit"')
+;
+SQL;
+    $connection->executeStatement($sql);
+}
+
+if (version_compare($oldVersion, '3.4.11', '<')) {
+    $sql = <<<'SQL'
+ALTER TABLE `search_config` CHANGE `created` `created` datetime NOT NULL DEFAULT NOW() AFTER `settings`;
+ALTER TABLE `search_engine` CHANGE `created` `created` datetime NOT NULL DEFAULT NOW() AFTER `settings`;
+ALTER TABLE `search_suggester` CHANGE `created` `created` datetime NOT NULL DEFAULT NOW() AFTER `settings`;
+SQL;
+    $connection->executeStatement($sql);
+
+    /** @var \Omeka\Module\Manager $moduleManager */
+    $moduleManager = $services->get('Omeka\ModuleManager');
+    $module = $moduleManager->getModule('Reference');
+    $hasReference = $module
+        && version_compare($module->getIni('version'), '3.4.43', '<');
+    if ($hasReference) {
+        $message = new Message(
+            'It is recommended to upgrade the module "Reference" to improve performance.' // @translate
+        );
+        $messenger->addWarning($message);
+    }
+}
+
+if (version_compare($oldVersion, '3.4.12', '<')) {
+    $sql = <<<'SQL'
+ALTER TABLE `search_config` CHANGE `created` `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `settings`;
+ALTER TABLE `search_engine` CHANGE `created` `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `settings`;
+ALTER TABLE `search_suggester` CHANGE `created` `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `settings`;
+SQL;
+    $connection->executeStatement($sql);
+}
+
+if (version_compare($oldVersion, '3.4.14', '<')) {
+    /** @see https://github.com/omeka/omeka-s/pull/2096 */
+    try {
+        $connection->executeStatement('ALTER TABLE `resource` ADD INDEX `idx_public_type_id_title` (`is_public`,`resource_type`,`id`,`title` (190));');
+    } catch (\Exception $e) {
+        // Index exists.
+    }
+    try {
+        $connection->executeStatement('ALTER TABLE `value` ADD INDEX `idx_public_resource_property` (`is_public`,`resource_id`,`property_id`);');
+    } catch (\Exception $e) {
+        // Index exists.
+    }
+
+    /** @see https://github.com/omeka/omeka-s/pull/2105 */
+    try {
+        $connection->executeStatement('ALTER TABLE `resource` ADD INDEX `is_public` (`is_public`);');
+    } catch (\Exception $e) {
+        // Index exists.
+    }
+    try {
+        $connection->executeStatement('ALTER TABLE `value` ADD INDEX `is_public` (`is_public`);');
+    } catch (\Exception $e) {
+        // Index exists.
+    }
+    try {
+        $connection->executeStatement('ALTER TABLE `site_page` ADD INDEX `is_public` (`is_public`);');
+    } catch (\Exception $e) {
+        // Index exists.
+    }
+
+    $settings->set('advancedsearch_index_batch_edit', $settings->get('advancedsearch_disable_index_batch_edit') ? 'none' : 'sync');
+    $settings->delete('advancedsearch_disable_index_batch_edit');
+
+    $message = new Message(
+        'A new settings allows to skip indexing after a batch process because an issue can occurs in some cases.' // @translate
+    );
+    $messenger->addWarning($message);
+}
+
+if (version_compare($oldVersion, '3.4.15', '<')) {
+    $sql = <<<'SQL'
+DELETE FROM `site_setting`
+WHERE `id` = "advancedsearch_restrict_used_terms";
+SQL;
+
+    $message = new Message(
+        'The performance was improved in many places, in particular for large databases.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new Message(
+        'It is now possible to order results by a list of ids with argument "sort_by=ids".' // @translate
+    );
     $messenger->addSuccess($message);
 }

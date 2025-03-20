@@ -100,6 +100,26 @@ class SolrMapRepresentation extends AbstractEntityRepresentation
 
         $this->pool = $this->resource->getPool();
 
+        // Check the regex for value one time.
+        if (empty($this->pool['filter_values'])) {
+            $this->pool['filter_values'] = null;
+        } else {
+            $test = @preg_match($this->pool['filter_values'], '');
+            if ($test === false) {
+                $this->pool['filter_values'] = null;
+            }
+        }
+
+        // Check the regex for uri one time.
+        if (empty($this->pool['filter_uris'])) {
+            $this->pool['filter_uris'] = null;
+        } else {
+            $test = @preg_match($this->pool['filter_uris'], '');
+            if ($test === false) {
+                $this->pool['filter_uris'] = null;
+            }
+        }
+
         // To avoid issues with updating/removing, check the data types.
         $dataTypeManager = $this->getServiceLocator()->get('Omeka\DataTypeManager');
         foreach (['data_types', 'data_types_exclude'] as $dataTypeName) {
@@ -112,6 +132,17 @@ class SolrMapRepresentation extends AbstractEntityRepresentation
                 }
             }
             $this->pool[$dataTypeName] = $result;
+        }
+
+        if (empty($this->pool['filter_languages'])) {
+            $this->pool['filter_languages'] = [];
+        } elseif (!is_array($this->pool['filter_languages'])) {
+            // Don't filter array to keep values without language.
+            $this->pool['filter_languages'] = array_unique(explode(' ', $this->pool['filter_languages']));
+        }
+
+        if (empty($this->pool['filter_visibility']) || !in_array($this->pool['filter_visibility'], ['public', 'private'])) {
+            $this->pool['filter_visibility'] = null;
         }
 
         return is_null($name) ? $this->pool : ($this->pool[$name] ?? $default);

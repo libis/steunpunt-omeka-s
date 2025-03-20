@@ -4,20 +4,16 @@ namespace AdvancedSearch\Form;
 
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
-use Omeka\View\Helper\Api;
-use Omeka\View\Helper\Setting as SiteSetting;
 
 class SearchingFormFieldset extends Fieldset
 {
     /**
-     * @var Api
+     * @var array
      */
-    protected $api;
+    protected $searchConfigs = [];
 
     public function init(): void
     {
-        $searchConfigs = $this->searchConfigs();
-
         $this
             ->add([
                 'name' => 'o:block[__blockIndex__][o:data][heading]',
@@ -30,16 +26,43 @@ class SearchingFormFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'o:block[__blockIndex__][o:data][html]',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Html to display', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'search-form-html',
+                    'class' => 'block-html full wysiwyg',
+                    'rows' => '5',
+                ],
+            ])
+            ->add([
+                'name' => 'o:block[__blockIndex__][o:data][link]',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Link to display', // @translate
+                    'info' => 'Formatted as "/url/full/path Label of the link".', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'search-form-link',
+                ],
+            ])
+            ->add([
                 'name' => 'o:block[__blockIndex__][o:data][search_config]',
                 'type' => Element\Select::class,
                 'options' => [
                     'label' => 'Search config page', // @translate
-                    'info' => 'The request below will be checked against the matching form below. Keys unknown by the form will be removed.', // @translate
-                    'value_options' => $searchConfigs,
+                    'value_options' => [
+                        'default' => 'Search config of the site', // @translate
+                    ] + $this->searchConfigs,
+                    'empty_option' => '',
                 ],
                 'attributes' => [
                     'id' => 'searching-form-search-config',
+                    'class' => 'chosen-select',
                     'required' => true,
+                    'data-placeholder' => 'Select a search engine…', // @translate
                 ],
             ])
             ->add([
@@ -95,38 +118,9 @@ class SearchingFormFieldset extends Fieldset
         }
     }
 
-    protected function searchConfigs()
+    public function setSearchConfigs(array $searchConfigs): self
     {
-        /** @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation[] $searchConfigs */
-        $searchConfigs = $this->api->search('search_configs')->getContent();
-
-        $configs = [];
-        foreach ($searchConfigs as $searchConfig) {
-            $configs[$searchConfig->id()] = sprintf('%s (/%s)', $searchConfig->name(), $searchConfig->path());
-        }
-
-        $siteSetting = $this->siteSetting;
-        $available = $siteSetting('advancedsearch_configs', []);
-        $configs = array_intersect_key($configs, array_flip($available));
-
-        // Set the main search config as default.
-        $default = $siteSetting('advancedsearch_main_config') ?: reset($available);
-        if (isset($configs[$default])) {
-            $configs = [$default => $configs[$default]] + $configs;
-        }
-
-        return $configs;
-    }
-
-    public function setApi(Api $api): self
-    {
-        $this->api = $api;
-        return $this;
-    }
-
-    public function setSiteSetting(SiteSetting $siteSetting): self
-    {
-        $this->siteSetting = $siteSetting;
+        $this->searchConfigs = $searchConfigs;
         return $this;
     }
 }

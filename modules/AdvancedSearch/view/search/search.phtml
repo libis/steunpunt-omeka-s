@@ -31,7 +31,6 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation $searchConfig
- * @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation $searchPage Alias of $searchConfig
  * @var \AdvancedSearch\Query $query
  * @var \AdvancedSearch\Response $response
  *
@@ -43,11 +42,22 @@
 $plugins = $this->getHelperPluginManager();
 $api = $plugins->get('api');
 $partial = $plugins->get('partial');
+$escape = $plugins->get('escapeHtml');
 $assetUrl = $plugins->get('assetUrl');
 $translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
 $translatePlural = $plugins->get('translatePlural');
 
+$breadcrumbs = $plugins->has('breadcrumbs') ? $plugins->get('breadcrumbs') : null;
+
 $vars = $this->vars();
+
+$setting = $plugins->get(isset($site) ? 'siteSetting' : 'setting');
+
+$filterLocale = (bool) $setting('filter_locale_values');
+$lang = $this->lang();
+$langTitle = $filterLocale ? $lang : null;
+$langValue = $filterLocale ? [$lang, ''] : null;
 
 // Used in case of a redirect of item-set/show to search, when used like item/browse.
 $itemSetId = $this->params()->fromRoute('item-set-id');
@@ -58,19 +68,43 @@ $itemSet = $itemSetId ? $api->searchOne('item_sets', ['id' => $itemSetId])->getC
 $isPartial = $skipFormAction = !empty($skipFormAction);
 
 $documentCount = isset($response) ? $response->getTotalResults() : 0;
-if ($documentCount):
+if ($documentCount) {
     $itemSetsCount = $response->getResourceTotalResults('item_sets');
     $itemsCount = $response->getResourceTotalResults('items');
     $displayParts = $searchConfig->setting('display', []);
     $displayPartsHeader = array_filter($displayParts, function ($v) { return in_array($v, ['header', 'both']); });
     $displayPartsFooter = array_filter($displayParts, function ($v) { return in_array($v, ['footer', 'both']); });
-endif;
+} else {
+    $itemSetsCount = 0;
+    $itemsCount = 0;
+    $displayPartsHeader = [];
+    $displayPartsFooter = [];
+}
 
-$this->headLink()->appendStylesheet($assetUrl('css/search.css', 'AdvancedSearch'));
-$this->headScript()->appendFile($assetUrl('js/search.js', 'AdvancedSearch'), 'text/javascript', ['defer' => 'defer']);
+$this->headLink()
+    ->appendStylesheet($assetUrl('css/search.css', 'AdvancedSearch'));
+$this->headScript()
+    ->appendFile($assetUrl('js/search.js', 'AdvancedSearch'), 'text/javascript', ['defer' => 'defer']);
 ?>
 
 <?php if (empty($isPartial)): ?>
+<?php if ($breadcrumbs): ?>
+    <?= $breadcrumbs() ?>
+<?php else: ?>
+<nav id="breadcrumb" class="breadcrumbs">
+    <ul>
+        <?php if (isset($site)): ?>
+        <li><?= $hyperlink($translate('Home'), $site->siteUrl()) ?></li>
+        <?php endif; ?>
+        <?php if ($itemSet): ?>
+        <li><?= $translate('Collections') ?></li>
+        <li><span><?= isset($site) ? $itemSet->siteUrl($site->slug()) : $itemSet->adminUrl() ?></span></li>
+        <?php endif; ?>
+        <li><span><?= $escape($translate('Search')) ?></span></li>
+    </ul>
+</nav>
+<?php endif; ?>
+
 <div id="search-page">
 <?php endif; ?>
 
@@ -81,7 +115,7 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'AdvancedSearch'), 'te
     $vars->offsetSet('resourceType', 'item_sets'); // TODO Check if really needed.
     $this->htmlElement('body')->appendAttribute('class', 'search-page item-set resource browse');
     ?>
-    <?= $this->pageTitle($itemSet->displayTitle(), 2) ?>
+    <?= $this->pageTitle($itemSet->displayTitle(null, $langTitle), 2) ?>
     <h3><?= $translate('Item set') ?></h3>
     <div class="metadata">
         <?= $itemSet->displayValues() ?>
@@ -97,7 +131,7 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'AdvancedSearch'), 'te
 
 <?php endif; ?>
 
-<?= $this->searchForm($searchConfig, null, $skipFormAction) ?>
+<?= $searchConfig->renderForm(['template' => null, 'skip_form_action' => $skipFormAction]) ?>
 
 <?php if (isset($response)): ?>
 

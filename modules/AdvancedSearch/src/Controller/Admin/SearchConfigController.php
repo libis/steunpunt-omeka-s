@@ -272,7 +272,7 @@ class SearchConfigController extends AbstractActionController
 
         // Check if the name of the path is single in the database.
         $params = $this->params()->fromPost();
-        $id = $this->params('id');
+        $id = (int) $this->params('id');
         $path = $params['o:path'];
 
         $paths = $this->api()
@@ -283,7 +283,7 @@ class SearchConfigController extends AbstractActionController
                 $this->messenger()->addError('The path should be unique.'); // @translate
                 return false;
             }
-            $searchConfigId = $this->api()
+            $searchConfigId = (int) $this->api()
                 ->searchOne('search_configs', ['path' => $path], ['returnScalar' => 'id'])
                 ->getContent();
             if ($id !== $searchConfigId) {
@@ -442,7 +442,7 @@ class SearchConfigController extends AbstractActionController
         // Ok facet.
 
         // Fix form.
-        $settings['form']['filters'] = $settings['form']['filters'] ?? [];
+        $settings['form']['filters'] ??= [];
         if (empty($settings['form']['filters'])) {
             return $settings;
         }
@@ -531,7 +531,7 @@ class SearchConfigController extends AbstractActionController
 
         // The field "advanced" is only for display, so save it with filters.
         // TODO No more include advanced fields in filters, but still cleaning.
-        $params['form']['filters'] = $params['form']['filters'] ?? [];
+        $params['form']['filters'] ??= [];
         $advanced = $params['form']['advanced'] ?? [];
         $keyAdvanced = false;
         foreach ($params['form']['filters'] as $keyFilter => $filter) {

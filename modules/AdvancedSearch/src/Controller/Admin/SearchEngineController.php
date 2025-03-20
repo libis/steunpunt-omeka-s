@@ -161,6 +161,13 @@ class SearchEngineController extends AbstractActionController
             ->setTemplate('advanced-search/admin/search-engine/index-confirm-details');
     }
 
+    /**
+     * Adapted:
+     * @see \AdvancedSearch\Module::runJobIndexSearch()
+     *
+     * {@inheritDoc}
+     * @see \Laminas\Mvc\Controller\AbstractActionController::indexAction()
+     */
     public function indexAction()
     {
         $searchEngineId = (int) $this->params('id');
@@ -175,7 +182,7 @@ class SearchEngineController extends AbstractActionController
         $jobArgs['start_resource_id'] = $startResourceId;
         $jobArgs['resource_names'] = $resourceNames;
         $jobArgs['force'] = $force;
-        // Synchronous dispatcher for testing purpose.
+        // Synchronous dispatcher for quick testing purpose.
         // $job = $this->jobDispatcher()->dispatch(\AdvancedSearch\Job\IndexSearch::class, $jobArgs, $searchEngine->getServiceLocator()->get('Omeka\Job\DispatchStrategy\Synchronous'));
         $job = $this->jobDispatcher()->dispatch(\AdvancedSearch\Job\IndexSearch::class, $jobArgs);
 
@@ -186,7 +193,7 @@ class SearchEngineController extends AbstractActionController
             sprintf('<a href="%1$s">', $urlHelper('admin/id', ['controller' => 'job', 'id' => $job->getId()])),
             $job->getId(),
             '</a>',
-            sprintf('<a href="%1$s">', class_exists('Log\Stdlib\PsrMessage') ? $urlHelper('admin/default', ['controller' => 'log'], ['query' => ['job_id' => $job->getId()]]) :  $urlHelper('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()]))
+            sprintf('<a href="%1$s">', class_exists('Log\Stdlib\PsrMessage') ? $urlHelper('admin/default', ['controller' => 'log'], ['query' => ['job_id' => $job->getId()]]) : $urlHelper('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()]))
         );
         $message->setEscapeHtml(false);
         $this->messenger()->addSuccess($message);

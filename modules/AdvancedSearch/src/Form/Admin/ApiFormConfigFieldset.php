@@ -3,7 +3,6 @@
 namespace AdvancedSearch\Form\Admin;
 
 use AdvancedSearch\Form\Element as AdvancedSearchElement;
-use AdvancedSearch\View\Helper\EasyMeta;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
 use Omeka\Form\Element as OmekaElement;
@@ -11,7 +10,7 @@ use Omeka\Form\Element as OmekaElement;
 class ApiFormConfigFieldset extends Fieldset
 {
     /**
-     * @var EasyMeta
+     * @var \AdvancedSearch\View\Helper\EasyMeta
      */
     protected $easyMeta;
 
@@ -218,6 +217,20 @@ class ApiFormConfigFieldset extends Fieldset
                     'class' => 'chosen-select',
                 ],
             ])
+            ->add([
+                'name' => 'is_open',
+                'type' => AdvancedSearchElement\OptionalSelect::class,
+                'options' => [
+                    'label' => 'Is open', // @translate
+                    'value_options' => $availableFields,
+                    'empty_option' => 'None', // @translate
+                    'use_hidden_element' => true,
+                ],
+                'attributes' => [
+                    'required' => false,
+                    'class' => 'chosen-select',
+                ],
+            ])
         ;
 
         // Prefill the mapping (the specific metadata are mapped above).
@@ -368,7 +381,7 @@ class ApiFormConfigFieldset extends Fieldset
         return $options;
     }
 
-    public function setEasyMeta(EasyMeta $easyMeta): self
+    public function setEasyMeta($easyMeta): self
     {
         $this->easyMeta = $easyMeta;
         return $this;

@@ -4,7 +4,7 @@ namespace SearchSolr\ValueFormatter;
 
 use Omeka\Api\Representation\ValueRepresentation;
 
-class Point implements ValueFormatterInterface
+class Point extends AbstractValueFormatter
 {
     public function getLabel(): string
     {
@@ -24,6 +24,7 @@ class Point implements ValueFormatterInterface
                         : [];
 
                 case 'place':
+                    // TODO Remove json_decode? No, this is the value.
                     $val = json_decode($value->value(), true);
                     if (!$val || !is_array($val) || !array_key_exists('latitude', $val) || !array_key_exists('longitude', $val)) {
                         return [];

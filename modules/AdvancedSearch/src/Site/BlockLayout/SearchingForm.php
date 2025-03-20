@@ -45,7 +45,7 @@ class SearchingForm extends AbstractBlockLayout
         $defaultSettings = $services->get('Config')['advancedsearch']['block_settings']['searchingForm'];
         $blockFieldset = \AdvancedSearch\Form\SearchingFormFieldset::class;
 
-        $data = $block ? $block->data() + $defaultSettings : $defaultSettings;
+        $data = $block ? ($block->data() ?? []) + $defaultSettings : $defaultSettings;
 
         $dataForm = [];
         foreach ($data as $key => $value) {
@@ -64,51 +64,56 @@ class SearchingForm extends AbstractBlockLayout
 
         /** @var \AdvancedSearch\Api\Representation\SearchConfigRepresentation $searchConfig */
         $searchConfig = $data['search_config'] ?? null;
-        if ($searchConfig) {
-            try {
-                $searchConfig = $view->api()->read('search_configs', ['id' => $searchConfig])->getContent();
-            } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                $view->logger()->err($e->getMessage());
-                return '';
-            }
-            $available = $view->siteSetting('advancedsearch_configs');
-            if (!in_array($searchConfig->id(), $available)) {
-                $message = new \Omeka\Stdlib\Message(
-                    'The search page #%d is not available for the site %s.', // @translate
-                    $searchConfig->id(), $block->page()->site()->slug()
-                );
-                $view->logger()->err($message);
-                return '';
-            }
-        } else {
+        $searchConfigId = empty($searchConfig) || $searchConfig === 'default' ? null : (int) $searchConfig;
+        $searchConfig = $view->getSearchConfig($searchConfigId);
+        if (!$searchConfig) {
             $message = new \Omeka\Stdlib\Message(
-                'No search page specified for this block.' // @translate
+                'No search config specified for this block or not available for this site.' // @translate
             );
             $view->logger()->err($message);
             return '';
         }
 
-        /** @var \Laminas\Form\Form $form */
-        $form = $view->searchForm($searchConfig)->getForm();
+        $form = $searchConfig->form();
         if (!$form) {
+            $message = new \Omeka\Stdlib\Message(
+                'The search config "%s" has no form associated.', // @translate
+                $searchConfig->path()
+            );
+            $view->logger()->warn($message);
             return '';
         }
 
         $site = $block->page()->site();
+
         $displayResults = !empty($data['display_results']);
+
+        if (!$displayResults) {
+            $form->setAttribute('action', $searchConfig->siteUrl($site->slug()));
+        }
+
+        if (empty($data['link'])) {
+            $link = [];
+        } else {
+            $link = explode(' ', $data['link'], 2);
+            $link = ['url' => trim($link[0]), 'label' => trim($link[1] ?? '')];
+        }
+
+        $cssClass = str_replace('searching-form', 'block-template', basename((string) $block->dataValue('template', ''))) ?: 'block-template';
 
         $vars = [
             'block' => $block,
             'site' => $site,
             'heading' => $data['heading'] ?? '',
+            'html' => $data['html'] ?? '',
+            'link' => $link,
             'searchConfig' => $searchConfig,
-            // Name "searchPage" is kept to simplify migration.
-            'searchPage' => $searchConfig,
             'query' => null,
-            'displayResults' => $displayResults,
-            'response' => new Response,
             // Returns results on the same page.
-            'skipFormAction' => true,
+            'skipFormAction' => $displayResults,
+            'displayResults' => $displayResults,
+            'cssClass' => $cssClass,
+            'response' => new Response,
         ];
 
         if ($displayResults) {
@@ -131,11 +136,12 @@ class SearchingForm extends AbstractBlockLayout
                 $request = $query;
             }
 
-            $result = $view->searchRequestToResponse($request, $searchConfig, $site);
+            $plugins = $block->getServiceLocator()->get('ControllerPluginManager');
+            $result = $plugins->get('searchRequestToResponse')($request, $searchConfig, $site);
             if ($result['status'] === 'success') {
                 $vars = array_replace($vars, $result['data']);
             } elseif ($result['status'] === 'error') {
-                $messenger = $block->getServiceLocator()->get('ControllerPluginManager')->get('messenger');
+                $messenger = $plugins->get('messenger');
                 $messenger->addError($result['message']);
             }
         }
@@ -149,7 +155,7 @@ class SearchingForm extends AbstractBlockLayout
     /**
      * Get the request from the query and check it according to the search config.
      *
-     * @todo Factorize with \AdvancedSearch\Controller\IndexController::getSearchRequest()
+     * @todo Factorize with \AdvancedSearch\Controller\SearchController::getSearchRequest()
      *
      * @param SearchConfigRepresentation $searchConfig
      * @param \Laminas\Form\Form $searchForm

@@ -437,7 +437,7 @@ SQL;
 
         $sort = $this->query->getSort();
         if ($sort) {
-            list($sortField, $sortOrder) = explode(' ', $sort);
+            [$sortField, $sortOrder] = explode(' ', $sort);
             $this->args['sort_by'] = $sortField;
             $this->args['sort_order'] = $sortOrder === 'desc' ? 'desc' : 'asc';
         }
@@ -568,7 +568,7 @@ SQL;
             if (!is_array($values)) {
                 return [$values];
             } elseif (is_array(reset($values))) {
-                return array_merge(...$values);
+                return array_merge(...array_values($values));
             }
             return $values;
         };
@@ -580,7 +580,9 @@ SQL;
                 case 'resource_name':
                 case 'resource_type':
                     $values = $flatArray($values);
-                    $this->args['resource_name'] = empty($this->args['resource_name']) ? $values : array_merge($this->args['resource_name'], $values);
+                    $this->args['resource_name'] = empty($this->args['resource_name'])
+                        ? $values
+                        : array_merge(is_array($this->args['resource_name']) ? $this->args['resource_name'] : [$this->args['resource_name']], $values);
                     continue 2;
 
                 // "is_public" is automatically managed by this internal adapter
@@ -590,7 +592,9 @@ SQL;
 
                 case 'id':
                     $values = array_filter(array_map('intval', $flatArray($values)));
-                    $this->args['id'] = empty($this->args['id']) ? $values : array_merge($this->args['id'], $values);
+                    $this->args['id'] = empty($this->args['id'])
+                        ? $values
+                        : array_merge(is_array($this->args['id']) ? $this->args['id'] : [$this->args['id']], $values);
                     continue 2;
 
                 case 'owner_id':
@@ -598,7 +602,9 @@ SQL;
                     $values = is_numeric(reset($values))
                         ? array_filter(array_map('intval', $values))
                         : $this->listUserIds($values);
-                    $this->args['owner_id'] = empty($this->args['owner_id']) ? $values : array_merge($this->args['owner_id'], $values);
+                    $this->args['owner_id'] = empty($this->args['owner_id'])
+                        ? $values
+                        : array_merge(is_array($this->args['owner_id']) ? $this->args['owner_id'] : [$this->args['owner_id']], $values);
                     continue 2;
 
                 case 'site_id':
@@ -606,7 +612,9 @@ SQL;
                     $values = is_numeric(reset($values))
                         ? array_filter(array_map('intval', $values))
                         : $this->listSiteIds($values);
-                    $this->args['site_id'] = empty($this->args['site_id']) ? $values : array_merge($this->args['site_id'], $values);
+                    $this->args['site_id'] = empty($this->args['site_id'])
+                        ? $values
+                        : array_merge(is_array($this->args['site_id']) ? $this->args['site_id'] : [$this->args['site_id']], $values);
                     continue 2;
 
                 case 'resource_class_id':
@@ -614,7 +622,9 @@ SQL;
                     $values = is_numeric(reset($values))
                         ? array_filter(array_map('intval', $values))
                         : $this->listResourceClassIds($values);
-                    $this->args['resource_class_id'] = empty($this->args['resource_class_id']) ? $values : array_merge($this->args['resource_class_id'], $values);
+                    $this->args['resource_class_id'] = empty($this->args['resource_class_id'])
+                        ? $values
+                        : array_merge(is_array($this->args['resource_class_id']) ? $this->args['resource_class_id'] : [$this->args['resource_class_id']], $values);
                     continue 2;
 
                 case 'resource_template_id':
@@ -622,12 +632,32 @@ SQL;
                     $values = is_numeric(reset($values))
                         ? array_filter(array_map('intval', $values))
                         : $this->listResourceTemplateIds($values);
-                    $this->args['resource_template_id'] = empty($this->args['resource_template_id']) ? $values : array_merge($this->args['resource_template_id'], $values);
+                    $this->args['resource_template_id'] = empty($this->args['resource_template_id'])
+                        ? $values
+                        : array_merge(is_array($this->args['resource_template_id']) ? $this->args['resource_template_id'] : [$this->args['resource_template_id']], $values);
                     continue 2;
 
                 case 'item_set_id':
                     $values = array_filter(array_map('intval', $flatArray($values)));
-                    $this->args['item_set_id'] = empty($this->args['item_set_id']) ? $values : array_merge($this->args['item_set_id'], $values);
+                    $this->args['item_set_id'] = empty($this->args['item_set_id'])
+                        ? $values
+                        : array_merge(is_array($this->args['item_set_id']) ? $this->args['item_set_id'] : [$this->args['item_set_id']], $values);
+                    continue 2;
+
+                // Module Access: access level (free, reserved, protected, forbidden).
+                case 'access':
+                    $values = array_filter($flatArray($values));
+                    $this->args['access'] = empty($this->args['access'])
+                        ? $values
+                        : array_merge(is_array($this->args['access']) ? $this->args['access'] : [$this->args['access']], $values);
+                    continue 2;
+
+                // Module Item Sets Tree.
+                case 'item_sets_tree':
+                    $values = array_filter(array_map('intval', $flatArray($values)));
+                    $this->args['item_sets_tree'] = empty($this->args['item_sets_tree'])
+                        ? $values
+                        : array_merge(is_array($this->args['item_sets_tree']) ? $this->args['item_sets_tree'] : [$this->args['item_sets_tree']], $values);
                     continue 2;
 
                 default:
@@ -740,6 +770,9 @@ SQL;
         }
     }
 
+    /**
+     * @todo In internal querier, advanced filters manage only properties for now.
+     */
     protected function filterQueryFilters(array $filters): void
     {
         $multifields = $this->engine->settingAdapter('multifields', []);
@@ -829,6 +862,8 @@ SQL;
             'resource_class_id' => 'o:resource_class',
             'resource_template_id' => 'o:resource_template',
             'item_set_id' => 'o:item_set',
+            'access' => 'access',
+            'item_sets_tree' => 'item_sets_tree',
         ];
 
         // Convert multi-fields into a list of property terms.
@@ -847,7 +882,9 @@ SQL;
         // query for resource (items and item sets together).
         $facetCountsByField = array_fill_keys(array_keys($facets), []);
 
-        //$facetData = $this->argsWithoutActiveFacets;
+        $facetData = $this->query->getOption('facet_display_list', 'available') === 'all'
+            ? $this->args
+            : $this->argsWithoutActiveFacets;
 
         $facetOrders = [
             'alphabetic asc' => [
@@ -882,6 +919,7 @@ SQL;
                 'sort_order' => $facetOrders[$facetOrder]['sort_order'],
                 'filters' => [
                     'languages' => $facetLanguages,
+                    // 'main_types' => [],
                     'datatypes' => [],
                 ],
                 'values' => [],
@@ -895,12 +933,10 @@ SQL;
                 'output' => 'associative',
             ];
 
-            //var_dump($options);
-
-            // TODO Make References manages individual options for each field (limit, order, languages, range).
+            // TODO Make References manages individual options for each field (limit, order, languages, range, main data types, data types).
             $values = $references
                 ->setMetadata($fields)
-                ->setQuery($this->args)
+                ->setQuery($facetData)
                 ->setOptions($options)
                 ->list();
 
@@ -916,15 +952,25 @@ SQL;
                 $isFacetRange = $facets[$facetField]['type'] === 'SelectRange';
                 // Like Solr, get all facet values, so all existing values.
                 /** @see https://solr.apache.org/guide/solr/latest/query-guide/faceting.html */
+                // TODO Remove these double queries for facet range when individual options will be managed.
                 if ($isFacetRange) {
-                    // TODO Remove this double query for facet range when individual options will be managed.
-                    $values = $references
-                        ->setMetadata([$fields[$facetField]])
-                        ->setQuery($this->args)
+                    $localValues = $references
+                        ->setMetadata([$facetField => $fields[$facetField]])
+                        ->setQuery($facetData)
                         ->setOptions($optionsFacetRange)
                         ->list();
+                } elseif (!empty($facets[$facetField]['options']) && $facets[$facetField]['options'] !== ['value', 'uri', 'resource']) {
+                    $localOptions = $options;
+                    $localOptions['filters']['main_types'] = $facets[$facetField]['options'];
+                    $localValues = $references
+                        ->setMetadata([$facetField => $fields[$facetField]])
+                        ->setQuery($facetData)
+                        ->setOptions($localOptions)
+                        ->list();
+                } else {
+                    $localValues = $values;
                 }
-                foreach ($values[$facetField]['o:references'] ?? [] as $value => $count) {
+                foreach ($localValues[$facetField]['o:references'] ?? [] as $value => $count) {
                     if (empty($facetCountsByField[$facetField][$value])) {
                         $facetCountsByField[$facetField][$value] = [
                             'value' => $value,

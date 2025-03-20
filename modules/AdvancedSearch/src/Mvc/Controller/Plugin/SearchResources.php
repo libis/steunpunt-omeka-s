@@ -2,6 +2,8 @@
 
 namespace AdvancedSearch\Mvc\Controller\Plugin;
 
+use DateTime;
+use DateTimeZone;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
@@ -331,12 +333,19 @@ class SearchResources extends AbstractPlugin
             ) {
                 unset($query[$key]);
             } elseif ($key === 'id') {
-                $values = is_array($value) ? $value : [$value];
-                $values = array_filter($values, function ($id) {
-                    return $id !== '' && $id !== null;
-                });
-                if (count($values)) {
-                    $query['id'] = $values;
+                /** @see \Omeka\Api\Adapter\AbstractEntityAdapter::buildBaseQuery() */
+                // Avoid a strict type issue, so convert ids as string.
+                if (is_int($value)) {
+                    $value = [(string) $value];
+                } elseif (is_string($value)) {
+                    $value = strpos($value, ',') === false ? [$value] : explode(',', $value);
+                } elseif (!is_array($value)) {
+                    $value = [];
+                }
+                $value = array_map('trim', $value);
+                $value = array_filter($value, 'strlen');
+                if (count($value)) {
+                    $query['id'] = $value;
                 } else {
                     unset($query['id']);
                 }
@@ -406,7 +415,7 @@ class SearchResources extends AbstractPlugin
                             unset($query['property'][$k]);
                             continue;
                         }
-                        $queryRowProp = isset($queryRow['property']) ? $queryRow['property'] : null;
+                        $queryRowProp = $queryRow['property'] ?? null;
                         if (is_array($queryRowProp)) {
                             $query['property'][$k]['property'] = array_unique($query['property'][$k]['property']);
                         }
@@ -547,6 +556,21 @@ class SearchResources extends AbstractPlugin
                 } else {
                     unset($query['numeric']);
                 }
+            } elseif ($key === 'sort_ids') {
+                if (is_int($value)) {
+                    $value = [(string) $value];
+                } elseif (is_string($value)) {
+                    $value = strpos($value, ',') === false ? [$value] : explode(',', $value);
+                } elseif (!is_array($value)) {
+                    $value = [];
+                }
+                $value = array_map('trim', $value);
+                $value = array_filter($value, 'strlen');
+                if (count($value)) {
+                    $query['sort_ids'] = $value;
+                } else {
+                    unset($query['sort_ids']);
+                }
             }
         }
 
@@ -566,6 +590,8 @@ class SearchResources extends AbstractPlugin
         // and variants: not equal to not in list, and types "and" and "except".
         // On a base > 10000 items and more than three or four subjects with OR,
         // mysql never ends request.
+        // The issue is fixed in Omeka S v4.1.
+        /** @see https://github.com/omeka/omeka-s/commits/consecutive-or-optimize */
         foreach ($shortProperties as $shortProperty) {
             if ($shortProperty['total'] < 2 || !isset(self::PROPERTY_QUERY['optimize'][$shortProperty['type']])) {
                 continue;
@@ -715,8 +741,8 @@ class SearchResources extends AbstractPlugin
                 $qb
                     ->andWhere($expr->eq(
                         "$userAlias.id",
-                        $this->adapter->createNamedParameter($qb, $query['owner_id']))
-                    );
+                        $this->adapter->createNamedParameter($qb, $query['owner_id'])
+                    ));
             }
         }
 
@@ -820,6 +846,45 @@ class SearchResources extends AbstractPlugin
                     );
             }
         }
+
+        // Sort by listed id.
+        // The list is the one set in key "sort_ids" or in main query key "id".
+        // The sort order is "desc" for resource/browse (see plugin SetBrowseDefault::__invoke())
+        // and as "asc" in api (see AbstractEntityAdapter::buildQuery()).
+        if (isset($query['sort_by'])
+            && $query['sort_by'] === 'ids'
+            && (!empty($query['sort_ids']) || !empty($query['id']))
+        ) {
+            /** @see \Omeka\Api\Adapter\AbstractEntityAdapter::buildBaseQuery() */
+            // Avoid a strict type issue, so convert ids as string.
+            // Normally, the query is cleaned before.
+            $ids = empty($query['sort_ids']) ? $query['id'] : $query['sort_ids'];
+            if (is_int($ids)) {
+                $ids = [(string) $ids];
+            } elseif (is_string($ids)) {
+                $ids = strpos($ids, ',') === false ? [$ids] : explode(',', $ids);
+            } elseif (!is_array($ids)) {
+                $ids = [];
+            }
+            $ids = array_map('trim', $ids);
+            $ids = array_filter($ids, 'strlen');
+            if ($ids) {
+                $idsAlias = $this->adapter->createAlias();
+                $idsPlaceholder = ':' . $idsAlias;
+                $qb
+                    ->setParameter($idsAlias, $ids, Connection::PARAM_INT_ARRAY)
+                    ->addOrderBy("FIELD(omeka_root.id, $idsPlaceholder)", $query['sort_order'])
+                    // In AbstractEntityAdapter::search(), the countQb is a
+                    // clone of this qb that removes the orderBy part, but not
+                    // the parameters associated to it. So a fake argument Where
+                    // is added , to avoid a doctrine issue.
+                    // TODO Patch omeka: get the dql part orderBy, get the parameter associated to it, check if is used somewhere before removing it.
+                    ->andWhere($expr->in(
+                        $this->adapter->createNamedParameter($qb, reset($ids)),
+                        $idsPlaceholder
+                    ));
+            }
+        }
     }
 
     /**
@@ -853,6 +918,9 @@ class SearchResources extends AbstractPlugin
      *
      * Pseudo-override buildPropertyQuery() via the api manager delegator.
      * @see \Omeka\Api\Adapter\AbstractResourceEntityAdapter::buildPropertyQuery()
+     *
+     * @see \AdvancedSearch\Mvc\Controller\Plugin\SearchResources::buildPropertyQuery()
+     * @see \Annotate\Api\Adapter\QueryPropertiesTrait::buildPropertyQuery()
      *
      * Query format:
      *
@@ -907,6 +975,11 @@ class SearchResources extends AbstractPlugin
      *   - ma: matches a simple regex
      *   - nma: does not match a simple regex
      *
+     * Note for "nlex":
+     * For consistency, "nlex" is the reverse of "lex" even when a resource is
+     * linked with a public and a private resource.
+     * A private linked resource is not linked for an anonymous.
+     *
      * @param QueryBuilder $qb
      * @param array $query
      */
@@ -919,13 +992,21 @@ class SearchResources extends AbstractPlugin
         $valuesJoin = 'omeka_root.values';
         $where = '';
 
-        // @see \Doctrine\ORM\QueryBuilder::expr().
-        $expr = $qb->expr();
-        $entityManager = $this->adapter->getEntityManager();
-
-        $escapeSql = function ($string) {
+        $escapeSqlLike = function ($string) {
             return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], (string) $string);
         };
+
+        // See below "Consecutive OR optimization" comment
+        $previousPropertyIds = null;
+        $previousAlias = null;
+        $previousPositive = null;
+
+        /**
+         * @see \Doctrine\ORM\QueryBuilder::expr().
+         * @var \Doctrine\ORM\EntityManager $entityManager
+         */
+        $expr = $qb->expr();
+        $entityManager = $this->adapter->getEntityManager();
 
         // Initialize properties and used properties one time.
         $this->getPropertyIds();
@@ -938,8 +1019,11 @@ class SearchResources extends AbstractPlugin
                 continue;
             }
 
+            $propertyIds = $queryRow['property'] ?? null;
             $queryType = $queryRow['type'];
+            $joiner = $queryRow['joiner'] ?? '';
             $value = $queryRow['text'] ?? '';
+            $dataType = $queryRow['datatype'] ?? '';
 
             // Quick check of value.
             // A empty string "" is not a value, but "0" is a value.
@@ -980,9 +1064,7 @@ class SearchResources extends AbstractPlugin
                 }
             }
 
-            $joiner = $queryRow['joiner'] ?? '';
-            $dataType = $queryRow['datatype'] ?? '';
-
+            // The three joiners are "and" (default), "or" and "not".
             // Check joiner and invert the query type for joiner "not".
             if ($joiner === 'not') {
                 $joiner = 'and';
@@ -991,14 +1073,60 @@ class SearchResources extends AbstractPlugin
                 $joiner = 'and';
             }
 
-            $valuesAlias = $this->adapter->createAlias();
-            $positive = true;
+            if (in_array($queryType, self::PROPERTY_QUERY['negative'], true)
+                // Manage exceptions for specific negative queries.
+                && !in_array($query, ['nexs', 'nexm'], true)
+            ) {
+                $positive = false;
+                $queryType = self::PROPERTY_QUERY['reciprocal'][$queryType];
+            } else {
+                $positive = true;
+            }
+
+            // Narrow to specific properties, if one or more are selected.
+            $fakePropertyIds = false;
+            // Properties may be an array with an empty value (any property) in
+            // advanced form, so remove empty strings from it, in which case the
+            // check should be skipped.
+            if (is_array($propertyIds) && in_array('', $propertyIds, true)) {
+                $propertyIds = [];
+            } elseif ($propertyIds) {
+                $propertyIds = array_values(array_unique($this->getPropertyIds($propertyIds)));
+                $fakePropertyIds = empty($propertyIds);
+            }
+
+            // Note: a list of "or" with the same property should be optimized
+            // early with type "list".
+            // TODO Optimize early search type "or" with same properties and type.
+
+            // Consecutive OR optimization
+            //
+            // When we have a run of query rows that are joined by OR and share
+            // the same property ID (or lack thereof), we don't actually need a
+            // separate join to the values table; we can just tack additional OR
+            // clauses onto the WHERE while using the same join and alias. The
+            // extra joins are expensive, so doing this improves performance where
+            // many ORs are used.
+            //
+            // Rows using "negative" searches need their own separate join to the
+            // values table, so they're excluded from this optimization on both
+            // sides: if either the current or previous row is a negative query,
+            // the current row does a new join.
+            if ($previousPropertyIds === $propertyIds
+                && $previousPositive
+                && $positive
+                && $joiner === 'or'
+            ) {
+                $valuesAlias = $previousAlias;
+                $usePrevious = true;
+            } else {
+                $valuesAlias = $this->adapter->createAlias();
+                $usePrevious = false;
+            }
+
             $incorrectValue = false;
 
             switch ($queryType) {
-                case 'neq':
-                    $positive = false;
-                    // no break.
                 case 'eq':
                     $param = $this->adapter->createNamedParameter($qb, $value);
                     $subqueryAlias = $this->adapter->createAlias();
@@ -1014,11 +1142,8 @@ class SearchResources extends AbstractPlugin
                     );
                     break;
 
-                case 'nin':
-                    $positive = false;
-                    // no break.
                 case 'in':
-                    $param = $this->adapter->createNamedParameter($qb, '%' . $escapeSql($value) . '%');
+                    $param = $this->adapter->createNamedParameter($qb, '%' . $escapeSqlLike($value) . '%');
                     $subqueryAlias = $this->adapter->createAlias();
                     $subquery = $entityManager
                         ->createQueryBuilder()
@@ -1032,9 +1157,6 @@ class SearchResources extends AbstractPlugin
                     );
                     break;
 
-                case 'nlist':
-                    $positive = false;
-                    // no break.
                 case 'list':
                     $param = $this->adapter->createNamedParameter($qb, $value);
                     $qb->setParameter(substr($param, 1), $value, Connection::PARAM_STR_ARRAY);
@@ -1051,11 +1173,8 @@ class SearchResources extends AbstractPlugin
                     );
                     break;
 
-                case 'nsw':
-                    $positive = false;
-                    // no break.
                 case 'sw':
-                    $param = $this->adapter->createNamedParameter($qb, $escapeSql($value) . '%');
+                    $param = $this->adapter->createNamedParameter($qb, $escapeSqlLike($value) . '%');
                     $subqueryAlias = $this->adapter->createAlias();
                     $subquery = $entityManager
                         ->createQueryBuilder()
@@ -1069,11 +1188,8 @@ class SearchResources extends AbstractPlugin
                     );
                     break;
 
-                case 'new':
-                    $positive = false;
-                    // no break.
                 case 'ew':
-                    $param = $this->adapter->createNamedParameter($qb, '%' . $escapeSql($value));
+                    $param = $this->adapter->createNamedParameter($qb, '%' . $escapeSqlLike($value));
                     $subqueryAlias = $this->adapter->createAlias();
                     $subquery = $entityManager
                         ->createQueryBuilder()
@@ -1087,9 +1203,6 @@ class SearchResources extends AbstractPlugin
                     );
                     break;
 
-                case 'nnear':
-                    $positive = false;
-                    // no break.
                 case 'near':
                     // The mysql soundex() is not standard, because it returns
                     // more than four characters, so the comparaison cannot be
@@ -1110,9 +1223,6 @@ class SearchResources extends AbstractPlugin
                     );
                     break;
 
-                case 'nres':
-                    $positive = false;
-                    // no break.
                 case 'res':
                     if (count($value) <= 1) {
                         $param = $this->adapter->createNamedParameter($qb, (int) reset($value));
@@ -1124,9 +1234,6 @@ class SearchResources extends AbstractPlugin
                     }
                     break;
 
-                case 'nex':
-                    $positive = false;
-                    // no break.
                 case 'ex':
                     $predicateExpr = $expr->isNotNull("$valuesAlias.id");
                     break;
@@ -1151,9 +1258,6 @@ class SearchResources extends AbstractPlugin
                     $qb->having($expr->gt("COUNT($valuesAlias.id)", 1));
                     break;
 
-                case 'ntp':
-                    $positive = false;
-                    // no break.
                 case 'tp':
                     if ($value === 'literal') {
                         // Because a resource or a uri can have a label stored
@@ -1172,9 +1276,6 @@ class SearchResources extends AbstractPlugin
                     }
                     break;
 
-                case 'ntpl':
-                    $positive = false;
-                    // no break.
                 case 'tpl':
                     // Because a resource or a uri can have a label stored
                     // in "value", a literal-like value is a value without
@@ -1185,23 +1286,14 @@ class SearchResources extends AbstractPlugin
                     );
                     break;
 
-                case 'ntpr':
-                    $positive = false;
-                    // no break.
                 case 'tpr':
                     $predicateExpr = $expr->isNotNull("$valuesAlias.valueResource");
                     break;
 
-                case 'ntpu':
-                    $positive = false;
-                    // no break.
                 case 'tpu':
                     $predicateExpr = $expr->isNotNull("$valuesAlias.uri");
                     break;
 
-                case 'ndtp':
-                    $positive = false;
-                    // no break.
                 case 'dtp':
                     if (count($value) <= 1) {
                         $dataTypeAlias = $this->adapter->createNamedParameter($qb, reset($value));
@@ -1209,18 +1301,11 @@ class SearchResources extends AbstractPlugin
                     } else {
                         $dataTypeAlias = $this->adapter->createAlias();
                         $qb->setParameter($dataTypeAlias, $value, Connection::PARAM_STR_ARRAY);
-                        $predicateExpr = $expr->in("$valuesAlias.type", $dataTypeAlias);
+                        $predicateExpr = $expr->in("$valuesAlias.type", ":$dataTypeAlias");
                     }
                     break;
 
                 // The linked resources (subject values) use the same sub-query.
-                case 'nlex':
-                    // For consistency, "nlex" is the reverse of "lex" even when
-                    // a resource is linked with a public and a private resource.
-                    // A private linked resource is not linked for an anonymous.
-                case 'nlres':
-                    $positive = false;
-                    // no break.
                 case 'lex':
                 case 'lres':
                     $subValuesAlias = $this->adapter->createAlias();
@@ -1274,6 +1359,7 @@ class SearchResources extends AbstractPlugin
                     break;
 
                 default:
+                    // Normally not possible because types are already checked.
                     continue 2;
             }
 
@@ -1286,51 +1372,45 @@ class SearchResources extends AbstractPlugin
 
             $joinConditions = [];
 
-            // Narrow to specific properties, if one or more are selected.
-            $propertyIds = $queryRow['property'] ?? null;
-            // Properties may be an array with an empty value (any property) in
-            // advanced form, so remove empty strings from it, in which case the
-            // check should be skipped.
-            if (is_array($propertyIds) && in_array('', $propertyIds, true)) {
-                $propertyIds = [];
-            }
-            // TODO What if a property is ""?
-            $excludePropertyIds = $propertyIds || empty($queryRow['except'])
-                ? false
-                :  array_values(array_unique($this->getPropertyIds($queryRow['except'])));
-            if ($propertyIds) {
-                $propertyIds = array_values(array_unique($this->getPropertyIds($propertyIds)));
-                if ($propertyIds) {
-                    // For queries on subject values, the properties should be
-                    // checked against the sub-query.
-                    if (in_array($queryType, self::PROPERTY_QUERY['value_subject'])) {
-                        $subQb
-                            ->andWhere(count($propertyIds) < 2
-                                ? $expr->eq("$subValuesAlias.property", reset($propertyIds))
-                                : $expr->in("$subValuesAlias.property", $propertyIds)
-                            );
-                    } else {
-                        $joinConditions[] = count($propertyIds) < 2
-                            ? $expr->eq("$valuesAlias.property", reset($propertyIds))
-                            : $expr->in("$valuesAlias.property", $propertyIds);
-                    }
-                } else {
-                    // Don't return results for this part for fake properties.
-                    $joinConditions[] = $expr->eq("$valuesAlias.property", 0);
-                }
-            }
-            // Use standard query if nothing to exclude, else limit search.
-            elseif ($excludePropertyIds) {
-                // The aim is to search anywhere except ocr content.
-                // Use not positive + in() or notIn()? A full list is simpler.
-                $otherIds = array_diff($this->usedPropertiesByTerm, $excludePropertyIds);
-                // Avoid issue when everything is excluded.
-                $otherIds[] = 0;
+            // Don't return results for this part for fake properties.
+            $hasSpecificJoinConditions = false;
+            if ($fakePropertyIds) {
+                $hasSpecificJoinConditions = true;
+                $joinConditions[] = $expr->eq("$valuesAlias.property", 0);
+            } elseif ($propertyIds) {
+                // For queries on subject values, the properties should be
+                // checked against the sub-query.
                 if (in_array($queryType, self::PROPERTY_QUERY['value_subject'])) {
                     $subQb
-                        ->andWhere($expr->in("$subValuesAlias.property", $otherIds));
+                        ->andWhere(count($propertyIds) < 2
+                            ? $expr->eq("$subValuesAlias.property", reset($propertyIds))
+                            : $expr->in("$subValuesAlias.property", $propertyIds)
+                        );
                 } else {
-                    $joinConditions[] = $expr->in("$valuesAlias.property", $otherIds);
+                    $hasSpecificJoinConditions = true;
+                    $joinConditions[] = count($propertyIds) < 2
+                        ? $expr->eq("$valuesAlias.property", reset($propertyIds))
+                        : $expr->in("$valuesAlias.property", $propertyIds);
+                }
+            } else {
+                // TODO What if a property is ""?
+                $excludePropertyIds = $propertyIds || empty($queryRow['except'])
+                    ? false
+                    : array_values(array_unique($this->getPropertyIds($queryRow['except'])));
+                // Use standard query if nothing to exclude, else limit search.
+                if ($excludePropertyIds) {
+                    // The aim is to search anywhere except ocr content.
+                    // Use not positive + in() or notIn()? A full list is simpler.
+                    $otherIds = array_diff($this->usedPropertiesByTerm, $excludePropertyIds);
+                    // Avoid issue when everything is excluded.
+                    $otherIds[] = 0;
+                    if (in_array($queryType, self::PROPERTY_QUERY['value_subject'])) {
+                        $subQb
+                            ->andWhere($expr->in("$subValuesAlias.property", $otherIds));
+                    } else {
+                        $hasSpecificJoinConditions = true;
+                        $joinConditions[] = $expr->in("$valuesAlias.property", $otherIds);
+                    }
                 }
             }
 
@@ -1363,10 +1443,13 @@ class SearchResources extends AbstractPlugin
                 $whereClause = $expr->isNull("$valuesAlias.id");
             }
 
-            if ($joinConditions) {
-                $qb->leftJoin($valuesJoin, $valuesAlias, Join::WITH, $expr->andX(...$joinConditions));
-            } else {
-                $qb->leftJoin($valuesJoin, $valuesAlias);
+            // See above "Consecutive OR optimization" comment
+            if (!$usePrevious || $hasSpecificJoinConditions) {
+                if ($joinConditions) {
+                    $qb->leftJoin($valuesJoin, $valuesAlias, Join::WITH, $expr->andX(...$joinConditions));
+                } else {
+                    $qb->leftJoin($valuesJoin, $valuesAlias);
+                }
             }
 
             if ($where == '') {
@@ -1377,6 +1460,11 @@ class SearchResources extends AbstractPlugin
                 $where .= " AND $whereClause";
             }
         }
+
+        // See above "Consecutive OR optimization" comment
+        $previousPropertyIds = $propertyIds;
+        $previousPositive = $positive;
+        $previousAlias = $valuesAlias;
 
         if ($where) {
             $qb->andWhere($where);
@@ -1402,7 +1490,8 @@ class SearchResources extends AbstractPlugin
      *   - ex: has any value
      *   - nex: has no value
      * - datetime[{index}][value]: search date time (sql format: "2017-11-07 17:21:17",
-     *   partial date/time allowed ("2018-05", etc.).
+     *   partial date/time allowed ("2018-05", etc.). Human values are allowed:
+     *   "+1 day", "last Monday"… See php function `strtotime()`.
      *
      * @param QueryBuilder $qb
      * @param array $query The query should be cleaned first.
@@ -1429,8 +1518,8 @@ class SearchResources extends AbstractPlugin
             // clear for the user. And it doesn't allow partial date/time.
             switch ($type) {
                 case 'gt':
-                    $valueNorm = $this->getDateTimeFromValue($value, false);
-                    if (is_null($valueNorm)) {
+                    $valueNorm = $this->getDateTimeFromValue($value, false) ?? $this->getDateTimeViaAnyString($value);
+                    if ($valueNorm === null) {
                         $incorrectValue = true;
                     } else {
                         $param = $this->adapter->createNamedParameter($qb, $valueNorm);
@@ -1438,8 +1527,8 @@ class SearchResources extends AbstractPlugin
                     }
                     break;
                 case 'gte':
-                    $valueNorm = $this->getDateTimeFromValue($value, true);
-                    if (is_null($valueNorm)) {
+                    $valueNorm = $this->getDateTimeFromValue($value, true) ?? $this->getDateTimeViaAnyString($value);
+                    if ($valueNorm === null) {
                         $incorrectValue = true;
                     } else {
                         $param = $this->adapter->createNamedParameter($qb, $valueNorm);
@@ -1447,9 +1536,9 @@ class SearchResources extends AbstractPlugin
                     }
                     break;
                 case 'eq':
-                    $valueFromNorm = $this->getDateTimeFromValue($value, true);
-                    $valueToNorm = $this->getDateTimeFromValue($value, false);
-                    if (is_null($valueFromNorm) || is_null($valueToNorm)) {
+                    $valueFromNorm = $this->getDateTimeFromValue($value, true) ?? $this->getDateTimeViaAnyString($value);
+                    $valueToNorm = $this->getDateTimeFromValue($value, false) ?? $this->getDateTimeViaAnyString($value);
+                    if ($valueFromNorm === null || $valueToNorm === null) {
                         $incorrectValue = true;
                     } else {
                         if ($valueFromNorm === $valueToNorm) {
@@ -1463,9 +1552,9 @@ class SearchResources extends AbstractPlugin
                     }
                     break;
                 case 'neq':
-                    $valueFromNorm = $this->getDateTimeFromValue($value, true);
-                    $valueToNorm = $this->getDateTimeFromValue($value, false);
-                    if (is_null($valueFromNorm) || is_null($valueToNorm)) {
+                    $valueFromNorm = $this->getDateTimeFromValue($value, true) ?? $this->getDateTimeViaAnyString($value);
+                    $valueToNorm = $this->getDateTimeFromValue($value, false) ?? $this->getDateTimeViaAnyString($value);
+                    if ($valueFromNorm === null || $valueToNorm === null) {
                         $incorrectValue = true;
                     } else {
                         if ($valueFromNorm === $valueToNorm) {
@@ -1481,8 +1570,8 @@ class SearchResources extends AbstractPlugin
                     }
                     break;
                 case 'lte':
-                    $valueNorm = $this->getDateTimeFromValue($value, false);
-                    if (is_null($valueNorm)) {
+                    $valueNorm = $this->getDateTimeFromValue($value, false) ?? $this->getDateTimeViaAnyString($value);
+                    if ($valueNorm === null) {
                         $incorrectValue = true;
                     } else {
                         $param = $this->adapter->createNamedParameter($qb, $valueNorm);
@@ -1490,8 +1579,8 @@ class SearchResources extends AbstractPlugin
                     }
                     break;
                 case 'lt':
-                    $valueNorm = $this->getDateTimeFromValue($value, true);
-                    if (is_null($valueNorm)) {
+                    $valueNorm = $this->getDateTimeFromValue($value, true) ?? $this->getDateTimeViaAnyString($value);
+                    if ($valueNorm === null) {
                         $incorrectValue = true;
                     } else {
                         $param = $this->adapter->createNamedParameter($qb, $valueNorm);
@@ -1659,7 +1748,7 @@ class SearchResources extends AbstractPlugin
                 ->andWhere($expr->orX(
                     $expr->isNull($mediaAlias . '.id'),
                     $expr->eq($mediaAlias . '.' . $fields[$field], 0)
-            ));
+                ));
         }
     }
 
@@ -1847,9 +1936,9 @@ class SearchResources extends AbstractPlugin
      *
      * @param string $value
      * @param bool $defaultFirst
-     * @return array|null
+     * @return string|null
      */
-    protected function getDateTimeFromValue($value, $defaultFirst = true)
+    protected function getDateTimeFromValue($value, $defaultFirst = true): ?string
     {
         $yearMin = -292277022656;
         $yearMax = 292277026595;
@@ -1857,7 +1946,7 @@ class SearchResources extends AbstractPlugin
         static $dateTimes = [];
 
         $firstOrLast = $defaultFirst ? 'first' : 'last';
-        if (isset($dateTimes[$value][$firstOrLast])) {
+        if (array_key_exists($value, $dateTimes) && array_key_exists($firstOrLast, $dateTimes[$value])) {
             return $dateTimes[$value][$firstOrLast];
         }
 
@@ -1948,7 +2037,7 @@ class SearchResources extends AbstractPlugin
         // provided. This avoids automatic adjustments based on the server's
         // default timezone.
         // With strict type, "now" is required.
-        $dateTime['date'] = new \DateTime('now', new \DateTimeZone($dateTime['offset_normalized']));
+        $dateTime['date'] = new DateTime('now', new DateTimeZone($dateTime['offset_normalized']));
         $dateTime['date']
             ->setDate(
                 $dateTime['year'],
@@ -1964,6 +2053,20 @@ class SearchResources extends AbstractPlugin
         // Cache the date/time as a sql date time.
         $dateTimes[$value][$firstOrLast] = $dateTime['date']->format('Y-m-d H:i:s');
         return $dateTimes[$value][$firstOrLast];
+    }
+
+    /**
+     * Get a sql-formatted date time via any string managed by php.
+     */
+    protected function getDateTimeViaAnyString($value): ?string
+    {
+        // Don't use strtotime() directly in order to use the same date time
+        // zone than the method getDateTimeFromValue().
+        try {
+            return (new DateTime((string) $value))->format('Y-m-d H:i:s');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

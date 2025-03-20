@@ -45,11 +45,12 @@ class MainSearchFormFactory implements FactoryInterface
             : null;
         return (new MainSearchForm(null, $options))
             ->setBasePath($helpers->get('basePath')())
+            ->setEasyMeta($helpers->get('easyMeta'))
             ->setSite($currentSite)
+            ->setSettings($services->get('Omeka\Settings'))
             ->setSiteSetting($siteSetting)
             ->setFormElementManager($services->get('FormElementManager'))
             ->setEntityManager($services->get('Omeka\EntityManager'))
-            ->setReferences($plugins->has('references') ? $plugins->get('references') : null)
         ;
     }
 }

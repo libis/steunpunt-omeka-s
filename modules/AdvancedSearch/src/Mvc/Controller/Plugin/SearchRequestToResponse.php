@@ -67,7 +67,7 @@ class SearchRequestToResponse extends AbstractPlugin
 
         $searchConfigSettings = $searchConfig->settings();
 
-        list($request, $isEmptyRequest) = $this->cleanRequest($request);
+        [$request, $isEmptyRequest] = $this->cleanRequest($request);
         if ($isEmptyRequest) {
             // Keep the other arguments of the request (mainly pagination, sort,
             // and facets).
@@ -138,8 +138,14 @@ class SearchRequestToResponse extends AbstractPlugin
 
         $engineSettings = $this->searchEngine->settings();
 
+        // Manage rights of resources to search: visibility public/private.
+
+        // TODO Researcher and author may not access all private resources.
+        // TODO Manage roles from modules and access level from module Access.
+
+        // For module Access, this is a standard filter.
+
         $user = $plugins->get('identity')();
-        // TODO Manage roles from modules and visibility from modules (access resources).
         $omekaRoles = [
             \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
             \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
@@ -148,8 +154,14 @@ class SearchRequestToResponse extends AbstractPlugin
             \Omeka\Permissions\Acl::ROLE_AUTHOR,
             \Omeka\Permissions\Acl::ROLE_RESEARCHER,
         ];
-        if ($user && in_array($user->getRole(), $omekaRoles)) {
+        $userRole = $user ? $user->getRole() : null;
+
+        $accessToAdmin = $user && in_array($userRole, $omekaRoles);
+        if ($accessToAdmin) {
             $query->setIsPublic(false);
+        // } elseif ($user && !in_array($userRole, $omekaRoles)) {
+            // This is the default.
+            // $query->setIsPublic(true);
         }
 
         if ($site) {
@@ -159,7 +171,7 @@ class SearchRequestToResponse extends AbstractPlugin
         // Check resources.
         $resourceTypes = $query->getResources();
         // TODO Check why resources may not be filled.
-        $engineSettings['resources'] = $engineSettings['resources'] ?? ['items'];
+        $engineSettings['resources'] ??= ['items'];
         if ($resourceTypes) {
             $resourceTypes = array_intersect($resourceTypes, $engineSettings['resources']) ?: $engineSettings['resources'];
             $query->setResources($resourceTypes);
@@ -210,6 +222,8 @@ class SearchRequestToResponse extends AbstractPlugin
             $query->setFacets($facets);
         }
 
+        $query->setOption('facet_display_list', $searchConfigSettings['facet']['display_list'] ?? 'all');
+
         $eventManager = $services->get('Application')->getEventManager();
         $eventArgs = $eventManager->prepareArgs([
             'request' => $request,
@@ -246,7 +260,7 @@ class SearchRequestToResponse extends AbstractPlugin
         $totalResults = array_map(function ($resource) use ($response) {
             return $response->getResourceTotalResults($resource);
         }, $engineSettings['resources']);
-        $plugins->get('paginator')(max($totalResults), $query->getPage() ?: 1);
+        $plugins->get('paginator')(max($totalResults), $query->getPage() ?: 1, $query->getPerPage());
 
         return [
             'status' => 'success',

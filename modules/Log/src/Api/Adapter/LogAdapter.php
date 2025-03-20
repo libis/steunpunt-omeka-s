@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Log\Api\Adapter;
 
 use Doctrine\ORM\Query\Expr\Comparison;
@@ -17,6 +18,18 @@ class LogAdapter extends AbstractEntityAdapter
         'job' => 'job',
         'reference' => 'reference',
         'severity' => 'severity',
+        'message' => 'message',
+        'created' => 'created',
+    ];
+
+    protected $scalarFields = [
+        'id' => 'id',
+        'owner' => 'owner',
+        'job' => 'job',
+        'reference' => 'reference',
+        'severity' => 'severity',
+        'message' => 'message',
+        'context' => 'context',
         'created' => 'created',
     ];
 
@@ -50,7 +63,7 @@ class LogAdapter extends AbstractEntityAdapter
 
         // Job table is not joined to get only existing jobs: useless with
         // "on delete cascade".
-        if (isset($query['job_id'])) {
+        if (isset($query['job_id']) && $query['job_id'] !== '' && $query['job_id'] !== []) {
             $ids = $query['job_id'];
             if (!is_array($ids)) {
                 $ids = [$ids];
@@ -68,7 +81,7 @@ class LogAdapter extends AbstractEntityAdapter
             }
         }
 
-        if (isset($query['reference']) && $query['reference'] ) {
+        if (isset($query['reference']) && $query['reference']) {
             $qb->andWhere($expr->eq(
                 'omeka_root.reference',
                 $this->createNamedParameter($qb, $query['reference'])
@@ -143,31 +156,30 @@ class LogAdapter extends AbstractEntityAdapter
         EntityInterface $entity,
         ErrorStore $errorStore
     ): void {
-        switch ($request->getOperation()) {
-            case Request::CREATE:
-                $data = $request->getContent();
-                if (empty($data['o:owner'])) {
-                    $owner = null;
-                } elseif (is_object($data['o:owner'])) {
-                    $owner = $data['o:owner'];
-                } else {
-                    $owner = $this->getAdapter('users')->findEntity($data['o:owner']['o:id']);
-                }
-                if (empty($data['o:job'])) {
-                    $job = null;
-                } elseif (is_object($data['o:job'])) {
-                    $job = $data['o:job'];
-                } else {
-                    $job = $this->getAdapter('jobs')->findEntity($data['o:job']['o:id']);
-                }
-                $entity->setOwner($owner);
-                $entity->setJob($job);
-                $entity->setReference($data['o:reference']);
-                $entity->setSeverity($data['o:severity']);
-                $entity->setMessage($data['o:message']);
-                $entity->setContext($data['o:context']);
-                $entity->setCreated(new \DateTime('now'));
-                break;
+        // Logs are not updatable.
+        if ($request->getOperation() === Request::CREATE) {
+            $data = $request->getContent();
+            if (empty($data['o:owner'])) {
+                $owner = null;
+            } elseif (is_object($data['o:owner'])) {
+                $owner = $data['o:owner'];
+            } else {
+                $owner = $this->getAdapter('users')->findEntity($data['o:owner']['o:id']);
+            }
+            if (empty($data['o:job'])) {
+                $job = null;
+            } elseif (is_object($data['o:job'])) {
+                $job = $data['o:job'];
+            } else {
+                $job = $this->getAdapter('jobs')->findEntity($data['o:job']['o:id']);
+            }
+            $entity->setOwner($owner);
+            $entity->setJob($job);
+            $entity->setReference($data['o:reference']);
+            $entity->setSeverity($data['o:severity']);
+            $entity->setMessage($data['o:message']);
+            $entity->setContext($data['o:context']);
+            $entity->setCreated(new \DateTime('now'));
         }
     }
 
@@ -243,10 +255,9 @@ class LogAdapter extends AbstractEntityAdapter
     /**
      * Add a comparison condition to query from a date.
      *
-     * @param QueryBuilder $qb
-     * @param array $query
-     * @param string $value
-     * @param string $column
+     * @see \Annotate\Api\Adapter\QueryDateTimeTrait::searchDateTime()
+     * @see \Contribute\Api\Adapter\ContributionAdapter::buildQueryDateComparison()
+     * @see \Log\Api\Adapter\LogAdapter::buildQueryDateComparison()
      */
     protected function buildQueryDateComparison(QueryBuilder $qb, array $query, $value, $column): void
     {

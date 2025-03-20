@@ -288,4 +288,16 @@ class CleanUrl extends Url
         ];
         return $controllers[$name] ?? null;
     }
+
+    /**
+     * Get the current site from the view or the root view (main layout).
+     */
+    protected function currentSite(): ?\Omeka\Api\Representation\SiteRepresentation
+    {
+        return $this->view->site ?? $this->view->site = $this->view
+            ->getHelperPluginManager()
+            ->get(\Laminas\View\Helper\ViewModel::class)
+            ->getRoot()
+            ->getVariable('site');
+    }
 }

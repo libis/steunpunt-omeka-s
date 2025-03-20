@@ -3,14 +3,17 @@
     display: block;
     clear: both;
 }
+.caption-center .resource h3,
 .media-text .captions-center .resource h3,
 .media-text .captions-center .resource .caption {
     text-align: center;
 }
+.caption-left .resource h3,
 .media-text .captions-left .resource h3,
 .media-text .captions-left .resource .caption {
     text-align: left;
 }
+.caption-right .resource h3,
 .media-text .captions-right .resource h3,
 .media-text .captions-right .resource .caption {
     text-align: right;
@@ -108,8 +111,36 @@ aside.column {
     stroke-opacity: .3;
 }
 
+/** Dialog */
+@media all {
+    [hidden],
+    .hidden {
+        display: none;
+    }
+
+    .dialog-header,
+    .dialog-contents,
+    .dialog-bottom {
+        margin-bottom: 6px;
+    }
+
+    .dialog-header {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .dialog-header-close-button {
+        display: block;
+        margin-left: auto;
+        padding: 0;
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+    }
+}
+
 /** Glossary */
-@media screen {
+@media all {
     .glossary-alphabet {
         display: flex;
         flex-wrap: wrap;
@@ -240,6 +271,38 @@ aside.column {
     }
 }
 
+/** Browse preview timeline */
+/** Adapted from https://github.com/ebellempire/TimelineShortcode */
+
+.timeline-year {
+    font-size: 200%;
+    font-weight: bold;
+    margin: 1em auto;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: .25em;
+}
+.timeline-section-date {
+    font-size: 100%;
+    text-transform: uppercase;
+    font-weight: normal;
+    opacity: .8;
+}
+.timeline-section ul {
+    padding-left: 0;
+    margin-top: 0;
+    list-style-type:none;
+}
+.timeline-section ul li {
+    background: #f2f2f2;
+    margin: .5em 0;
+    padding: 1em;
+}
+.timeline-section ul li img {
+    height: 2em;
+    margin: 0 1em 0 0;
+    vertical-align: bottom;
+}
+
 /* Genericization of omeka item-showcase */
 .showcase .entries {
     margin: 1rem 0;
@@ -291,4 +354,32 @@ aside.column {
     float: none;
     margin-right: 0;
     vertical-align: top;
+}
+
+/* Breadcrumbs */
+nav.breadcrumbs {
+    width: 100%;
+}
+nav.breadcrumbs > ul,
+nav.breadcrumbs > ol {
+    list-style: none;
+}
+nav.breadcrumbs > ul > li,
+nav.breadcrumbs > ol > li {
+    display: inline;
+}
+
+/* Browse preview */
+.preview-block ul.resource-values {
+    display: flex;
+    padding-left: 0;
+}
+.preview-block ul.resource-values li {
+    list-style: none;
+    margin-right: 1em;
+}
+
+/* Linked resources by item set */
+#linked-resources .item-sets {
+    list-style-type: none;
 }

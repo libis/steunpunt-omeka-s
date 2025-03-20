@@ -2,7 +2,7 @@
 
 /*
  * Copyright BibLibre, 2016-2017
- * Copyright Daniel Berthereau, 2018-2021
+ * Copyright Daniel Berthereau, 2018-2023
  * Copyright Paul Sarrassat, 2018
  *
  * This software is governed by the CeCILL license under French law and abiding
@@ -102,6 +102,9 @@ abstract class AbstractResourceEntityValueExtractor implements ValueExtractorInt
                     'url_thumbnail_large' => 'Primary media: large thumbnail url', // @translate
                     'url_thumbnail_medium' => 'Primary media: medium thumbnail url', // @translate
                     'url_thumbnail_square' => 'Primary media: square thumbnail url', // @translate
+                    'url_thumbnail_display_large' => 'Representative image (asset if any, else primary media large thumbnail)', // @translate,
+                    'url_thumbnail_display_medium' => 'Representative image (asset if any, else primary media medium thumbnail)', // @translate
+                    'url_thumbnail_display_square' => 'Representative image (asset if any, else primary media square thumbnail)', // @translate
                     // Specific values.
                     'o:label' => 'Label', // @translate
                     'o:name' => 'Name', // @translate
@@ -294,6 +297,19 @@ abstract class AbstractResourceEntityValueExtractor implements ValueExtractorInt
                 return [];
             }
             $url = $primaryMedia->thumbnailUrl($mediaUrlTypes[$field]);
+            return $url ? [$url] : [];
+        }
+
+        $mediaUrlTypes = [
+            'url_thumbnail_display_large' => 'large',
+            'url_thumbnail_display_medium' => 'medium',
+            'url_thumbnail_display_square' => 'square',
+        ];
+        if (isset($mediaUrlTypes[$field])) {
+            if (!method_exists($resource, 'thumbnailDisplayUrl')) {
+                return [];
+            }
+            $url = $resource->thumbnailDisplayUrl($mediaUrlTypes[$field]);
             return $url ? [$url] : [];
         }
 

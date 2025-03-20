@@ -2,7 +2,7 @@
 
 /*
  * Copyright BibLibre, 2017
- * Copyright Daniel Berthereau, 2020-2021
+ * Copyright Daniel Berthereau, 2020-2023
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -142,7 +142,7 @@ class SolrMapRepresentation extends AbstractEntityRepresentation
         if (strpos($source, '/') === false) {
             $subField = '';
         } else {
-            list(, $subField) = explode('/', $source, 2);
+            [, $subField] = explode('/', $source, 2);
         }
         $subMap = new SolrSubMap($this->resource, $this->adapter);
         return $subMap

@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
+
 namespace Log\Controller\Admin;
 
+use Common\Stdlib\PsrMessage;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Log\Form\QuickSearchForm;
-use Log\Stdlib\PsrMessage;
 use Omeka\Form\ConfirmForm;
 
 class LogController extends AbstractActionController
@@ -21,28 +22,29 @@ class LogController extends AbstractActionController
 
     public function browseAction()
     {
+        $this->browse()->setDefaults('logs');
+        $query = $this->params()->fromQuery();
+
         $formSearch = $this->getForm(QuickSearchForm::class);
         $formSearch
             ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'browse'], true))
             ->setAttribute('id', 'log-search');
-        $data = $this->params()->fromQuery();
-        if ($data) {
-            $formSearch->setData($data);
+        if ($query) {
+            $formSearch->setData($query);
             // TODO Don't check validity?
         }
 
-        $this->setBrowseDefaults('created');
         // TODO Manage multiple messages in/nin.
-        $params = $this->params()->fromQuery();
-        $params += ['message' => []];
-        if (!is_array($params['message'])) {
-            $params['message'] = [['text' => $params['message'], 'type' => 'in']];
+        $query += ['message' => []];
+        if (!is_array($query['message'])) {
+            $query['message'] = [['text' => $query['message'], 'type' => 'in']];
         }
-        if (isset($params['message_not']) && strlen($params['message_not'])) {
-            $params['message'][] = ['text' => $params['message_not'], 'type' => 'nin'];
-            unset($params['message_not']);
+        if (isset($query['message_not']) && strlen($query['message_not'])) {
+            $query['message'][] = ['text' => $query['message_not'], 'type' => 'nin'];
+            unset($query['message_not']);
         }
-        $response = $this->api()->search('logs', $params);
+
+        $response = $this->api()->search('logs', $query);
         $this->paginator($response->getTotalResults(), $this->params()->fromQuery('page'));
 
         $formDeleteSelected = $this->getForm(ConfirmForm::class);
@@ -66,14 +68,13 @@ class LogController extends AbstractActionController
             $this->messenger()->addWarning('The logger is currently disabled for database. Check config/local.config.php.'); // @translate
         }
 
-        $view = new ViewModel;
-        $view
-            ->setVariable('logs', $logs)
-            ->setVariable('resources', $logs)
-            ->setVariable('formSearch', $formSearch)
-            ->setVariable('formDeleteSelected', $formDeleteSelected)
-            ->setVariable('formDeleteAll', $formDeleteAll);
-        return $view;
+        return new ViewModel([
+            'logs' => $logs,
+            'resources' => $logs,
+            'formSearch' => $formSearch,
+            'formDeleteSelected' => $formDeleteSelected,
+            'formDeleteAll' => $formDeleteAll,
+        ]);
     }
 
     public function showDetailsAction()

@@ -2,7 +2,7 @@
 
 /*
  * Copyright BibLibre, 2016-2017
- * Copyright Daniel Berthereau, 2017-2022
+ * Copyright Daniel Berthereau, 2017-2023
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -569,7 +569,7 @@ class SolariumIndexer extends AbstractIndexer
             $this->getLogger()->err($message);
             return $this;
         }
-        $error = method_exists($exception, 'getBody')? json_decode((string) $exception->getBody(), true) : null;
+        $error = method_exists($exception, 'getBody') ? json_decode((string) $exception->getBody(), true) : null;
         $message = is_array($error) && isset($error['error']['msg'])
             ? $error['error']['msg']
             : $exception->getMessage();

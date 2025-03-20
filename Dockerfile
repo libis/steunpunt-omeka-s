@@ -1,4 +1,4 @@
-FROM php:8.0.28-apache
+FROM php:8.1-apache
 
 RUN a2enmod rewrite
 
@@ -36,7 +36,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install -j "$(nproc)" gd
 
 RUN usermod -u 1000 www-data \
-&& wget --no-verbose "https://github.com/omeka/omeka-s/releases/download/v3.2.3/omeka-s-3.2.3.zip" -O /var/www/omeka-s.zip \
+&& wget --no-verbose "https://github.com/omeka/omeka-s/releases/download/v4.1.1/omeka-s-4.1.1.zip" -O /var/www/omeka-s.zip \
 && unzip -q /var/www/omeka-s.zip -d /var/www/ \
 &&  rm /var/www/omeka-s.zip \
 &&  rm -rf /var/www/html/ \

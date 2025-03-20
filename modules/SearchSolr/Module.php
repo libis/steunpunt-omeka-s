@@ -2,7 +2,7 @@
 
 /*
  * Copyright BibLibre, 2016-2017
- * Copyright Daniel Berthereau, 2017-2022
+ * Copyright Daniel Berthereau, 2017-2023
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -49,7 +49,9 @@ class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
 
-    protected $dependency = 'AdvancedSearch';
+    protected $dependencies = [
+        'AdvancedSearch',
+     ];
 
     public function init(ModuleManager $moduleManager): void
     {
@@ -82,7 +84,7 @@ class Module extends AbstractModule
 
         // Manage the dependency upon Search, in particular when upgrading.
         // Once disabled, this current method and other ones are no more called.
-        if (!$this->isModuleActive($this->dependency)) {
+        if (!$this->isModuleActive('AdvancedSearch')) {
             $this->disableModule(__NAMESPACE__);
             return;
         }

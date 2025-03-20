@@ -154,7 +154,7 @@ class LanguageList extends AbstractHelper
         }
 
         // Manage module AdvancedSearch (that has only one action, but multiple paths).
-        if ($controller === 'AdvancedSearch\Controller\IndexController'
+        if (($controller === 'AdvancedSearch\Controller\SearchController' || $controller === 'AdvancedSearch\Controller\IndexController')
             && $pageSlug = $params->fromRoute('page-slug')
         ) {
             // It's not possible to use siteSettings for another site from the view. See git history.
@@ -220,7 +220,7 @@ class LanguageList extends AbstractHelper
                 'site' => $siteSlug,
                 'locale' => $localeId,
                 'locale_label' => $this->localeLabels[$localeId],
-                'url' => $urlHelper(null, ['site-slug' => $siteSlug], true),
+                'url' => $urlHelper(null, ['site-slug' => $siteSlug], ['query' => $params->fromQuery()], true),
             ];
         }
 

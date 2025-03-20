@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright Daniel Berthereau, 2017-2021
+ * Copyright Daniel Berthereau, 2017-2024
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -29,19 +29,55 @@
 
 namespace Log;
 
-if (!class_exists(\Generic\AbstractModule::class)) {
-    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
-        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
-        : __DIR__ . '/src/Generic/AbstractModule.php';
+if (!class_exists(\Common\TraitModule::class)) {
+    require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
-use Generic\AbstractModule;
+// Required during migration from Generic to Common.
+if (!class_exists(\Common\Log\Formatter\PsrLogAwareTrait::class)) {
+    require_once dirname(__DIR__) . '/Common/src/Stdlib/PsrInterpolateInterface.php';
+    require_once dirname(__DIR__) . '/Common/src/Stdlib/PsrInterpolateTrait.php';
+    require_once dirname(__DIR__) . '/Common/src/Log/Formatter/PsrLogAwareTrait.php';
+    require_once dirname(__DIR__) . '/Common/src/Log/Formatter/PsrLogSimple.php';
+}
+
+use Common\Stdlib\PsrMessage;
+use Common\TraitModule;
+use Laminas\ModuleManager\ModuleEvent;
+use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;
+use Omeka\Module\AbstractModule;
 use Omeka\Permissions\Assertion\OwnsEntityAssertion;
 
 class Module extends AbstractModule
 {
+    use TraitModule;
+
     public const NAMESPACE = __NAMESPACE__;
+
+    protected $dependencies = [
+        'Common',
+    ];
+
+    public function init(ModuleManager $moduleManager): void
+    {
+        require_once __DIR__ . '/vendor/autoload.php';
+
+        $moduleManager->getEventManager()->attach(ModuleEvent::EVENT_MERGE_CONFIG, [$this, 'onEventMergeConfig']);
+    }
+
+    /**
+     * Force logger log = true in config, else this module is useless.
+     */
+    public function onEventMergeConfig(ModuleEvent $event): void
+    {
+        // At this point, the config is read only, so it is copied and replaced.
+        /** @var \Laminas\ModuleManager\Listener\ConfigListener $configListener */
+        $configListener = $event->getParam('configListener');
+        $config = $configListener->getMergedConfig(false);
+        $config['logger']['log'] = empty($config['logger']['disable_log']);
+        $configListener->setMergedConfig($config);
+    }
 
     public function onBootstrap(MvcEvent $event): void
     {
@@ -49,19 +85,31 @@ class Module extends AbstractModule
         $this->addAclRules();
     }
 
+    protected function preInstall(): void
+    {
+        $services = $this->getServiceLocator();
+        $translate = $services->get('ControllerPluginManager')->get('translate');
+
+        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.66')) {
+            $message = new \Omeka\Stdlib\Message(
+                $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+                'Common', '3.4.66'
+            );
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+        }
+    }
+
     protected function postInstall(): void
     {
         $services = $this->getServiceLocator();
-        $t = $services->get('MvcTranslator');
-        $messenger = new \Omeka\Mvc\Controller\Plugin\Messenger;
-        $config = $services->get('Config');
-        if (empty($config['logger']['log'])) {
-            $messenger->addError($t->translate("Logging is not active. You should enable it in the file config/local.config.php: `'log' => true`.")); // @translate
-        }
-        $messenger->addWarning($t->translate('You may need to update config/local.config.php to update your log settings.')); // @translate
-        $message = new \Omeka\Stdlib\Message(
-            $t->translate('See examples of config in the %sreadme%s.'), // @translate
-            '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Log/#config" target="_blank">', '</a>'
+        $translate = $services->get('ControllerPluginManager')->get('translate');
+        $messenger = $services->get('ControllerPluginManager')->get('messenger');
+
+        $messenger->addWarning($translate('Logging is not active by default in Omeka. This module overrides option [logger][log].')); // @translate
+        $messenger->addWarning($translate('You may need to update the file config/local.config.php, in particular to set the default level of severity.')); // @translate
+        $message = new PsrMessage(
+            $translate('See examples of config in the %sreadme%s.'), // @translate
+            ['link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Log/#config" target="_blank" rel="noopener">', 'link_end' => '</a>']
         );
         $message->setEscapeHtml(false);
         $messenger->addNotice($message);

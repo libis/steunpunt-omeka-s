@@ -2,10 +2,9 @@
 
 namespace BlockPlus\Form;
 
-use BlockPlus\Form\Element as BlockPlusElement;
+use Common\Form\Element as CommonElement;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
-use Omeka\Form\Element as OmekaElement;
 
 class SiteSettingsFieldset extends Fieldset
 {
@@ -23,24 +22,44 @@ class SiteSettingsFieldset extends Fieldset
             ->setAttribute('id', 'block-plus')
             ->setOption('element_groups', $this->elementGroups)
 
-            // Block metadata page type.
+            // Layouts.
 
             ->add([
-                'name' => 'blockplus_page_types',
-                'type' => OmekaElement\ArrayTextarea::class,
+                'name' => 'blockplus_page_model_rights',
+                'type' => Element\Checkbox::class,
                 'options' => [
                     'element_group' => 'block_plus',
-                    'label' => 'Page types', // @translate
-                    'info' => 'Specify the list of types that will be available to build specific pages.', // @translate
-                    'as_key_value' => true,
+                    'label' => 'Allow site editor to create page models and groups of blocks', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'blockplus_page_types',
-                    'placeholder' => 'home = Home
-exhibit = Exhibit
-exhibit_page = Exhibit page
-simple = Simple page', // @translate
-                    'rows' => 5,
+                    'id' => 'blockplus_page_model_rights',
+                ],
+            ])
+
+            ->add([
+                'name' => 'blockplus_page_model_skip_blockplus',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'element_group' => 'block_plus',
+                    'label' => 'Skip page models defined internally by the module Block Plus', // @translate
+                    'info' => 'Default page models are mainly used as examples or for upgrade from Omeka Classic: home_page, exhibit, exhibit_page, simple_page and resource_text.', // @translate'
+                ],
+                'attributes' => [
+                    'id' => 'blockplus_page_model_skip_blockplus',
+                ],
+            ])
+
+            ->add([
+                'name' => 'blockplus_page_models',
+                'type' => CommonElement\IniTextarea::class,
+                'options' => [
+                    'element_group' => 'block_plus',
+                    'label' => 'Page models and groups of blocks', // @translate
+                    'info' => 'List all page models and blocks groups formatted as ini with a section for each group.', // @translate
+                    'documentation' => 'https://gitlab.com/Daniel-KM/Omeka-S-module-BlockPlus#Usage',
+                ],
+                'attributes' => [
+                    'id' => 'blockplus_page_models',
                 ],
             ])
 
@@ -48,7 +67,7 @@ simple = Simple page', // @translate
 
             ->add([
                 'name' => 'blockplus_breadcrumbs_crumbs',
-                'type' => BlockPlusElement\OptionalMultiCheckbox::class,
+                'type' => CommonElement\OptionalMultiCheckbox::class,
                 'options' => [
                     'element_group' => 'breadcrumbs',
                     'label' => 'Crumbs', // @translate
@@ -58,6 +77,7 @@ simple = Simple page', // @translate
                         'itemset' => 'Include main item set for item', // @translate,
                         'itemsetstree' => 'Include item sets tree', // @translate,
                         'current' => 'Append current resource', // @translate
+                        'current_link' => 'Append current resource as a link', // @translate
                     ],
                 ],
                 'attributes' => [
@@ -66,15 +86,15 @@ simple = Simple page', // @translate
             ])
             ->add([
                 'name' => 'blockplus_breadcrumbs_prepend',
-                'type' => BlockPlusElement\DataTextarea::class,
+                'type' => CommonElement\DataTextarea::class,
                 'options' => [
                     'element_group' => 'breadcrumbs',
                     'label' => 'Prepended links', // @translate
                     'info' => 'List of urls followed by a label, separated by a "=", one by line, that will be prepended to the breadcrumb.', // @translate
                     'as_key_value' => false,
-                    'data_keys' => [
-                        'uri',
-                        'label',
+                    'data_options' => [
+                        'uri' => null,
+                        'label' => null,
                     ],
                 ],
                 'attributes' => [
@@ -120,7 +140,29 @@ simple = Simple page', // @translate
                 ],
             ])
 
-            // Previous/Next resources.
+            // Resource block buttons.
+
+            ->add([
+                'name' => 'blockplus_block_buttons',
+                'type' => CommonElement\OptionalMultiCheckbox::class,
+                'options' => [
+                    'element_group' => 'block_plus_resources',
+                    'label' => 'Settings for the resource block Buttons', // @translate
+                    'value_options' => [
+                        'download' => 'Download', // @translate
+                        'print' => 'Print', // @translate
+                        'email' => 'Share by email', // @translate
+                        'facebook' => 'Share on Facebook', // @translate
+                        'pinterest' => 'Share on Pinterest', // @translate
+                        'twitter' => 'Share on Twitter (now X)', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'blockplus_block_buttons',
+                ],
+            ])
+
+            // Resource block Previous/Next resources.
 
             ->add([
                 'name' => 'blockplus_items_order_for_itemsets',

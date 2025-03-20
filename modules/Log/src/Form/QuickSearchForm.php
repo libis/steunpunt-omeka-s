@@ -5,7 +5,8 @@ namespace Log\Form;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
 use Laminas\View\Helper\Url;
-use Omeka\Form\Element\ResourceSelect;
+
+// use Omeka\Form\Element as OmekaElement;
 
 class QuickSearchForm extends Form
 {
@@ -21,22 +22,9 @@ class QuickSearchForm extends Form
         // No csrf: see main search form.
         $this->remove('csrf');
 
-        $urlHelper = $this->getUrlHelper();
+        // $urlHelper = $this->getUrlHelper();
 
-        $this
-            ->add([
-                'type' => Element\Text::class,
-                'name' => 'created',
-                'options' => [
-                    'label' => 'Date', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'created',
-                    'placeholder' => 'Set a date with optional comparator…', // @translate
-                ],
-            ]);
-
-        $valueOptions = [
+        $severityValueOptions = [
             '0' => 'Emergency', // @translate
             '1' => 'Alert', // @translate
             '2' => 'Critical', // @translate
@@ -53,7 +41,7 @@ class QuickSearchForm extends Form
                 'type' => Element\Select::class,
                 'options' => [
                     'label' => 'Minimum severity', // @translate
-                    'value_options' => $valueOptions,
+                    'value_options' => $severityValueOptions,
                     'empty_option' => '',
                 ],
                 'attributes' => [
@@ -67,7 +55,7 @@ class QuickSearchForm extends Form
                 'type' => Element\Select::class,
                 'options' => [
                     'label' => 'Maximum severity', // @translate
-                    'value_options' => $valueOptions,
+                    'value_options' => $severityValueOptions,
                     'empty_option' => '',
                 ],
                 'attributes' => [
@@ -78,8 +66,20 @@ class QuickSearchForm extends Form
             ])
 
             ->add([
+                'name' => 'created',
                 'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Date', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'created',
+                    'placeholder' => 'Set a date with optional comparator…', // @translate
+                ],
+            ])
+
+            ->add([
                 'name' => 'reference',
+                'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Reference', // @translate
                 ],
@@ -90,8 +90,8 @@ class QuickSearchForm extends Form
             ])
 
             ->add([
-                'type' => Element\Number::class,
                 'name' => 'job_id',
+                'type' => Element\Number::class,
                 'options' => [
                     'label' => 'Job', // @translate
                 ],
@@ -102,11 +102,12 @@ class QuickSearchForm extends Form
             ])
 
             /*
+            // TODO Fix issue when the number of users is too big to allow to keep the selector.
             ->add([
                 'name' => 'owner_id',
-                'type' => ResourceSelect::class,
+                'type' => OmekaElement\ResourceSelect::class,
                 'options' => [
-                    'label' => 'Owner', // @translate
+                    'label' => 'User', // @translate
                     'resource_value_options' => [
                         'resource' => 'users',
                         'query' => [],
@@ -124,12 +125,11 @@ class QuickSearchForm extends Form
                 ],
             ])
             */
-            // TODO Fix issue when the number of users is too big to allow to keep the selector.
             ->add([
                 'name' => 'owner_id',
                 'type' => Element\Number::class,
                 'options' => [
-                    'label' => 'Owner', // @translate
+                    'label' => 'User by id', // @translate
                 ],
                 'attributes' => [
                     'id' => 'owner_id',
@@ -137,8 +137,8 @@ class QuickSearchForm extends Form
             ])
 
             ->add([
-                'type' => Element\Text::class,
                 'name' => 'message',
+                'type' => Element\Text::class,
                 'options' => [
                     // TODO Manage search in translated messages as they are displayed.
                     'label' => 'Untranslated message', // @translate
@@ -149,8 +149,8 @@ class QuickSearchForm extends Form
                 ],
             ])
             ->add([
-                'type' => Element\Text::class,
                 'name' => 'message_not',
+                'type' => Element\Text::class,
                 'options' => [
                     // TODO Manage search in translated messages as they are displayed.
                     'label' => 'Not in untranslated message', // @translate
@@ -179,20 +179,13 @@ class QuickSearchForm extends Form
             ]);
     }
 
-    /**
-     * @param Url $urlHelper
-     * @return self
-     */
     public function setUrlHelper(Url $urlHelper): self
     {
         $this->urlHelper = $urlHelper;
         return $this;
     }
 
-    /**
-     * @return \Laminas\View\Helper\Url
-     */
-    public function getUrlHelper()
+    public function getUrlHelper(): Url
     {
         return $this->urlHelper;
     }

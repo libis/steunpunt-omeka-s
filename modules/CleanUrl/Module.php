@@ -2,24 +2,13 @@
 
 namespace CleanUrl;
 
-/*
- * Clean Url
- *
- * Allows to have links like https://example.net/collection/dcterms:identifier.
- *
- * @copyright Daniel Berthereau, 2012-2020
- * @copyright BibLibre, 2016-2017
- * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
- */
-
-if (!class_exists(\Generic\AbstractModule::class)) {
-    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
-        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
-        : __DIR__ . '/src/Generic/AbstractModule.php';
+if (!class_exists(\Common\TraitModule::class)) {
+    require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
 use CleanUrl\Form\ConfigForm;
-use Generic\AbstractModule;
+use Common\Stdlib\PsrMessage;
+use Common\TraitModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\ModuleManager\ModuleEvent;
@@ -27,10 +16,21 @@ use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\Mvc\MvcEvent;
 use Laminas\View\Renderer\PhpRenderer;
-use Omeka\Stdlib\Message;
+use Omeka\Module\AbstractModule;
 
+/**
+ * Clean Url
+ *
+ * Allows to have links like https://example.net/collection/dcterms:identifier.
+ *
+ * @copyright Daniel Berthereau, 2012-2024
+ * @copyright BibLibre, 2016-2017
+ * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
+ */
 class Module extends AbstractModule
 {
+    use TraitModule;
+
     const NAMESPACE = __NAMESPACE__;
 
     public function init(ModuleManager $moduleManager): void
@@ -67,8 +67,9 @@ class Module extends AbstractModule
 
     public function getConfig()
     {
-        require_once file_exists(OMEKA_PATH . '/config/cleanurl.config.php')
-            ? OMEKA_PATH . '/config/cleanurl.config.php'
+        $localCleanUrlConfig = OMEKA_PATH . '/config/cleanurl.config.php';
+        require_once file_exists($localCleanUrlConfig)
+            ? $localCleanUrlConfig
             : __DIR__ . '/config/cleanurl.config.php';
         return include __DIR__ . '/config/module.config.php';
     }
@@ -85,13 +86,15 @@ class Module extends AbstractModule
         if (!$this->isConfigWriteable()) {
             throw new \Omeka\Module\Exception\ModuleCannotInstallException('The file "cleanurl.config.php" in the config directory of Omeka is not writeable.'); // @translate
         }
+
         $services = $this->getServiceLocator();
-        $module = $services->get('Omeka\ModuleManager')->getModule('Generic');
-        if ($module && version_compare($module->getIni('version') ?? '', '3.3.27', '<')) {
-            $translator = $services->get('MvcTranslator');
+        $plugins = $services->get('ControllerPluginManager');
+        $translate = $plugins->get('translate');
+
+        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.63')) {
             $message = new \Omeka\Stdlib\Message(
-                $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
-                'Generic', '3.3.27'
+                $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+                'Common', '3.4.63'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
@@ -123,7 +126,10 @@ class Module extends AbstractModule
 
         $settings = $services->get('Omeka\Settings');
         $helpers = $services->get('ViewHelperManager');
-        $defaultSettings = ['routes' => [], 'route_aliases' => []];
+        $defaultSettings = [
+            'routes' => [],
+            'route_aliases' => [],
+        ];
         $cleanUrlSettings = $settings->get('cleanurl_settings', []) + $defaultSettings;
 
         $configRoutes = $services->get('Config')['router']['routes'];
@@ -223,6 +229,9 @@ class Module extends AbstractModule
 
     public function getConfigForm(PhpRenderer $renderer)
     {
+        $services = $this->getServiceLocator();
+        $messenger = $services->get('ControllerPluginManager')->get('messenger');
+
         $translate = $renderer->plugin('translate');
         $html = $translate('"Clean Url" module allows to have clean, readable and search engine optimized urls for pages and resources, like https://example.net/item_set_identifier/item_identifier.') // @translate
             . '<br/>'
@@ -235,14 +244,13 @@ class Module extends AbstractModule
             );
 
         if (!$this->isConfigWriteable()) {
-            $html .= '<br/><br/>'
-                . sprintf($translate('%sWarning%s: the config of the module cannot be saved in "config/cleanurl.config.php". It is required to skip the site paths.'), // @translate
-                    '<strong>', '</strong>')
-                . '<br/><br/>';
+            $messenger->addError(new PsrMessage(
+                'Warning: the config of the module cannot be saved in "config/cleanurl.config.php". It is required to skip the site paths.' // @translate
+            ));
         }
 
         return $html
-            . parent::getConfigForm($renderer);
+            . $this->getConfigFormAuto($renderer);
     }
 
     public function handleConfigForm(AbstractController $controller)
@@ -267,8 +275,9 @@ class Module extends AbstractModule
         $params = $form->getData();
         $params['cleanurl_settings'] = [];
 
-        $messenger = new \Omeka\Mvc\Controller\Plugin\Messenger;
+        /** @var \Doctrine\DBAL\Connection $connection */
         $connection = $services->get('Omeka\Connection');
+        $messenger = $services->get('ControllerPluginManager')->get('messenger');
         $hasError = false;
 
         // TODO Move the formatters and validators inside the config form.
@@ -313,7 +322,9 @@ class Module extends AbstractModule
                 }
             }
             if (!$default) {
-                $message = new Message('There is no default site: "/s/site-slug" cannot be empty or skipped.'); // @translate
+                $message = new PsrMessage(
+                    'Set a default site if you want to remove the part "/s/site-slug".' // @translate
+                );
                 $messenger->addError($message);
                 return false;
             }
@@ -321,31 +332,33 @@ class Module extends AbstractModule
             // Check all pages of the default site.
             // TODO Manage the case where the default site is updated after (rare).
             $result = [];
-            $slugs = $connection->executeQuery('SELECT slug FROM site;')->fetchAll(\PDO::FETCH_COLUMN);
+            $slugs = $connection->executeQuery('SELECT slug FROM site ORDER BY id ASC;')->fetchFirstColumn();
             foreach ($slugs as $slug) {
                 if (mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|', '|' . trim($slug, '/') . '|')) {
                     $result[] = $slug;
                 }
             }
             if ($result) {
-                $message = new Message(
-                    'The sites "%s" use a reserved string and the "/s/site-slug" cannot be skipped.', // @translate
-                    implode('", "', $result)
+                $message = new PsrMessage(
+                    'The sites "{site_slugs}" use a reserved string which prevents "/s/site-slug" from being removed. Rename these sites if you want to skip "/s/site-slug". See the {link}list of reserved strings{link_end}.', // @translate
+                    ['site_slugs' => implode('", "', $result), 'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-CleanUrl/-/blob/master/config/cleanurl.config.php"  target="_blank" rel="noopener">', 'link_end' => '</a>']
                 );
+                $message->setEscapeHtml(false);
                 $messenger->addError($message);
                 $hasError = true;
             }
-            $slugs = $connection->executeQuery('SELECT slug FROM site_page;')->fetchAll(\PDO::FETCH_COLUMN);
+            $slugs = $connection->executeQuery('SELECT slug FROM site_page ORDER BY id ASC;')->fetchFirstColumn();
             foreach ($slugs as $slug) {
                 if (mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|' . SLUGS_SITE . '|', '|' . trim($slug, '/') . '|') !== false) {
                     $result[] = $slug;
                 }
             }
             if ($result) {
-                $message = new Message(
-                    'The site pages "%s" use a reserved string and "/s/site-slug" cannot be skipped.', // @translate
-                    implode('", "', $result)
+                $message = new PsrMessage(
+                    'The sites pages "{page_slugs}" use a reserved string or a site slug which prevents "/s/site-slug" from being removed. Rename these pages if you want to skip "/s/site-slug". See the {link}list of reserved strings{link_end}.', // @translate
+                    ['page_slugs' => implode('", "', $result), 'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-CleanUrl/-/blob/master/config/cleanurl.config.php"  target="_blank" rel="noopener">', 'link_end' => '</a>']
                 );
+                $message->setEscapeHtml(false);
                 $messenger->addError($message);
                 $hasError = true;
             }
@@ -354,26 +367,41 @@ class Module extends AbstractModule
         // Check the option site slug.
         if (mb_strlen($siteSlug)
             && $siteSlug !== 's/'
-            && mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|' . SLUGS_SITE . '|', '|' . trim($siteSlug, '/') . '|') !== false
+            && mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|', '|' . trim($siteSlug, '/') . '|') !== false
         ) {
-            $message = new Message('The slug "%s" is used or reserved and the prefix for sites cannot be updated.', $siteSlug); // @translate
+            $message = new PsrMessage(
+                'The prefix "{slug}" is reserved, which prevents from being used as a prefix. Use another prefix. See the {link}list of reserved strings{link_end}.', // @translate
+                ['slug' => $siteSlug, 'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-CleanUrl/-/blob/master/config/cleanurl.config.php"  target="_blank" rel="noopener">', 'link_end' => '</a>']
+            );
+            $message->setEscapeHtml(false);
             $messenger->addError($message);
             $hasError = true;
-        }
-        // Check the existing slugs with reserved slugs.
-        else {
+        } elseif (mb_strlen($siteSlug)
+            && $siteSlug !== 's/'
+            && mb_stripos('|' . SLUGS_SITE . '|', '|' . trim($siteSlug, '/') . '|') !== false
+        ) {
+            $message = new PsrMessage(
+                'The prefix "{slug}" is already set for a site, which prevents from being used as a prefix. Use another prefix or rename the site. See the {link}list of reserved strings{link_end}.', // @translate
+                ['slug' => $siteSlug, 'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-CleanUrl/-/blob/master/config/cleanurl.config.php"  target="_blank" rel="noopener">', 'link_end' => '</a>']
+            );
+            $message->setEscapeHtml(false);
+            $messenger->addError($message);
+            $hasError = true;
+        } else {
+            // Check the existing slugs with reserved slugs.
             $result = [];
-            $slugs = $connection->executeQuery('SELECT slug FROM site;')->fetchAll(\PDO::FETCH_COLUMN);
+            $slugs = $connection->executeQuery('SELECT slug FROM site ORDER by id ASC;')->fetchFirstColumn();
             foreach ($slugs as $slug) {
                 if (mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|', '|' . trim($slug, '/') . '|')) {
                     $result[] = $slug;
                 }
             }
             if (count($result)) {
-                $message = new Message(
-                    'The sites "%s" use a reserved string and the prefix for sites cannot be removed.', // @translate
-                    implode('", "', $result)
+                $message = new PsrMessage(
+                    'The sites "{site_slugs}" use a reserved string which prevents the prefix for site from being removed. Rename these sites if you want to skip the prefix. See the {link}list of reserved strings{link_end}.', // @translate
+                    ['site_slugs' => implode('", "', $result), 'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-CleanUrl/-/blob/master/config/cleanurl.config.php"  target="_blank" rel="noopener">', 'link_end' => '</a>']
                 );
+                $message->setEscapeHtml(false);
                 $messenger->addError($message);
                 $hasError = true;
             }
@@ -382,26 +410,41 @@ class Module extends AbstractModule
         // Check the option page slug.
         if (mb_strlen($pageSlug)
             && $pageSlug !== 'page/'
-            && mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|' . SLUGS_SITE . '|', '|' . trim($pageSlug, '/') . '|') !== false
+            && mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|', '|' . trim($pageSlug, '/') . '|') !== false
         ) {
-            $message = new Message('The slug "%s" is used or reserved and the prefix for pages cannot be updated.', $pageSlug); // @translate
+            $message = new PsrMessage(
+                'The prefix "{slug}" is reserved, which prevents from being used as a prefix for pages. Use another prefix. See the {link}list of reserved strings{link_end}.', // @translate
+                ['slug' => $pageSlug, 'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-CleanUrl/-/blob/master/config/cleanurl.config.php"  target="_blank" rel="noopener">', 'link_end' => '</a>']
+            );
+            $message->setEscapeHtml(false);
             $messenger->addError($message);
             $hasError = true;
-        }
-        // Check the existing slugs with reserved slugs.
-        else {
+        } elseif (mb_strlen($pageSlug)
+            && $pageSlug !== 'page/'
+            && mb_stripos('|' . SLUGS_SITE . '|', '|' . trim($pageSlug, '/') . '|') !== false
+        ) {
+            $message = new PsrMessage(
+                'The prefix "{slug}" is already set for a site, which prevents from being used as a prefix for pages. Use another prefix or rename the site. See the {link}list of reserved strings{link_end}.', // @translate
+                ['slug' => $pageSlug, 'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-CleanUrl/-/blob/master/config/cleanurl.config.php"  target="_blank" rel="noopener">', 'link_end' => '</a>']
+            );
+            $message->setEscapeHtml(false);
+            $messenger->addError($message);
+            $hasError = true;
+        } else {
+            // Check the existing slugs with reserved slugs.
             $result = [];
-            $slugs = $connection->executeQuery('SELECT slug FROM site_page;')->fetchAll(\PDO::FETCH_COLUMN);
+            $slugs = $connection->executeQuery('SELECT slug FROM site_page ORDER BY id ASC;')->fetchFirstColumn();
             foreach ($slugs as $slug) {
                 if (mb_stripos('|' . SLUGS_CORE . SLUGS_RESERVED . '|' . SLUGS_SITE . '|', '|' . trim($slug, '/') . '|')) {
                     $result[] = $slug;
                 }
             }
             if ($result) {
-                $message = new Message(
-                    'The site pages "%s" use a reserved string and the prefix for pages cannot be removed.', // @translate
-                    implode('", "', $result)
-                ); // @translate
+                $message = new PsrMessage(
+                    'The sites pages "{page_slugs}" use a reserved string which prevents the prefix for pages from being removed. Rename these pages if you want to skip the prefix. See the {link}list of reserved strings{link_end}.', // @translate
+                    ['page_slugs' => implode('", "', $result), 'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-CleanUrl/-/blob/master/config/cleanurl.config.php"  target="_blank" rel="noopener">', 'link_end' => '</a>']
+                );
+                $message->setEscapeHtml(false);
                 $messenger->addError($message);
                 $hasError = true;
             }
@@ -442,12 +485,18 @@ class Module extends AbstractModule
             foreach (array_filter($paths) as $path) {
                 foreach ($resourceTypes as $resource) {
                     if (!$hasPattern[$resource]['full'] && mb_strpos($path, "{{$resource}_identifier}") !== false) {
-                        $message = new Message('A pattern for "%s", for example "[a-zA-Z0-9_-]+", is required to use the path "%s".', $resource, $path); // @translate
+                        $message = new PsrMessage(
+                            'A pattern for "{resource_type}", for example "[a-zA-Z0-9_-]+", is required to use the path "{path}".', // @translate
+                            ['resource_type' => $resource, 'path' => $path]
+                        );
                         $messenger->addError($message);
                         $hasError = true;
                     }
                     if (!$hasPattern[$resource]['full'] && !$hasPattern[$resource]['short'] && mb_strpos($path, "{{$resource}_identifier_short}") !== false) {
-                        $message = new Message('A pattern for "%s", for example "[a-zA-Z0-9_-]+", is required to use the path "%s".', $resource, $path); // @translate
+                        $message = new PsrMessage(
+                            'A pattern for "{resource_type}", for example "[a-zA-Z0-9_-]+", is required to use the path "{path}".', // @translate
+                            ['resource_type' => $resource, 'path' => $path]
+                        );
                         $messenger->addError($message);
                         $hasError = true;
                     }
@@ -571,8 +620,13 @@ class Module extends AbstractModule
         $data['o:slug'] .= '_' . substr(str_replace(['+', '/', '='], ['', '', ''], base64_encode(random_bytes(128))), 0, 4);
         $request->setContent($data);
 
-        $message = new Message('The slug "%s" is used or reserved. A random string has been automatically appended.', $slug); // @translate
-        $messenger = new \Omeka\Mvc\Controller\Plugin\Messenger;
+        $services = $this->getServiceLocator();
+        $messenger = $services->get('ControllerPluginManager')->get('messenger');
+
+        $message = new PsrMessage(
+            'The slug "{slug}" is used or reserved. A random string has been automatically appended.', // @translate
+            ['slug' => $slug]
+        );
         $messenger->addWarning($message);
         // throw new \Omeka\Api\Exception\ValidationException((string) $message);
     }
@@ -634,11 +688,7 @@ class Module extends AbstractModule
 
         // Update list of sites.
         // Get all site slugs, public or not.
-        $sql = 'SELECT slug FROM site;';
-        /** @var \Doctrine\DBAL\Connection $connection */
-        $connection = $services->get('Omeka\Connection');
-        $stmt = $connection->executeQuery($sql);
-        $slugs = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        $slugs = $services->get('Omeka\Connection')->executeQuery('SELECT slug FROM site ORDER BY id ASC;')->fetchFirstColumn();
         $replaceRegex = $this->prepareRegex($slugs);
         $regex = "~const SLUGS_SITE = '[^']*?';~";
         $replace = "const SLUGS_SITE = '" . $replaceRegex . "';";
@@ -659,7 +709,11 @@ class Module extends AbstractModule
         $logger = $services->get('Omeka\Logger');
 
         // Controller name and resource types.
-        $resourceTypes = ['item-set' => 'item_set', 'item' => 'item', 'media' => 'media'];
+        $resourceTypes = [
+            'item-set' => 'item_set',
+            'item' => 'item',
+            'media' => 'media',
+        ];
 
         $defaults = [
             'default' => 'resource/{resource_id}',
@@ -693,7 +747,8 @@ class Module extends AbstractModule
 
         // Default, short and core urls are merged to manage paths simpler,
         // Set the default route the first in stacks if any for performance.
-        foreach (['resource' => 'resource', 'item_set' => 'item-set', 'item' => 'item', 'media' => 'media'] as $resourceType => $controller) {
+        // foreach (['resource' => 'resource', 'item_set' => 'item-set', 'item' => 'item', 'media' => 'media'] as $resourceType => $controller) {
+        foreach (['resource', 'item_set', 'item', 'media'] as $resourceType) {
             array_unshift($params[$resourceType]['paths'], $params[$resourceType]['default']);
             $params[$resourceType]['paths'][] = $params[$resourceType]['short'];
             // Core paths.
@@ -731,7 +786,7 @@ class Module extends AbstractModule
                 'namespace' => 'CleanUrl\Controller\Admin',
                 'site_slug' => null,
                 'forward' => [
-                    'route_name' => 'admin/default',
+                    'route_name' => 'admin/id',
                     'namespace' => 'Omeka\Controller\Admin',
                     'controller' => [
                         'item_set' => 'Omeka\Controller\Admin\ItemSet',
@@ -798,7 +853,8 @@ class Module extends AbstractModule
         };
 
         if ($displayMessages) {
-            $messenger = new \Omeka\Mvc\Controller\Plugin\Messenger;
+            /** @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
+            $messenger = $services->get('ControllerPluginManager')->get('messenger');
             $messager = function ($message) use ($messenger): void {
                 $messenger->addError($message);
             };
@@ -842,7 +898,10 @@ class Module extends AbstractModule
                 return mb_strpos($path, $v) !== false;
             });
             if (count($resourceIdentifier) !== 1) {
-                $messager(new Message('The path "%s" for item sets should contain one and only one item set identifier.', $path)); // @translate
+                $messager(new PsrMessage(
+                    'The path "{path}" for item sets should contain one and only one item set identifier.', // @translate
+                    ['path' => $path]
+                ));
                 return null;
             }
             $checks = [
@@ -860,7 +919,10 @@ class Module extends AbstractModule
             ];
             foreach ($checks as $check) {
                 if (mb_strpos($path, $check) !== false) {
-                    $messager(new Message('The path "%s" for item sets should not contain identifier "%s".', $path, $check)); // @translate
+                    $messager(new PsrMessage(
+                        'The path "{path}" for item sets should not contain identifier "{identifier}".', // @translate
+                        ['path' => $path, 'identifier' => $check]
+                    ));
                     return null;
                 }
             }
@@ -877,7 +939,10 @@ class Module extends AbstractModule
                 return mb_strpos($path, $v) !== false;
             });
             if (count($resourceIdentifier) !== 1) {
-                $messager(new Message('The path "%s" for items should contain one and only one item identifier.', $path)); // @translate
+                $messager(new PsrMessage(
+                    'The path "{path}" for items should contain one and only one item identifier.', // @translate
+                    ['path' => $path]
+                ));
                 return null;
             }
             $checks = [
@@ -892,7 +957,10 @@ class Module extends AbstractModule
             ];
             foreach ($checks as $check) {
                 if (mb_strpos($path, $check) !== false) {
-                    $messager(new Message('The path "%s" for items should not contain identifier "%s".', $path, $check)); // @translate
+                    $messager(new PsrMessage(
+                        'The path "{path}" for items should not contain identifier "{identifier}".', // @translate
+                        ['path' => $path, 'identifier' => $check]
+                    ));
                     return null;
                 }
             }
@@ -910,7 +978,10 @@ class Module extends AbstractModule
                 return mb_strpos($path, $v) !== false;
             });
             if (count($resourceIdentifier) !== 1) {
-                $messager(new Message('The path "%s" for medias should contain one and only one item identifier.', $path)); // @translate
+                $messager(new PsrMessage(
+                    'The path "{path}" for medias should contain one and only one item identifier.', // @translate
+                    ['path' => $path]
+                ));
                 return null;
             }
             $checks = [
@@ -921,7 +992,10 @@ class Module extends AbstractModule
             ];
             foreach ($checks as $check) {
                 if (mb_strpos($path, $check) !== false) {
-                    $messager(new Message('The path "%s" for medias should not contain identifier "%s".', $path, $check)); // @translate
+                    $messager(new PsrMessage(
+                        'The path "{path}" for medias should not contain identifier "{identifier}".', // @translate
+                        ['path' => $path, 'identifier' => $check]
+                    ));
                     return null;
                 }
             }
@@ -929,7 +1003,10 @@ class Module extends AbstractModule
             if ($resourceIdentifier === '{media_position}') {
                 $itemIdentifier = $getItemIdentifierName($path);
                 if (!$itemIdentifier) {
-                    $messager(new Message('The path "%s" for medias should contain an item identifier.', $path)); // @translate
+                    $messager(new PsrMessage(
+                        'The path "{path}" for medias should contain an item identifier.', // @translate
+                        ['path' => $path]
+                    ));
                     return null;
                 }
             }
@@ -939,10 +1016,16 @@ class Module extends AbstractModule
         $checkPatterns = function (string $path) use ($resourceTypes, $params, $messager): bool {
             foreach ($resourceTypes as $resourceType) {
                 if (mb_strpos($path, "{{$resourceType}_identifier}") !== false && !$params[$resourceType]['pattern']) {
-                    $messager(new Message('A pattern for "%s", for example "[a-zA-Z0-9_-]+", is required to use the path "%s".', $resourceType, $path)); // @translate
+                    $messager(new PsrMessage(
+                        'A pattern for "{resource_type}", for example "[a-zA-Z0-9_-]+", is required to use the path "{path}".', // @translate
+                        ['resource_type' => $resourceType, 'path' => $path]
+                    ));
                     return false;
                 } elseif (mb_strpos($path, "{{$resourceType}_identifier_short}") !== false && !$params[$resourceType]['pattern_short']) {
-                    $messager(new Message('A short pattern for "%s", for example "[a-zA-Z0-9_-]+", is required to use the path "%s".', $resourceType, $path)); // @translate
+                    $messager(new PsrMessage(
+                        'A short pattern for "{resource_type}", for example "[a-zA-Z0-9_-]+", is required to use the path "{path}".', // @translate
+                        ['resource_type' => $resourceType, 'path' => $path]
+                    ));
                     return false;
                 }
             }

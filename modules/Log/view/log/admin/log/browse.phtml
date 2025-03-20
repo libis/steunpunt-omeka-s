@@ -3,20 +3,22 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Log\Api\Representation\LogRepresentation[] $logs
  * @var \Log\Api\Representation\LogRepresentation[] $resources
+ * @var \Log\Form\QuickSearchForm $formSearch
  * @var \Omeka\Form\ConfirmForm $formDeleteSelected
  * @var \Omeka\Form\ConfirmForm $formDeleteAll
- * @var \Log\Form\QuickSearchForm $formSearch
  */
 
 $plugins = $this->getHelperPluginManager();
-$translate = $plugins->get('translate');
-$escape = $plugins->get('escapeHtml');
-$escapeAttr = $plugins->get('escapeHtmlAttr');
-$hyperlink = $plugins->get('hyperlink');
 $url = $plugins->get('url');
+$i18n = $plugins->get('i18n');
+$escape = $plugins->get('escapeHtml');
 $sortLink = $plugins->get('sortLink');
 $assetUrl = $plugins->get('assetUrl');
-$i18n = $plugins->get('i18n');
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
+
+$strLength = 240;
 
 $this->htmlElement('body')->appendAttribute('class', 'logs browse');
 
@@ -27,40 +29,17 @@ $this->headScript()
     ->appendFile($assetUrl('vendor/webui-popover/jquery.webui-popover.min.js', 'Log'), 'text/javascript', ['defer' => 'defer'])
     ->appendFile($assetUrl('js/log.js', 'Log'), 'text/javascript', ['defer' => 'defer']);
 
-$sortHeadings = [
-    [
-        'label' => $translate('Date'),
-        'value' => 'created',
-    ],
-    [
-        'label' => $translate('Reference'),
-        'value' => 'reference',
-    ],
-    [
-        'label' => $translate('Severity'),
-        'value' => 'severity',
-    ],
-    [
-        'label' => $translate('Job'),
-        'value' => 'job',
-    ],
-    [
-        'label' => $translate('User'),
-        'value' => 'owner',
-    ],
-];
-
 $userIsAllowedBatchDelete = $this->userIsAllowed(\Log\Api\Adapter\LogAdapter::class, 'batch_delete');
 ?>
 
-<?= $this->pageTitle('', 1, $translate('Logs')) ?>
+<?= $this->pageTitle($translate('Logs')) ?>
 
 <?= $this->logSearchFilters() ?>
 
 <div class="browse-controls">
     <?= $this->pagination() ?>
-    <?= $hyperlink($translate('Quick search / Filter'), '#', ['class' => 'search advanced-search']) ?>
-    <?= $this->sortSelector($sortHeadings) ?>
+    <button type="button" class="button search advanced-search quick-search"><?= $translate('Quick filter') ?></button>
+    <?= $this->browse()->renderSortSelector('logs') ?>
 </div>
 
 <div id="page-actions">
@@ -78,7 +57,7 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Log\Api\Adapter\LogAdapter::cl
             <?php endif; ?>
         </select>
         <div class="batch-actions">
-            <button type="button" class="default active" disabled="disabled"><?= $translate('Go') ?></button>
+            <button type="button" class="button default active" disabled="disabled"><?= $translate('Go') ?></button>
             <input type="hidden" name="query" class="batch-query" value="<?= $escapeAttr(json_encode($this->params()->fromQuery())) ?>">
             <?php if ($userIsAllowedBatchDelete): ?>
             <a class="delete button sidebar-content delete-selected" data-sidebar-selector="#sidebar-delete-selected"><?= $translate('Go') ?></a>
@@ -91,18 +70,12 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Log\Api\Adapter\LogAdapter::cl
         <thead>
             <tr>
                 <th>
-                <?php if ($userIsAllowedBatchDelete): ?>
-                <input type="checkbox" class="select-all">
-                <?php endif; ?>
-                <?= $escape($translate('Message')) ?>
+                    <?php if ($userIsAllowedBatchDelete): ?>
+                    <input type="checkbox" class="select-all">
+                    <?php endif; ?>
+                    <?= $escape($translate('Message')) ?>
                 </th>
-                <th><?= $sortLink($translate('Date'), 'created') ?></th>
-                <th><?= $sortLink($translate('Severity'), 'severity') ?></th>
-                <th><?= $sortLink($translate('Reference'), 'reference') ?></th>
-                <?php /*
-                <th><?= $sortLink($translate('User'), 'owner') ?></th>
-                */ ?>
-                <th><?= $sortLink($translate('Job'), 'job') ?></th>
+                <?= $this->browse()->renderHeaderRow('logs') ?>
             </tr>
         </thead>
         <tbody>
@@ -114,11 +87,13 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Log\Api\Adapter\LogAdapter::cl
                 <input type="checkbox" name="resource_ids[]" value="<?= $log->id() ?>"<?php if (!$userIsAllowedDelete): ?> disabled="disabled"<?php endif; ?>>
                 <?php endif; ?>
                 <span class="log-message">
-                    <?php $shouldEscape = $log->text()->escapeHtml(); ?>
-                    <?php $text = $log->text()->translate(); ?>
-                    <?php $isLong = strlen($text) > 240; ?>
+                    <?php
+                    $shouldEscape = $log->text()->escapeHtml();
+                    $text = $log->text()->translate();
+                    $isLong = mb_strlen($shouldEscape ? $text : strip_tags($text)) > $strLength;
+                    ?>
                     <?php if ($isLong): ?>
-                    <span class="log-message-truncated truncate"><?= nl2br(substr($shouldEscape ? strip_tags($text) : $text, 0, 240)) . '…' ?></span>
+                    <span class="log-message-truncated truncate"><?= nl2br($escape(mb_substr(strip_tags($text), 0, $strLength))) . '…' ?></span>
                     <?php else: ?>
                     <?= $shouldEscape ? $escape($text) : $text ?>
                     <?php endif; ?>
@@ -148,36 +123,7 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Log\Api\Adapter\LogAdapter::cl
                     ]) ?></li>
                 </ul>
             </td>
-            <td><?= $i18n->dateFormat($log->created(), 'medium', 'medium') ?></td>
-            <td><?= $hyperlink($translate($log->severityLabel()), $url(null, [], ['query' => ['page' => null, 'severity' => $log->severity()] + $this->params()->fromQuery()], true)) ?></td>
-            <td><?= $hyperlink($translate($log->reference()), $url(null, [], ['query' => ['reference' => $log->reference()]], true)) ?></td>
-            <?php /*
-            if ($owner = $log->owner()) {
-                $ownerText = $hyperlink($owner->email(), $url('admin/id', ['controller' => 'user', 'action' => 'show', 'id' => $owner->id()]));
-            } else {
-                $ownerText = '';
-            }
-            ?>
-            <td><?= $ownerText ?></td>
-            */ ?>
-            <td>
-            <?php $job = $log->job(); ?>
-            <?php if ($job): ?>
-                <span class="log-job-status">
-                <?= $hyperlink($translate($job->statusLabel()), $url(null, [], ['query' => ['job_id' => $job->id()]], true)); ?>
-                </span>
-                -
-                <span class="log-job-param">
-                <?= $hyperlink($translate('Parameters'), $url('admin/id', ['controller' => 'job', 'action' => 'show', 'id' => $job->id()])) ?>
-                </span>
-                <?php if ($job->log()): ?>
-                /
-                <span class="log-job-log">
-                <?= $hyperlink($translate('Log'), $url('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->id()]), ['target' => '_blank']) ?>
-                </span>
-                <?php endif; ?>
-            <?php endif; ?>
-            </td>
+            <?= $this->browse()->renderContentRow('logs', $log) ?>
         </tr>
         <?php endforeach; ?>
         </tbody>
@@ -198,6 +144,7 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Log\Api\Adapter\LogAdapter::cl
 </div>
 
 <?php if ($userIsAllowedBatchDelete): ?>
+
 <div id="sidebar-delete-selected" class="sidebar">
     <?= $hyperlink('', '#', [
         'class' => 'sidebar-close o-icon-close',
@@ -224,7 +171,7 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Log\Api\Adapter\LogAdapter::cl
     <div class="sidebar-content">
         <div id="sidebar-confirm">
             <h3><?= $translate('Delete logs') ?></h3>
-            <p><?= $translate('Are you sure you would like to delete all logs on all logs of this result?') ?></p>
+            <p><?= $translate('Are you sure you would like to delete all logs of this result?') ?></p>
             <p class="error"><?= sprintf(
                 $translate('%s: this action will permanently delete %s logs and cannot be undone.'),
                 sprintf('<strong>%s</strong>', $translate('Warning')),
@@ -254,7 +201,7 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Log\Api\Adapter\LogAdapter::cl
     <div class="sidebar-content">
         <div id="sidebar-search-form" class="disable-unsaved-warning">
             <h3><?= $translate('Search logs') ?></h3>
-            <?php // echo $hyperlink($translate('Advanced search'), $url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']) ?>
+            <?php // = $hyperlink($translate('Advanced search'), $url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']) ?>
             <?= $this->form($formSearch) ?>
         </div>
     </div>

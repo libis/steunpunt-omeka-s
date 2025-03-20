@@ -8,7 +8,7 @@ services:
     volumes:
       - ./modules/:/var/www/html/modules/
       - ./themes/:/var/www/html/themes/
-      - /files/:/var/www/html/files/
+      - ./files/:/var/www/html/files/
       - ./config/:/var/www/html/config/
     restart: "no"
 

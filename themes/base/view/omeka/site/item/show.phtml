@@ -45,12 +45,16 @@ endif;
 <section class="section">
   <div class="container">
     <?php 
-      $title = preg_replace('/\(([^\]]+)\)/', '<span style="font-style:italic;">($1)</span>', $item->value('dcterms:title', array('lang' => $lang)));
-      $id =  $item->value('dcterms:identifier');   
-     
-      if(str_contains($id,"PAL")):        
-        $title = '<span style="font-style:italic;">'.$title.'</span>';        
+      if($item->value('dcterms:title', array('lang' => $lang))):
+        $title = preg_replace('/\(([^\]]+)\)/', '<span style="font-style:italic;">($1)</span>', $item->value('dcterms:title', array('lang' => $lang))); 
       endif;  
+     
+      $id =  $item->value('dcterms:identifier');
+      if($id):
+        if(str_contains($id,"PAL")):        
+          $title = '<span style="font-style:italic;">'.$title.'</span>';        
+        endif;  
+      endif;
     ?>
     <?php if($type == 'Nieuws'):?>
       <h1 class="title is-2 is-family-secondary"><?php echo $item->value('dcterms:title'); ?></h1>    

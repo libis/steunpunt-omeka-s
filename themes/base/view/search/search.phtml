@@ -328,8 +328,8 @@ $('#psl-search-form').on('submit',function(e){
 
   localStorage.setItem('openPopUp', 'true');
   
-  params.set('dcterms:date[from]',$('[name="dcterms_date_drm[from]"]').val());     
-  params.set('dcterms:date[to]',$('[name="dcterms_date_drm[to]"]').val());     
+  params.set('dcterms_date_drm[from]',$('[name="dcterms_date_drm[from]"]').val());     
+  params.set('dcterms_date_drm[to]',$('[name="dcterms_date_drm[to]"]').val());     
   window.location.href = location.protocol + '//' + location.host + location.pathname+'?'+params.toString();
 });
 

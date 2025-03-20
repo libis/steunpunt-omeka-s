@@ -1,7 +1,7 @@
 <?php 
 $siteurl = 'https://blendeff.be/s/'.$block->page()->site()->slug();
 $lang = $block->page()->site()->slug();
-
+$pre = $lang;
 $translate = $this->plugin('translate');
 ?>
 
@@ -91,7 +91,7 @@ $translate = $this->plugin('translate');
                 <div class="field-body">
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="<?php echo $translate("Objectnaam");?>" name="facet[dcterms_alternative_ss][0]">
+                      <select class="selectize" placeholder="<?php echo $translate("Objectnaam");?>" name="facet[<?= $pre ?>dcterms_alternative_ss][0]">
                         <option value=""></option>
                       <?php foreach($objectnamen as $key=>$value):?>
                         <option value="<?php echo $value['val'];?>">
@@ -103,7 +103,7 @@ $translate = $this->plugin('translate');
                   </div>
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="<?php echo $translate("Vervaardiger");?>" name="facet[dcterms_creator_ss][0]">
+                      <select class="selectize" placeholder="<?php echo $translate("Vervaardiger");?>" name="facet[<?= $pre ?>dcterms_creator_ss][0]">
                         <option value=""></option>
                       <?php foreach($personen as $key=>$value):?>
                         <option value="<?php echo $value['val'];?>">
@@ -119,7 +119,7 @@ $translate = $this->plugin('translate');
                 <div class="field-body">
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="<?php echo $translate("Materiaal");?>" name="facet[dcterms_medium_ss][0]">
+                      <select class="selectize" placeholder="<?php echo $translate("Materiaal");?>" name="facet[<?= $pre ?>dcterms_medium_ss][0]">
                         <option value=""></option>
                       <?php foreach($materials as $key=>$value):?>
                         <option value="<?php echo $value['val'];?>">

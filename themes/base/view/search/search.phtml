@@ -143,8 +143,8 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
               //var_dump($dates);
               $to = '2023';$from = '1000';
               if($dates):
-                $from = $dates["dcterms:date"][0]["from"];                  
-                $to = $dates["dcterms:date"][0]["to"];
+                $from = $dates["dcterms_date_drm"][0]["from"];                  
+                $to = $dates["dcterms_date_drm"][0]["to"];
               endif;         
               if(!$from){$from = "1000";}       
               if(!$to){$from = "2023";}   
@@ -159,15 +159,15 @@ $this->headScript()->appendFile($assetUrl('js/search.js', 'Search'), 'text/javas
             <?php //echo $this->formCollection($form->get('date'), false); ?>
             <div class="field" style="display: none;">
             <div class="field-meta">
-                <label for="dcterms:date[from]">From year</label>            </div>
+                <label for="dcterms_date_drm[from]">From year</label>            </div>
             <div class="inputs">                
-                <input type="text" name="dcterms:date[from]" placeholder="YYYY" value="<?php echo $from;?>">    </div>
+                <input type="text" name="dcterms_date_drm[from]" placeholder="YYYY" value="<?php echo $from;?>">    </div>
             </div>
             <div class="field" style="display: none;">
             <div class="field-meta">
-                <label for="dcterms:date[to]">To year</label>            </div>
+                <label for="dcterms_date_drm[to]">To year</label>            </div>
             <div class="inputs">
-                <input type="text" name="dcterms:date[to]" placeholder="YYYY" value="<?php echo $to;?>">    </div>
+                <input type="text" name="dcterms_date_drm[to]" placeholder="YYYY" value="<?php echo $to;?>">    </div>
             </div>
             <div id="psl-search-form-date-slider"></div>
             <div id="psl-search-form-date-graduations">
@@ -328,14 +328,14 @@ $('#psl-search-form').on('submit',function(e){
 
   localStorage.setItem('openPopUp', 'true');
   
-  params.set('dcterms:date[from]',$('[name="dcterms:date[from]"]').val());     
-  params.set('dcterms:date[to]',$('[name="dcterms:date[to]"]').val());     
+  params.set('dcterms:date[from]',$('[name="dcterms_date_drm[from]"]').val());     
+  params.set('dcterms:date[to]',$('[name="dcterms_date_drm[to]"]').val());     
   window.location.href = location.protocol + '//' + location.host + location.pathname+'?'+params.toString();
 });
 
 $(document).ready(function() {
-  var dateFrom = $('#psl-search-form input[name="dcterms:date[from]"]');
-  var dateTo = $('#psl-search-form input[name="dcterms:date[to]"]');
+  var dateFrom = $('#psl-search-form input[name="dcterms_date_drm[from]"]');
+  var dateTo = $('#psl-search-form input[name="dcterms_date_drm[to]"]');
   var dateMin =1000;
   var dateMax = 2023;
   var currentDate = '';

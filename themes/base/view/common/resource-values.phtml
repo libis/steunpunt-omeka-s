@@ -6,7 +6,12 @@ $not = array('Title','Description','Is Version Of','Is Part Of','Language');
 $notalt = array('Collectie ID','Referenties object','Beeld','Beeld copyright','Geschiedenis');
 $URI = "$_SERVER[REQUEST_URI]";
 $URI = explode("/",$URI);
-$lang = $URI[2];
+$lang = strip_tags($URI[2]);
+if($lang == 'nl'){
+  $pre = 'nl_';
+}else{
+  $pre = '';
+}
 ?>
 
 <?php foreach ($templateProperties as $term => $property): ?>
@@ -122,7 +127,7 @@ $lang = $URI[2];
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
                     <?php $text = explode('$$',$value->asHtml());?>
                     <?php if($text[0]):?>
-                      <a href="<?php echo $search_url.'?q=&facet[dcterms:medium][0]='.$text[0]; ?>"><?php echo $text[0]; ?></a>
+                      <a href="<?php echo $search_url.'?q=&facet['.$pre.'dcterms_medium_ss][0]='.$text[0]; ?>"><?php echo $text[0]; ?></a>
                       <?php $text[1] = str_replace("vocab.getty.edu/aat/","www.getty.edu/vow/AATFullDisplay?find=&amp;logic=AND&amp;note=&amp;subjectid=",$text[1]);?>      
                       <?php if(sizeof($text) == 3):?>                        
                         <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
@@ -131,7 +136,7 @@ $lang = $URI[2];
                       <?php endif;?> 
                     <?php endif;?> 
                   <?php else:?>
-                    <a href="<?php echo $search_url.'?q=&facet[dcterms:medium][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
+                    <a href="<?php echo $search_url.'?q=&facet['.$pre.'dcterms_medium_ss][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
                   <?php endif;?> 
                 <?php elseif($propertyData['alternate_label'] == 'Plaats vervaardiging'):?>
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>
@@ -234,7 +239,7 @@ $lang = $URI[2];
                 <?php elseif($propertyData['alternate_label'] == 'Verzamelaar'):?>
                   <?php 
                     $text = explode("$$",$value->asHtml());
-                    echo '<a href="/s/nl/objecten?q=&filter[0][join]=and&filter[0][field]=abcd:fullName&filter[0][type]=in&filter[0][value]='.$text[0].'">'.$text[0].'</a>';
+                    echo '<a href="/s/nl/objecten?q=&filter[0][join]=and&filter[0][field]=abcd_fullName&filter_txt[0][type]=in&filter[0][value]='.$text[0].'">'.$text[0].'</a>';
                   ?>      
                 <?php elseif($propertyData['alternate_label'] == 'Locatie'):?>
                   <?php echo $value->asHtml();?>
@@ -279,7 +284,7 @@ $lang = $URI[2];
                       $only_name = $name[0];
                     endif;  
                     
-                    echo '<a href="'.$search_url.'?q=&filter[0][join]=and&filter[0][field]=dwc:scientificName&filter[0][type]=in&filter[0][value]='.strip_tags($only_name).'">'.$text[0].'</a>';
+                    echo '<a href="'.$search_url.'?q=&filter[0][join]=and&filter[0][field]=dwc_scientificName_txt&filter[0][type]=in&filter[0][value]='.strip_tags($only_name).'">'.$text[0].'</a>';
                     ?>
                     <?php if($text[1]):?>
                       <?php $text[1] = html_entity_decode($text[1]); ?>
@@ -292,7 +297,7 @@ $lang = $URI[2];
                   <?php if(strpos($value->asHtml(), '$$') !== false):?>                    
                     <?php $text = explode('$$',$value->asHtml());?>      
                     <?php if($text[0]):?>            
-                      <a href="<?php echo $search_url.'?q=&facet[dcterms:alternative][0]='.$text[0]; ?>"><?php echo $text[0]; ?></a>
+                      <a href="<?php echo $search_url.'?q=&facet['.$pre.'dcterms_alternative_ss][0]='.$text[0]; ?>"><?php echo $text[0]; ?></a>
                       <?php if(isset($text[2])):?> 
                         <?php $text[1] = str_replace("vocab.getty.edu/aat/","www.getty.edu/vow/AATFullDisplay?find=&amp;logic=AND&amp;note=&amp;subjectid=",$text[1]);?>      
                         <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
@@ -302,11 +307,11 @@ $lang = $URI[2];
                       <?php endif;?>
                     <?php endif;?>  
                   <?php else:?>
-                    <a href="<?php echo $search_url.'?q=&facet[dcterms:alternative][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>                  
+                    <a href="<?php echo $search_url.'?q=&facet['.$pre.'dcterms_alternative_ss][0]='.$value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>                  
                   <?php endif;?>       
                 <?php elseif($propertyData['alternate_label'] == 'Verwervingsbron'):?>                
                   <?php $bron = explode("$$",$value->asHtml());?>
-                  <a href="<?php echo $search_url.'?q=&filter[0][join]=and&filter[0][field]=abcd:acquisitionSourceText&filter[0][type]=in&filter[0][value]='.$bron[0]; ?>"><?php echo $bron[0]; ?></a>                  
+                  <a href="<?php echo $search_url.'?q=&filter[0][join]=and&filter[0][field]=abcd_acquisitionSourceText_txt&filter[0][type]=in&filter[0][value]='.$bron[0]; ?>"><?php echo $bron[0]; ?></a>                  
                   <?php if(!empty($bron[1])):?>
                     <a target="_blank" href="<?php echo $bron[1]; ?>"><i class="fas fa-info-circle"></i></a>                 
                   <?php endif;?>  
@@ -342,7 +347,7 @@ $lang = $URI[2];
                       endforeach;
                       ?>
                       <?php if($medval):?>                    
-                        <a href="<?php echo $search_url.'?q=&facet[dcterms:creator][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
+                        <a href="<?php echo $search_url.'?q=&facet['.$pre.'dcterms_creator_ss][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
                         <?php if(sizeof($text) == 3):?>
                           <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
                         <?php elseif(sizeof($text) == 2  && $text[1]):?>

@@ -51,7 +51,7 @@ $translate = $this->plugin('translate');
                 <div class="field-body">
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="<?php echo $translate("Titel");?>" name="facet[dcterms:title][0]">
+                      <select class="selectize" placeholder="<?php echo $translate("Titel");?>" name="facet[dcterms_title_s][0]">
                           <option value=""></option>                          
                           <?php foreach($titels as $key=>$value):?>                          
                             <option value="<?php echo $value['val'];?>">
@@ -63,7 +63,7 @@ $translate = $this->plugin('translate');
                   </div>
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="<?php echo $translate("Datering");?>" name="facet[dcterms:date][0]">
+                      <select class="selectize" placeholder="<?php echo $translate("Datering");?>" name="facet[dcterms_date_ss][0]">
                         <option value=""></option>
                       <?php foreach($datums as $key=>$value):?>
                         <?php 
@@ -91,7 +91,7 @@ $translate = $this->plugin('translate');
                 <div class="field-body">
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="<?php echo $translate("Objectnaam");?>" name="facet[dcterms:alternative][0]">
+                      <select class="selectize" placeholder="<?php echo $translate("Objectnaam");?>" name="facet[dcterms_alternative_ss][0]">
                         <option value=""></option>
                       <?php foreach($objectnamen as $key=>$value):?>
                         <option value="<?php echo $value['val'];?>">
@@ -103,7 +103,7 @@ $translate = $this->plugin('translate');
                   </div>
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="<?php echo $translate("Vervaardiger");?>" name="facet[dcterms:creator][0]">
+                      <select class="selectize" placeholder="<?php echo $translate("Vervaardiger");?>" name="facet[dcterms_creator_ss][0]">
                         <option value=""></option>
                       <?php foreach($personen as $key=>$value):?>
                         <option value="<?php echo $value['val'];?>">
@@ -119,7 +119,7 @@ $translate = $this->plugin('translate');
                 <div class="field-body">
                   <div class="field">
                     <p class="control is-expanded">
-                      <select class="selectize" placeholder="<?php echo $translate("Materiaal");?>" name="facet[dcterms:medium][0]">
+                      <select class="selectize" placeholder="<?php echo $translate("Materiaal");?>" name="facet[dcterms_medium_ss][0]">
                         <option value=""></option>
                       <?php foreach($materials as $key=>$value):?>
                         <option value="<?php echo $value['val'];?>">

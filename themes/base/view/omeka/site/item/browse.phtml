@@ -213,10 +213,10 @@ $sortHeadings = [
       <?php if ($itemSetShow): ?>
         <div class="has-text-left-mobile has-text-right">
           <?php if($lang == "en"):?>
-            <a href="<?php echo 'https://blendeff.be/s/'.$lang.'/objects?q=&facet[item_set_id][0]='.$itemSet->id();?>" class="button is-primary">
+            <a href="<?php echo 'https://blendeff.be/s/'.$lang.'/objects?q=&facet[item_set_ss][0]='.$itemSet->value('dcterms:title');?>" class="button is-primary">
           
           <? else:?>
-            <a href="<?php echo 'https://blendeff.be/s/'.$lang.'/objecten?q=&facet[item_set_id][0]='.$itemSet->id();?>" class="button is-primary">
+            <a href="<?php echo 'https://blendeff.be/s/'.$lang.'/objecten?q=&facet[item_set_ss][0]='.$itemSet->value('dcterms:title');?>" class="button is-primary">
           
           <?php endif;?>  
             <span><?php echo $translate("Bekijk alle objecten uit deze collectie");?></span>

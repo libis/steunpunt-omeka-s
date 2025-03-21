@@ -14,17 +14,15 @@ $displayCount = !empty($options['display_count']);
 $URI = "$_SERVER[REQUEST_URI]";
 $URI = explode("/",$URI);
 $lang = strip_tags($URI[2]);
-
 ?>
 
-<?php 
-   
+<?php    
     if($name == "item_set_id_is"):
         $sort_r = [];
         foreach ($facetValues as $k=>$facetValue):
             $item_set = $this->api()->read('item_sets', $facetValue['value']);
             $item_set = $item_set->getContent();
-            $sort_r[$item_set->value('dcterms:title', array('lang' => $lang))] = $facetValue;        
+            $sort_r[$item_set->value('dcterms:title', array('lang' => $lang)).''] = $facetValue;        
         endforeach;
         ksort($sort_r);
         $facetValues = $sort_r;

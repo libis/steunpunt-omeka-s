@@ -7,24 +7,18 @@ use Omeka\Entity\Site;
 use Omeka\Entity\SitePage;
 use Omeka\Job\AbstractJob;
 use Omeka\Mvc\Exception\NotFoundException;
-use Omeka\Stdlib\Message;
 
 class DuplicateSite extends AbstractJob
 {
-    /**
-     * @var \Laminas\Log\Logger
-     */
-    protected $logger;
-
     /**
      * @var \Omeka\Api\Manager
      */
     protected $api;
 
     /**
-     * @var \Omeka\Api\Adapter\SitePageAdapter
+     * @var \Doctrine\DBAL\Connection
      */
-    protected $pageAdapter;
+    protected $connection;
 
     /**
      * @var \Doctrine\ORM\EntityManager
@@ -32,9 +26,14 @@ class DuplicateSite extends AbstractJob
     protected $entityManager;
 
     /**
-     * @var \Doctrine\DBAL\Connection
+     * @var \Laminas\Log\Logger
      */
-    protected $connection;
+    protected $logger;
+
+    /**
+     * @var \Omeka\Api\Adapter\SitePageAdapter
+     */
+    protected $pageAdapter;
 
     /**
      * @var array
@@ -70,10 +69,10 @@ class DuplicateSite extends AbstractJob
         } catch (NotFoundException $e) {
         }
         if (empty($target)) {
-            $this->logger->err(new Message(
-                'The site #%1$s is not available for copy. Check your rights.', // @translate
-                $targetId
-            ));
+            $this->logger->err(
+                'The site #{site_id} is not available for copy. Check your rights.', // @translate
+                ['site_id' => $targetId]
+            );
             $this->job->setStatus(\Omeka\Entity\Job::STATUS_ERROR);
             return;
         }
@@ -85,10 +84,10 @@ class DuplicateSite extends AbstractJob
             } catch (NotFoundException $e) {
             }
             if (empty($source)) {
-                $this->logger->err(new Message(
-                    'The site #%1$s cannot be copied. Check your rights.', // @translate
-                    $sourceId
-                ));
+                $this->logger->err(
+                    'The site #{site_id} cannot be copied. Check your rights.', // @translate
+                    ['site_id' => $sourceId]
+                );
                 $this->job->setStatus(\Omeka\Entity\Job::STATUS_ERROR);
                 return;
             }
@@ -213,9 +212,9 @@ class DuplicateSite extends AbstractJob
     protected function removeSettings(Site $site, array $settings = null): void
     {
         $sql = <<<SQL
-DELETE FROM `site_setting`
-WHERE `site_id` = {$site->getId()};
-SQL;
+            DELETE FROM `site_setting`
+            WHERE `site_id` = {$site->getId()};
+            SQL;
         $this->connection->executeStatement($sql);
 
         if (!$settings) {
@@ -229,10 +228,10 @@ SQL;
             $siteSettings->set($id, $value);
         }
 
-        $this->logger->notice(new Message(
-            'Site settings of "%1$s" successfully removed.', // @translate
-            $site->getSlug()
-        ));
+        $this->logger->notice(
+            'Site settings of "{site_slug}" successfully removed.', // @translate
+            ['site_slug' => $site->getSlug()]
+        );
     }
 
     protected function removeSiteItemPool(Site $site): void
@@ -257,24 +256,24 @@ SQL;
     protected function removeSitePermissions(Site $site): void
     {
         $sql = <<<SQL
-DELETE FROM `site_permission`
-WHERE `site_id` = {$site->getId()};
-SQL;
+            DELETE FROM `site_permission`
+            WHERE `site_id` = {$site->getId()};
+            SQL;
         $result = $this->connection->executeStatement($sql);
         $this->entityManager->refresh($site);
 
-        $this->logger->notice(new Message(
-            '%1$d site permissions removed from "%2$s".', // @translate
-            $result, $site->getSlug()
-        ));
+        $this->logger->notice(
+            '{total} site permissions removed from "{site_slug}".', // @translate
+            ['total' => $result, 'site_slug' => $site->getSlug()]
+        );
     }
 
     protected function removeSiteItemSets(Site $site): void
     {
         $sql = <<<SQL
-DELETE FROM `site_item_set`
-WHERE `site_id` = {$site->getId()};
-SQL;
+            DELETE FROM `site_item_set`
+            WHERE `site_id` = {$site->getId()};
+            SQL;
         $this->connection->executeStatement($sql);
         $this->entityManager->refresh($site);
     }
@@ -283,43 +282,43 @@ SQL;
     {
         // FIXME There is no "on delete cascade" on db level currently!
         $sql = <<<SQL
-DELETE `site_block_attachment` FROM `site_block_attachment`
-INNER JOIN `site_page_block` ON `site_page_block`.`id` = `site_block_attachment`.`block_id`
-INNER JOIN `site_page` ON `site_page`.`id` = `site_page_block`.`page_id`
-WHERE `site_page`.`site_id` = {$site->getId()};
-SQL;
+            DELETE `site_block_attachment` FROM `site_block_attachment`
+            INNER JOIN `site_page_block` ON `site_page_block`.`id` = `site_block_attachment`.`block_id`
+            INNER JOIN `site_page` ON `site_page`.`id` = `site_page_block`.`page_id`
+            WHERE `site_page`.`site_id` = {$site->getId()};
+            SQL;
         $this->connection->executeStatement($sql);
         $sql = <<<SQL
-DELETE `site_page_block` FROM `site_page_block`
-INNER JOIN `site_page` ON `site_page`.`id` = `site_page_block`.`page_id`
-WHERE `site_page`.`site_id` = {$site->getId()};
-SQL;
+            DELETE `site_page_block` FROM `site_page_block`
+            INNER JOIN `site_page` ON `site_page`.`id` = `site_page_block`.`page_id`
+            WHERE `site_page`.`site_id` = {$site->getId()};
+            SQL;
         $this->connection->executeStatement($sql);
         $sql = <<<SQL
-DELETE FROM `site_page`
-WHERE `site_id` = {$site->getId()};
-SQL;
+            DELETE FROM `site_page`
+            WHERE `site_id` = {$site->getId()};
+            SQL;
         $result = $this->connection->executeStatement($sql);
         $this->entityManager->refresh($site);
 
-        $this->logger->notice(new Message(
-            '%1$d site pages removed from "%2$s".', // @translate
-            $result, $site->getSlug()
-        ));
+        $this->logger->notice(
+            '{total} site pages removed from "{site_slug}".', // @translate
+            ['total' => $result, 'site_slug' => $site->getSlug()]
+        );
     }
 
     protected function removeCollecting(Site $site): void
     {
         $sql = <<<SQL
-DELETE FROM `collecting_form`
-WHERE `site_id` = {$site->getId()};
-SQL;
+            DELETE FROM `collecting_form`
+            WHERE `site_id` = {$site->getId()};
+            SQL;
         $result = $this->connection->executeStatement($sql);
 
-        $this->logger->notice(new Message(
-            '%1$d collecting forms removed from "%2$s".', // @translate
-            $result, $site->getSlug()
-        ));
+        $this->logger->notice(
+            '{total} collecting forms removed from "{site_slug}".', // @translate
+            ['total' => $result, 'site_slug' => $site->getSlug()]
+        );
     }
 
     /**
@@ -332,12 +331,12 @@ SQL;
     protected function copySettings(Site $source, Site $target, array $settings = null): void
     {
         $sql = <<<SQL
-INSERT INTO `site_setting` (`id`, `site_id`, `value`)
-SELECT `t2`.`id`, {$target->getId()} AS 'site_id', `t2`.`value` FROM (
-    SELECT `t`.`id`, `t`.`value` FROM `site_setting` AS `t` WHERE `site_id` = {$source->getId()}
-) AS `t2`
-ON DUPLICATE KEY UPDATE `id`=`t2`.`id`, `site_id`={$target->getId()}, `value`=`t2`.`value`;
-SQL;
+            INSERT INTO `site_setting` (`id`, `site_id`, `value`)
+            SELECT `t2`.`id`, {$target->getId()} AS 'site_id', `t2`.`value` FROM (
+                SELECT `t`.`id`, `t`.`value` FROM `site_setting` AS `t` WHERE `site_id` = {$source->getId()}
+            ) AS `t2`
+            ON DUPLICATE KEY UPDATE `id`=`t2`.`id`, `site_id`={$target->getId()}, `value`=`t2`.`value`;
+            SQL;
         $this->connection->executeStatement($sql);
 
         if (!$settings) {
@@ -351,10 +350,10 @@ SQL;
             $siteSettings->set($id, $value);
         }
 
-        $this->logger->notice(new Message(
-            'Site settings of "%1$s" successfully copied into "%2$s".', // @translate
-            $source->getSlug(), $target->getSlug()
-        ));
+        $this->logger->notice(
+            'Site settings of "{site_slug}" successfully copied into "{site_slug_2}".', // @translate
+            ['site_slug' => $source->getSlug(), 'site_slug_2' => $target->getSlug()]
+        );
     }
 
     /**
@@ -413,37 +412,37 @@ SQL;
                 $this->mapPages[$sourcePage->getId()] = $targetPage;
                 $this->addRelations($sourcePage, $targetPage);
                 if ($slugExists) {
-                    $this->logger->err(new Message(
-                        'The page slug "%1$s" from the source has been renamed "%2$s".', // @translate
-                        $sourcePage->getSlug(), $slug
-                    ));
+                    $this->logger->err(
+                        'The page slug "{page_slug}" from the source has been renamed "{slug}".', // @translate
+                        ['page_slug' => $sourcePage->getSlug(), 'slug' => $slug]
+                    );
                 }
             } else {
-                $this->logger->err(new Message(
-                    'Unable to copy page "%1$s" of site "%2$s". The page is skipped.', // @translate
-                    $sourcePage->getSlug(), $source->getSlug()
-                ));
+                $this->logger->err(
+                    'Unable to copy page "{page_slug}" of site "{site_slug}". The page is skipped.', // @translate
+                    ['page_slug' => $sourcePage->getSlug(), 'site_slug' => $source->getSlug()]
+                );
                 $this->job->setStatus(\Omeka\Entity\Job::STATUS_ERROR);
             }
         }
 
         $this->entityManager->flush();
 
-        $this->logger->notice(new Message(
-            '%1$d site pages of "%2$s" successfully copied into "%3$s" (mode "%4$s").', // @translate
-            count($this->mapPages), $source->getSlug(), $target->getSlug(), $mode
-        ));
+        $this->logger->notice(
+            '{total} site pages of "{site_slug}" successfully copied into "{site_slug_2}" (mode "{mode}").', // @translate
+            ['total' => count($this->mapPages), 'site_slug' => $source->getSlug(), 'site_slug_2' => $target->getSlug(), 'mode' => $mode]
+        );
     }
 
     protected function copySitePermissions(Site $source, Site $target): void
     {
         $sql = <<<SQL
-INSERT INTO `site_permission` (`site_id`, `user_id`, `role`)
-SELECT {$target->getId()} AS 'site_id', `t2`.`user_id`, `t2`.`role` FROM (
-    SELECT `t`.`site_id`, `t`.`user_id`, `t`.`role` FROM `site_permission` AS `t` WHERE `site_id` = {$source->getId()}
-) AS `t2`
-ON DUPLICATE KEY UPDATE `site_id`={$target->getId()}, `user_id`=`t2`.`user_id`, `role`=`t2`.`role`;
-SQL;
+            INSERT INTO `site_permission` (`site_id`, `user_id`, `role`)
+            SELECT {$target->getId()} AS 'site_id', `t2`.`user_id`, `t2`.`role` FROM (
+                SELECT `t`.`site_id`, `t`.`user_id`, `t`.`role` FROM `site_permission` AS `t` WHERE `site_id` = {$source->getId()}
+            ) AS `t2`
+            ON DUPLICATE KEY UPDATE `site_id`={$target->getId()}, `user_id`=`t2`.`user_id`, `role`=`t2`.`role`;
+            SQL;
         $this->connection->executeStatement($sql);
         $this->entityManager->refresh($target);
     }
@@ -457,12 +456,12 @@ SQL;
     protected function copySiteItemSets(Site $source, Site $target): void
     {
         $sql = <<<SQL
-INSERT INTO `site_item_set` (`site_id`, `item_set_id`, `position`)
-SELECT {$target->getId()} AS 'site_id', `t2`.`item_set_id`, `t2`.`position` FROM (
-    SELECT `t`.`site_id`, `t`.`item_set_id`, `t`.`position` FROM `site_item_set` AS `t` WHERE `site_id` = {$source->getId()}
-) AS `t2`
-ON DUPLICATE KEY UPDATE `site_id`={$target->getId()}, `item_set_id`=`t2`.`item_set_id`, `position`=`t2`.`position`;
-SQL;
+            INSERT INTO `site_item_set` (`site_id`, `item_set_id`, `position`)
+            SELECT {$target->getId()} AS 'site_id', `t2`.`item_set_id`, `t2`.`position` FROM (
+                SELECT `t`.`site_id`, `t`.`item_set_id`, `t`.`position` FROM `site_item_set` AS `t` WHERE `site_id` = {$source->getId()}
+            ) AS `t2`
+            ON DUPLICATE KEY UPDATE `site_id`={$target->getId()}, `item_set_id`=`t2`.`item_set_id`, `position`=`t2`.`position`;
+            SQL;
         $this->connection->executeStatement($sql);
         $this->entityManager->refresh($target);
     }
@@ -525,46 +524,46 @@ SQL;
     protected function copyCollecting(Site $source, Site $target): void
     {
         $sql = <<<SQL
-INSERT INTO `collecting_form` (`item_set_id`, `site_id`, `owner_id`, `label`, `anon_type`, `success_text`, `email_text`)
-SELECT  `t2`.`item_set_id`, {$target->getId()} AS 'site_id', `t2`.`owner_id`, `t2`.`label`, `t2`.`anon_type`, `t2`.`success_text`, `t2`.`email_text` FROM (
-    SELECT `t`.`item_set_id`, `t`.`site_id`, `t`.`owner_id`, `t`.`label`, `t`.`anon_type`, `t`.`success_text`, `t`.`email_text` FROM `collecting_form` AS `t` WHERE `site_id` = {$source->getId()}
-) AS `t2`;
-SQL;
+            INSERT INTO `collecting_form` (`item_set_id`, `site_id`, `owner_id`, `label`, `anon_type`, `success_text`, `email_text`)
+            SELECT  `t2`.`item_set_id`, {$target->getId()} AS 'site_id', `t2`.`owner_id`, `t2`.`label`, `t2`.`anon_type`, `t2`.`success_text`, `t2`.`email_text` FROM (
+                SELECT `t`.`item_set_id`, `t`.`site_id`, `t`.`owner_id`, `t`.`label`, `t`.`anon_type`, `t`.`success_text`, `t`.`email_text` FROM `collecting_form` AS `t` WHERE `site_id` = {$source->getId()}
+            ) AS `t2`;
+            SQL;
         try {
             $result = $this->connection->executeStatement($sql);
         } catch (\Exception $e) {
-            $this->logger->notice(new Message(
+            $this->logger->notice(
                 'The module Collecting is a new version and is not copiable for now. Copy forms manually if needed.' // @translate
-            ));
+            );
             return;
         }
 
-        $this->logger->notice(new Message(
-            '%1$d collecting forms from site "%2$s" were successfully copied into "%3$s".', // @translate
-            $result, $source->getSlug(), $target->getSlug()
-        ));
+        $this->logger->notice(
+            '{total} collecting forms from site "{site_slug}" were successfully copied into "{site_slug_2}".', // @translate
+            ['total' => $result, 'site_slug' => $source->getSlug(), 'site_slug_2' => $target->getSlug()]
+        );
 
         // Check if the module is the fork one with column multiple or the basic one.
         $sql = <<<'SQL'
-SHOW COLUMNS FROM `collecting_prompt` LIKE 'multiple';
-SQL;
+            SHOW COLUMNS FROM `collecting_prompt` LIKE 'multiple';
+            SQL;
         try {
             $multiple = $this->connection->executeStatement($sql) ? ', `multiple`' : '';
         } catch (\Exception $e) {
             $multiple = '';
         }
         $sql = <<<SQL
-INSERT INTO `collecting_prompt` (`form_id`, `property_id`, `position`, `type`, `text`, `input_type`, `select_options`, `resource_query`, `custom_vocab`, `media_type`, `required`$multiple)
-SELECT `form_id`, `property_id`, `position`, `type`, `text`, `input_type`, `select_options`, `resource_query`, `custom_vocab`, `media_type`, `required`$multiple FROM `collecting_prompt`
-JOIN `collecting_form` ON `collecting_form`.`id` = `collecting_prompt`.`form_id`
-WHERE `collecting_form`.`site_id` = {$source->getId()};
-SQL;
+            INSERT INTO `collecting_prompt` (`form_id`, `property_id`, `position`, `type`, `text`, `input_type`, `select_options`, `resource_query`, `custom_vocab`, `media_type`, `required`$multiple)
+            SELECT `form_id`, `property_id`, `position`, `type`, `text`, `input_type`, `select_options`, `resource_query`, `custom_vocab`, `media_type`, `required`$multiple FROM `collecting_prompt`
+            JOIN `collecting_form` ON `collecting_form`.`id` = `collecting_prompt`.`form_id`
+            WHERE `collecting_form`.`site_id` = {$source->getId()};
+            SQL;
         try {
             $result = $this->connection->executeStatement($sql);
         } catch (\Exception $e) {
-            $this->logger->notice(new Message(
+            $this->logger->notice(
                 'The module Collecting is a new version and is not copiable for now. Copy forms manually if needed.' // @translate
-            ));
+            );
             return;
         }
 
@@ -575,10 +574,20 @@ SQL;
     {
         /**
          * @var \Omeka\Stdlib\FulltextSearch $fulltext
+         * @var \Omeka\Entity\SitePage $page
          */
         $fulltext = $this->getServiceLocator()->get('Omeka\FulltextSearch');
         foreach ($site->getPages() as $page) {
-            $fulltext->save($page, $this->pageAdapter);
+            try {
+                $fulltext->save($page, $this->pageAdapter);
+            } catch (\Exception $e) {
+                // Some blocks fail without a site, that may not be provided for
+                // background tasks.
+                $this->logger->warn(
+                    'The full text for page {page_slug} was not saved. Run indexation of full text manually in main settings or in tasks of Easy Admin. Exception: {exception}', // @translate
+                    ['page_slug', $page->getSlug(), 'exception' => $e]
+                );
+            }
         }
     }
 

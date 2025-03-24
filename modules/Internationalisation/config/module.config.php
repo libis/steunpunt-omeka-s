@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Internationalisation;
 
 return [
@@ -40,20 +41,34 @@ return [
         ],
     ],
     'block_layouts' => [
+        'invokables' => [
+            'languageSwitcher' => Site\BlockLayout\LanguageSwitcher::class,
+        ],
         'factories' => [
             'mirrorPage' => Service\BlockLayout\MirrorPageFactory::class,
         ],
     ],
+    'resource_page_block_layouts' => [
+        'invokables' => [
+            'languageSwitcher' => Site\ResourcePageBlockLayout\LanguageSwitcher::class,
+        ],
+    ],
     'form_elements' => [
         'invokables' => [
+            Form\LanguageSwitcherFieldset::class => Form\LanguageSwitcherFieldset::class,
             Form\MirrorPageFieldset::class => Form\MirrorPageFieldset::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
         'factories' => [
+            // TODO To be removed when Common 3.4.64 will be released.
             Form\Element\SitesPageSelect::class => Service\Form\Element\SitesPageSelectFactory::class,
             Form\DuplicateSiteFieldset::class => \Laminas\Form\ElementFactory::class,
             Form\SiteSettingsFieldset::class => Service\Form\SiteSettingsFieldsetFactory::class,
-            \Omeka\Form\SitePageForm::class => Service\Form\SitePageFormFactory::class,
+            Form\SitePageForm::class => Service\Form\SitePageFormFactory::class,
+        ],
+        'aliases' => [
+            // The site page form does not implement form events, so override it for now.
+            \Omeka\Form\SitePageForm::class => Form\SitePageForm::class,
         ],
     ],
     'controller_plugins' => [
@@ -87,6 +102,9 @@ return [
         'block_settings' => [
             'mirrorPage' => [
                 'page' => null,
+            ],
+            'languageSwitcher' => [
+                'display_locale' => null,
             ],
         ],
     ],

@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Internationalisation\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
@@ -16,6 +17,14 @@ class SitePageRelationAdapter extends AbstractEntityAdapter
     protected $sortFields = [
         'page_id' => 'page_id',
         'related_page_id' => 'related_page_id',
+        // TODO Sort related pages by page slug?
+        // 'page_slug' => 'page_slug',
+        // 'related_page_slug' => 'related_page_slug',
+    ];
+
+    protected $scalarFields = [
+        'page' => 'page',
+        'related_page' => 'relatedPage',
         // TODO Sort related pages by page slug?
         // 'page_slug' => 'page_slug',
         // 'related_page_slug' => 'related_page_slug',

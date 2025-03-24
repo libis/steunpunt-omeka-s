@@ -2,11 +2,17 @@
 
 namespace Internationalisation\Form\Element;
 
+use Common\Form\Element\AbstractGroupBySiteSelect;
+use Omeka\Api\Representation\AbstractRepresentation;
+use Omeka\Api\Representation\ResourceReference;
+use Omeka\Api\Representation\SitePageRepresentation;
+
 /**
- * Used in:
+ * Different from core SitePageSelect: all the pages of all sites are returned.
  *
- * @see \BlockPlus\Form\Element\SitesPageSelect
- * @see \Internationalisation\Form\Element\SitesPageSelect
+ * @see \Omeka\Form\Element\SitePageSelect
+ *
+ * TODO Remove this copy from Common for version 3.4.64.
  */
 class SitesPageSelect extends AbstractGroupBySiteSelect
 {
@@ -15,8 +21,35 @@ class SitesPageSelect extends AbstractGroupBySiteSelect
         return 'site_pages';
     }
 
-    public function getValueLabel($resource): string
+    public function getValueLabel(SitePageRepresentation $resource): string
     {
-        return (string) $resource->title();
+        return $resource->title();
+    }
+
+    public function setValue($value)
+    {
+        $isMultiple = !empty($this->attributes['multiple']);
+        if ($isMultiple) {
+            foreach ($value as &$val) {
+                if ($val instanceof AbstractRepresentation
+                    || $val instanceof ResourceReference
+                ) {
+                    $val = $val->id();
+                } elseif (is_array($val)) {
+                    $val = $val['o:id'] ?? null;
+                }
+            }
+            unset($val);
+        } else {
+            if ($value instanceof AbstractRepresentation
+                || $value instanceof ResourceReference
+            ) {
+                $value = $value->id();
+            } elseif (is_array($value)) {
+                $value = $value['o:id'] ?? null;
+            }
+        }
+
+        return parent::setValue($value);
     }
 }

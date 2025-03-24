@@ -31,7 +31,10 @@ class MvcListeners extends AbstractListenerAggregate
 
         /** @var \Omeka\Api\Representation\SiteRepresentation $currentSIte */
         $currentSite = $services->get('ControllerPluginManager')->get('currentSite');
-        $themeLanguagePath = OMEKA_PATH . '/themes/' . $currentSite()->theme() . '/language';
+        //$themeLanguagePath = OMEKA_PATH . '/themes/' . $currentSite()->theme() . '/language';
+        //libis-hack
+        $themeLanguagePath = OMEKA_PATH . '/themes/base/language';
+        //end-hack
         if (!file_exists($themeLanguagePath) || !is_dir($themeLanguagePath)) {
             return;
         }

@@ -294,7 +294,7 @@ figcaption{
 }
 
 .hero-body{
-  padding: 1rem 2rem 4rem 2rem !important;
+  padding: 1rem 2rem 4rem 2rem;
 
   .logo-column{
     img{
@@ -752,6 +752,43 @@ figcaption{
       margin-right: 9px;
     }
   }
+
+  .search-facet-item {
+    a {
+      font-size: 16px;
+    }
+  }
+
+  .search-facet-item {
+    span {
+      color: #000000;
+    }
+    a {
+      display: inline-block;
+      position: relative;
+      padding-left: 22px;
+    }
+
+    a::before {
+      display: inline-block;
+      font-family: 'Font Awesome 5 Free';
+      width: 1.5em;
+      content: "\f0c8";
+      height: 10px;
+      text-align: right;
+      padding-right: 15px;
+      width: 10px;
+      position: absolute;
+      left: 0;
+      color: #000000;
+    }
+
+    .active {
+      a::before {
+        content: "\f14a";
+      }
+    }
+  }
 }
 
 .facets-group {
@@ -779,6 +816,16 @@ figcaption{
   display: block;
   transform: translateX(0%);
   width: 100%;
+
+  .search-facet-items {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    .search-facet-item {
+      width: fit-content;
+    }
+  }
 }
 
 @media screen and (min-width: 1024px) {
@@ -1099,5 +1146,61 @@ footer{
 @media screen and (min-width: 1024px) { 
   .scroll-to-top-button {
       display: none;
+  }
+}
+
+//banner
+@media screen and (max-width: 1024px) {
+  .other-banner {
+    height: 80px;
+
+    .hero-overlay {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+
+      .hero-body {
+        padding: 0;
+        
+        .container {
+          .columns {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+
+            .logo-column {
+              padding: 0;
+              padding-left: 1.5rem;
+              width: calc(30px + 1.5rem);
+              height: 49px;
+              flex-basis: auto;
+              flex-grow: 0;
+              flex-shrink: 0;
+
+              img {
+                padding: 0;
+                width: 30px;
+              }
+            }
+
+            .column:has(.title) {
+              padding: 0;
+
+              .title {
+                font-size: 20px;
+                margin-bottom: 0;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .subtitle {
+      display: none;
+    }
   }
 }

@@ -34,15 +34,17 @@ $lang = strip_tags($URI[2]);
         <input class="form-control txtSearch" type="text" placeholder="filter">
     <?php endif;?>
     <?php foreach ($facetValues as $key => $facetValue): ?>
-        <li class="search-facet-item <?= $facetValue['active'] ? 'active' : 'inactive' ?>">
-        <?php if($name != "item_set_id_is"):?>
-            <a href="<?= $escapeAttr($facetValue['url']) ?>"><?= $escape($facetValue['label']) ?></a>
-        <?php else:?>
-            <a href="<?= $escapeAttr($facetValue['url']) ?>"><?= $escape($key) ?></a>
-        <?php endif;?>      
-        <?php if ($displayCount): ?>
-        (<span class="count"><?= $facetValue['count'] ?></span>)
-        <?php endif; ?>
-    </li>
+        <li class="search-facet-item">
+            <span class="<?= $facetValue['active'] ? 'active' : 'inactive' ?>">
+                <?php if($name != "item_set_id_is"):?>
+                    <a href="<?= $escapeAttr($facetValue['url']) ?>"><?= $escape($facetValue['label']) ?>
+                <?php else:?>
+                    <a href="<?= $escapeAttr($facetValue['url']) ?>"><?= $escape($key) ?>
+                <?php endif;?>      
+                <?php if ($displayCount): ?>
+                <span class="count">(<?= $facetValue['count'] ?>)</span></a>
+                <?php endif; ?>
+            </span>
+        </li>
     <?php endforeach; ?>
 </ul>

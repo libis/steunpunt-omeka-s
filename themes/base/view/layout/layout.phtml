@@ -61,7 +61,7 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
     <?php echo $userBar; ?>
 
     <header>
-      <section class="hero is-primary is-bold" style="background:url('/themes/base/asset/img/bg.jpeg') no-repeat center center;background-size: cover;">
+      <section class="hero is-primary is-bold <?= (!$home)? 'other-banner': ''; ?>" style="background:url('/themes/base/asset/img/bg.jpeg') no-repeat center center;background-size: cover;">
         <div class="hero-overlay">
           <div class="hero-head">
             <nav class="navbar" role="navigation" aria-label="main navigation">

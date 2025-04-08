@@ -817,6 +817,10 @@ figcaption{
   transform: translateX(0%);
   width: 100%;
 
+  .search-facet {
+    display: block;
+  }
+
   .search-facet-items {
     display: flex;
     flex-direction: column;
@@ -824,6 +828,10 @@ figcaption{
 
     .search-facet-item {
       display: block;
+      
+      span {
+        pointer-events: none;
+      }
     }
   }
 }

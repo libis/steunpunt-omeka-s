@@ -771,10 +771,6 @@ figcaption{
       pointer-events: none;
     }
 
-    a:active {
-      pointer-events: all;
-    }
-
     a::before {
       display: inline-block;
       font-family: 'Font Awesome 5 Free';

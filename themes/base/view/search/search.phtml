@@ -262,8 +262,7 @@ function activeLink(event) {
     event.preventDefault();
     var facetLink = event.currentTarget.dataset.facetLink;
     localStorage.setItem('openPopUp', 'true');
-    console.log("test");
-    //window.location.href = facetLink;
+    window.location.href = facetLink;
 }
 
 $(window).on('load', function() {

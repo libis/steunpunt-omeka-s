@@ -763,10 +763,16 @@ figcaption{
     span {
       color: #000000;
     }
+
     a {
       display: inline-block;
       position: relative;
-      padding-left: 22px;
+      padding-left: 22px; 
+      pointer-events: none;
+    }
+
+    a:active {
+      pointer-events: all;
     }
 
     a::before {
@@ -822,9 +828,9 @@ figcaption{
   }
 
   .search-facet-items {
-    /*display: flex;
+    display: flex;
     flex-direction: column;
-    gap: 5px;*/
+    gap: 5px;
 
     .search-facet-item {
       display: block;

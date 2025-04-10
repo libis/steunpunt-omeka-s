@@ -258,6 +258,13 @@ $(".facet-active").on("click touchstart", function(e) {
   window.location.href = href;
 });
 
+function activeLink(event) {  
+    event.preventDefault();
+    var facetLink = event.currentTarget.dataset.facetLink;
+    localStorage.setItem('openPopUp', 'true');
+    window.location.href = facetLink;
+}
+
 $(window).on('load', function() {
   var openPopUp = localStorage.getItem('openPopUp');
   var filterIcon = $(".filter-icon");

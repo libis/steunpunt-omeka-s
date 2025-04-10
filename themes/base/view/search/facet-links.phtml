@@ -48,12 +48,3 @@ $lang = strip_tags($URI[2]);
         </li>
     <?php endforeach; ?>
 </ul>
-
-<script>
-    function activeLink(event) {  
-        event.preventDefault();
-        var facetLink = event.currentTarget.dataset.facetLink;
-        localStorage.setItem('openPopUp', 'true');
-        window.location.href = facetLink;
-    }
-</script>

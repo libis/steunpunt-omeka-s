@@ -753,13 +753,13 @@ figcaption{
     }
   }
 
-  .search-facet-item-object {
+  .search-facet-item {
     a {
       font-size: 16px;
     }
   }
 
-  .search-facet-item-object {
+  .search-facet-item{
     span {
       color: #000000;
     }
@@ -828,7 +828,7 @@ figcaption{
     flex-direction: column;
     gap: 5px;
 
-    .search-facet-item-object {
+    .search-facet-item {
       display: block;
     }
   }

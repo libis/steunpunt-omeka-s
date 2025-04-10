@@ -34,17 +34,25 @@ $lang = strip_tags($URI[2]);
         <input class="form-control txtSearch" type="text" placeholder="filter">
     <?php endif;?>
     <?php foreach ($facetValues as $key => $facetValue): ?>
-        <li class="search-facet-item">
+        <li class="search-facet-item-object">
             <span class="<?= $facetValue['active'] ? 'active' : 'inactive' ?>">
                 <?php if($name != "item_set_id_is"):?>
-                    <a href="<?= $escapeAttr($facetValue['url']) ?>"><?= $escape($facetValue['label']) ?></a>
+                    <div class="facet-link" data-facet-link="<?= $escapeAttr($facetValue['url']) ?>" onclick="activeLink(event)"><?= $escape($facetValue['label']) ?>
                 <?php else:?>
-                    <a href="<?= $escapeAttr($facetValue['url']) ?>"><?= $escape($key) ?></a>
+                    <div class="facet-link" data-facet-link="<?= $escapeAttr($facetValue['url']) ?>" onclick="activeLink(event)"><?= $escape($key) ?>
                 <?php endif;?>      
                 <?php if ($displayCount): ?>
-                <span class="count">(<?= $facetValue['count'] ?>)</span></a>
+                <span class="count">(<?= $facetValue['count'] ?>)</span></div>
                 <?php endif; ?>
             </span>
         </li>
     <?php endforeach; ?>
 </ul>
+
+<script>
+    function activeLink(event) {  
+        event.preventDefault();
+        var facetLink = event.currentTarget.dataset.facetLink;
+        window.location.href = facetLink;
+    }
+</script>

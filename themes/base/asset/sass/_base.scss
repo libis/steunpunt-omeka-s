@@ -753,25 +753,25 @@ figcaption{
     }
   }
 
-  .search-facet-item {
+  .search-facet-item-object {
     a {
       font-size: 16px;
     }
   }
 
-  .search-facet-item {
+  .search-facet-item-object {
     span {
       color: #000000;
     }
 
-    a {
+    .facet-link {
       display: inline-block;
       position: relative;
       padding-left: 22px; 
-      pointer-events: none;
+      cursor: pointer;
     }
 
-    a::before {
+    .facet-link::before {
       display: inline-block;
       font-family: 'Font Awesome 5 Free';
       width: 1.5em;
@@ -786,7 +786,7 @@ figcaption{
     }
 
     .active {
-      a::before {
+      .facet-link::before {
         content: "\f14a";
       }
     }
@@ -828,7 +828,7 @@ figcaption{
     flex-direction: column;
     gap: 5px;
 
-    .search-facet-item {
+    .search-facet-item-object {
       display: block;
     }
   }

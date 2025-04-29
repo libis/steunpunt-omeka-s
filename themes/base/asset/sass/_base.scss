@@ -769,6 +769,8 @@ figcaption{
       position: relative;
       padding-left: 22px; 
       cursor: pointer;
+      word-wrap: break-word;
+      max-width: 100%;
     }
 
     .facet-link::before {
@@ -790,6 +792,16 @@ figcaption{
         content: "\f14a";
       }
     }
+  }
+
+  .facet-active {
+    word-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    white-space: unset;
+    text-align: left;
+    align-items: flex-start;
+    height: auto;
   }
 }
 

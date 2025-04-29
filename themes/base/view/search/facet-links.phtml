@@ -37,12 +37,12 @@ $lang = strip_tags($URI[2]);
         <li class="search-facet-item">
             <span class="<?= $facetValue['active'] ? 'active' : 'inactive' ?>">
                 <?php if($name != "item_set_id_is"):?>
-                    <div class="facet-link" data-facet-link="<?= $escapeAttr($facetValue['url']) ?>" onclick="activeLink(event)"><?= $escape($facetValue['label']) ?>
+                    <a href="<?= $escapeAttr($facetValue['url']) ?>" class="facet-link" data-facet-link="<?= $escapeAttr($facetValue['url']) ?>" onclick="activeLink(event)"><?= $escape($facetValue['label']) ?>
                 <?php else:?>
-                    <div class="facet-link" data-facet-link="<?= $escapeAttr($facetValue['url']) ?>" onclick="activeLink(event)"><?= $escape($key) ?>
+                    <a href="<?= $escapeAttr($facetValue['url']) ?>" class="facet-link" data-facet-link="<?= $escapeAttr($facetValue['url']) ?>" onclick="activeLink(event)"><?= $escape($key) ?>
                 <?php endif;?>      
                 <?php if ($displayCount): ?>
-                <span class="count">(<?= $facetValue['count'] ?>)</span></div>
+                <span class="count">(<?= $facetValue['count'] ?>)</span></a>
                 <?php endif; ?>
             </span>
         </li>

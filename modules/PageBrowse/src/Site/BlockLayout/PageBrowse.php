@@ -89,8 +89,17 @@ class PageBrowse extends AbstractBlockLayout
         foreach ($pages as $page) {
             foreach ($page->blocks() as $block) {
                 // A page can belong to multiple types…
-
-                if ($block->layout() === 'pageMetadata' && $block->dataValue('type') === $type) {
+                $page->layoutData();
+                if($page->layoutData()) {
+                    if(isset($page->layoutData()['template_name'])){
+                        $pageType = $page->layoutData()['template_name'];
+                    }else{
+                        $pageType = "";
+                    }
+                }else{    
+                    $pageType = "";
+                }
+                if ($block->layout() === 'pageMetadata' && $pageType === $type) {
                   if($tag):
                      if(in_array($tag,$block->dataValue('tags'))):
                        $pageBlocks[$page->slug()] = $block;

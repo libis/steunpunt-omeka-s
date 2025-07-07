@@ -158,7 +158,7 @@ if($lang == 'nl'){
                     See terms of use: <a target="_blank" href="<?php echo "/s/en/page/gebruiksvoorwaarden#limitatief"; ?>">Limitative use</a>
                   
                   <?php else:?>
-                    <?php echo $value->asHtml(); ?>
+                    <?php echo filter_var($value->asHtml(), FILTER_VALIDATE_URL) ? '<a target="_blank" href="'.$value->asHtml().'">'.$value->asHtml().'</a>' : $value->asHtml(); ?>
                   <?php endif;?>
                 <?php elseif($propertyData['property']->term() == 'dcterms:dateAccepted'):?>
                   <?php echo $value->asHtml();?>

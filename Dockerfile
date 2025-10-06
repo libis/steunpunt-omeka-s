@@ -59,7 +59,7 @@ ADD php.ini-development /usr/local/etc/php
 
 COPY extra.ini /usr/local/etc/php/conf.d/
 
-RUN sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
+#RUN sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
 
 # Mail config
 COPY update-exim4.conf.conf /etc/exim4/update-exim4.conf.conf

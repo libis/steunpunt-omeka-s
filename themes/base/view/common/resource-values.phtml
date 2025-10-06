@@ -287,7 +287,7 @@ if($lang == 'nl'){
                     echo '<a href="'.$search_url.'?q=&filter[0][join]=and&filter[0][field]=dwc_scientificName_txt&filter[0][type]=in&filter[0][value]='.strip_tags($only_name).'">'.$text[0].'</a>';
                     ?>
                     <?php if($text[1]):?>
-                      <?php if(str_contains($text[1],'min-'));?>
+                      <?php if(str_contains($text[1],'min-')):?>
                         <?php $text[1] = "https://www.mindat.org/".trim($text[1]).".html";?>
                          <a target="_blank" href="<?php echo $text[1]; ?>"><i class="fas fa-info-circle"></i></a>
                       <?php else:?>   

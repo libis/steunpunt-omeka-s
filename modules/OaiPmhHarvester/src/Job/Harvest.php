@@ -924,6 +924,10 @@ class Harvest extends AbstractJob
                 $texts = str_replace("/","-",$texts);
             endif;
 
+            if($localName == 'identifier'):
+                $texts = str_replace(".","",$texts);
+            endif;
+
             if($localName == 'dateAccepted'):
                 $texts = explode(" (",$texts);
                 if($texts[0] == "19de eeuw (eerste kwart)"):

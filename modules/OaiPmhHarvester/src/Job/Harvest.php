@@ -925,7 +925,8 @@ class Harvest extends AbstractJob
             endif;
 
             if($localName == 'identifier'):
-                $texts = str_replace(".","",$texts);
+                //make for url friendly
+                $texts = str_replace(".","_",$texts);
             endif;
 
             if($localName == 'dateAccepted'):

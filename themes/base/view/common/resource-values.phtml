@@ -355,7 +355,7 @@ if($lang == 'nl'){
                       endforeach;
                       ?>
                       <?php if($medval):?>                    
-                        <a href="<?php echo $search_url.'?q=&facet['.$pre.'dcterms_creator_ss][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
+                        <a href="<?php echo $search_url.'?q=&facet[dcterms_creator_ss][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
                         <?php if(sizeof($text) == 3):?>
                           <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
                         <?php elseif(sizeof($text) == 2  && $text[1]):?>

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /*
- * Copyright Daniel Berthereau, 2018-2024
+ * Copyright Daniel Berthereau, 2018-2025
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -30,7 +30,6 @@ namespace Common;
 
 use Common\Stdlib\PsrMessage;
 use Laminas\ServiceManager\ServiceLocatorInterface;
-use Omeka\Api\Exception\NotFoundException;
 use Omeka\Api\Exception\RuntimeException;
 use Omeka\Api\Representation\ResourceTemplateRepresentation;
 use Omeka\Entity\Vocabulary;
@@ -42,7 +41,7 @@ use Omeka\Module\Exception\ModuleCannotInstallException;
 class ManageModuleAndResources
 {
     /**
-     * @var \Omeka\Mvc\Controller\Plugin\Api
+     * @var \Omeka\Api\Manager
      */
     protected $api;
 
@@ -59,8 +58,9 @@ class ManageModuleAndResources
     public function __construct(ServiceLocatorInterface $services)
     {
         $this->services = $services;
-        // The api plugin allows to search one resource without throwing error.
-        $this->api = $services->get('ControllerPluginManager')->get('api');
+        // Don't use plugin api: it may be complex to use when upgrading module
+        // AdvancedSearch, that overrides it.
+        $this->api = $services->get('Omeka\ApiManager');
         $this->easyMeta = $services->get('Common\EasyMeta');
     }
 
@@ -95,7 +95,7 @@ class ManageModuleAndResources
                 ));
             }
             $exists = $this->checkVocabulary($data, $module);
-            if (is_null($exists)) {
+            if ($exists === null) {
                 throw new ModuleCannotInstallException((string) new PsrMessage(
                     'An error occured when adding the prefix "{prefix}": another vocabulary exists. Resolve the conflict before installing this module.', // @translate
                     ['prefix' => $data['vocabulary']['o:prefix']]
@@ -107,7 +107,7 @@ class ManageModuleAndResources
         // The presence of the module should be already checked during install.
         foreach ($this->listFilesInDir($filepathData . 'custom-vocabs') as $filepath) {
             $exists = $this->checkCustomVocab($filepath);
-            if (is_null($exists)) {
+            if ($exists === null) {
                 throw new ModuleCannotInstallException((string) new PsrMessage(
                     'A custom vocab exists for "{name}". Remove it or rename it before installing this module.', // @translate
                     ['name' => pathinfo($filepath, PATHINFO_FILENAME)]
@@ -118,7 +118,7 @@ class ManageModuleAndResources
         // Resource templates.
         foreach ($this->listFilesInDir($filepathData . 'resource-templates') as $filepath) {
             $exists = $this->checkResourceTemplate($filepath);
-            if (is_null($exists)) {
+            if ($exists === null) {
                 throw new ModuleCannotInstallException((string) new PsrMessage(
                     'A resource template exists for {template}. Rename it or remove it before installing this module.', // @translate
                     ['template' => pathinfo($filepath, PATHINFO_FILENAME)]
@@ -167,7 +167,6 @@ class ManageModuleAndResources
     /**
      * Check if a vocabulary exists and throws an exception if different.
      *
-     * @throws \Omeka\Api\Exception\RuntimeException
      * @return bool False if not found, true if exists, null if a vocabulary
      * exists with the same prefix but a different uri.
      */
@@ -177,7 +176,7 @@ class ManageModuleAndResources
 
         if (!empty($vocabularyData['update']['namespace_uri'])) {
             /** @var \Omeka\Api\Representation\VocabularyRepresentation $vocabularyRepresentation */
-            $vocabularyRepresentation = $this->api->searchOne('vocabularies', ['namespace_uri' => $vocabularyData['update']['namespace_uri']])->getContent();
+            $vocabularyRepresentation = $this->apiRead('vocabularies', ['namespaceUri' => $vocabularyData['update']['namespace_uri']]);
             if ($vocabularyRepresentation) {
                 return true;
             }
@@ -185,14 +184,14 @@ class ManageModuleAndResources
 
         $namespaceUri = $vocabularyData['vocabulary']['o:namespace_uri'];
         /** @var \Omeka\Api\Representation\VocabularyRepresentation $vocabularyRepresentation */
-        $vocabularyRepresentation = $this->api->searchOne('vocabularies', ['namespace_uri' => $namespaceUri])->getContent();
+        $vocabularyRepresentation = $this->apiRead('vocabularies', ['namespaceUri' => $namespaceUri]);
         if ($vocabularyRepresentation) {
             return true;
         }
 
         // Check if the vocabulary have been already imported.
         $prefix = $vocabularyData['vocabulary']['o:prefix'];
-        $vocabularyRepresentation = $this->api->searchOne('vocabularies', ['prefix' => $prefix])->getContent();
+        $vocabularyRepresentation = $this->apiRead('vocabularies', ['prefix' => $prefix]);
         if (!$vocabularyRepresentation) {
             return false;
         }
@@ -223,7 +222,7 @@ class ManageModuleAndResources
             return false;
         }
 
-        $template = $this->api->searchOne('resource_templates', ['label' => $data['label']])->getContent();
+        $template = $this->apiRead('resource_templates', ['label' => $data['label']]);
         return !empty($template);
     }
 
@@ -244,13 +243,11 @@ class ManageModuleAndResources
         }
 
         $label = $data['o:label'];
-        try {
-            // Custom vocab cannot be searched.
-            /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
-            $customVocab = $this->api->read('custom_vocabs', ['label' => $label])->getContent();
-        } catch (NotFoundException $e) {
-            return false;
-        } catch (\Omeka\Api\Exception\BadRequestException $e) {
+
+        // Custom vocab cannot be searched.
+        /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
+        $customVocab = $this->apiRead('custom_vocabs', ['label' => $label]);
+        if (!$customVocab) {
             return false;
         }
 
@@ -316,7 +313,7 @@ class ManageModuleAndResources
         // Check if the vocabulary have been already imported.
         $prefix = $vocabularyData['vocabulary']['o:prefix'];
         /** @var \Omeka\Api\Representation\VocabularyRepresentation $vocabularyRepresentation */
-        $vocabularyRepresentation = $this->api->searchOne('vocabularies', ['prefix' => $prefix])->getContent();
+        $vocabularyRepresentation = $this->apiRead('vocabularies', ['prefix' => $prefix]);
 
         if ($vocabularyRepresentation) {
             // Check if it is the same vocabulary.
@@ -367,12 +364,12 @@ class ManageModuleAndResources
 
         if ($oldNameSpaceUri) {
             /** @var \Omeka\Entity\Vocabulary $vocabulary */
-            $vocabulary = $this->api->searchOne('vocabularies', ['namespace_uri' => $oldNameSpaceUri], ['responseContent' => 'resource'])->getContent();
+            $vocabulary = $this->apiRead('vocabularies', ['namespaceUri' => $oldNameSpaceUri], ['responseContent' => 'resource']);
         }
         // The old vocabulary may have been already updated.
         if (empty($vocabulary)) {
-            $vocabulary = $this->api->searchOne('vocabularies', ['namespace_uri' => $namespaceUri], ['responseContent' => 'resource'])->getContent()
-                ?: $this->api->searchOne('vocabularies', ['prefix' => $prefix], ['responseContent' => 'resource'])->getContent();
+            $vocabulary = $this->apiRead('vocabularies', ['namespaceUri' => $namespaceUri], ['responseContent' => 'resource'])
+                ?: $this->apiRead('vocabularies', ['prefix' => $prefix], ['responseContent' => 'resource']);
         }
         if (!$vocabulary) {
             return $this->createVocabulary($vocabularyData, $module);
@@ -397,17 +394,17 @@ class ManageModuleAndResources
                 if ($oldLocalName === $newLocalName) {
                     continue;
                 }
-                $old = $this->api->searchOne($name, [
-                    'vocabulary_id' => $vocabulary->getId(),
-                    'local_name' => $oldLocalName,
-                ], ['responseContent' => 'resource'])->getContent();
+                $old = $this->apiRead($name, [
+                    'vocabulary' => $vocabulary->getId(),
+                    'localName' => $oldLocalName,
+                ], ['responseContent' => 'resource']);
                 if (!$old) {
                     continue;
                 }
-                $new = $this->api->searchOne($name, [
-                    'vocabulary_id' => $vocabulary->getId(),
-                    'local_name' => $newLocalName,
-                ], ['responseContent' => 'resource'])->getContent();
+                $new = $this->apiRead($name, [
+                    'vocabulary' => $vocabulary->getId(),
+                    'localName' => $newLocalName,
+                ], ['responseContent' => 'resource']);
                 if ($new) {
                     $vocabularyData['replace'][$name][$oldLocalName] = $newLocalName;
                     continue;
@@ -459,8 +456,9 @@ class ManageModuleAndResources
     protected function replaceVocabularyMembers(Vocabulary $vocabulary, array $vocabularyData): bool
     {
         $membersByLocalName = [];
+        $vocabularyId = $vocabulary->getId();
         foreach (['resource_classes', 'properties'] as $name) {
-            $membersByLocalName[$name] = $this->api->search($name, ['vocabulary_id' => $vocabulary->getId()], ['returnScalar' => 'localName'])->getContent();
+            $membersByLocalName[$name] = $this->api->search($name, ['vocabulary_id' => $vocabularyId], ['returnScalar' => 'localName'])->getContent();
             $membersByLocalName[$name] = array_flip($membersByLocalName[$name]);
         }
 
@@ -495,32 +493,32 @@ class ManageModuleAndResources
                 // remove the old member.
                 if ($name === 'resource_classes') {
                     $sqls = <<<SQL
-UPDATE `resource`
-SET `resource_class_id` = $newMemberId
-WHERE `resource_class_id` = $oldMemberId;
-
-UPDATE `resource_template`
-SET `resource_class_id` = $newMemberId
-WHERE `resource_class_id` = $oldMemberId;
-
-DELETE FROM `resource_class`
-WHERE `id` = $oldMemberId;
-
-SQL;
+                        UPDATE `resource`
+                        SET `resource_class_id` = $newMemberId
+                        WHERE `resource_class_id` = $oldMemberId
+                        ;
+                        UPDATE `resource_template`
+                        SET `resource_class_id` = $newMemberId
+                        WHERE `resource_class_id` = $oldMemberId
+                        ;
+                        DELETE FROM `resource_class`
+                        WHERE `id` = $oldMemberId
+                        ;
+                        SQL;
                 } else {
-                    $sqls = <<<SQL
-UPDATE `value`
-SET `property_id` = $newMemberId
-WHERE `property_id` = $oldMemberId;
-
-UPDATE `resource_template_property`
-SET `property_id` = $newMemberId
-WHERE `property_id` = $oldMemberId;
-
-DELETE FROM `property`
-WHERE `id` = $oldMemberId;
-
-SQL;
+                    $sqls = PHP_EOL . <<<SQL
+                        UPDATE `value`
+                        SET `property_id` = $newMemberId
+                        WHERE `property_id` = $oldMemberId
+                        ;
+                        UPDATE `resource_template_property`
+                        SET `property_id` = $newMemberId
+                        WHERE `property_id` = $oldMemberId
+                        ;
+                        DELETE FROM `property`
+                        WHERE `id` = $oldMemberId
+                        ;
+                        SQL;
                 }
                 foreach (array_filter(explode(";\n", $sqls)) as $sql) {
                     $connection->executeStatement($sql);
@@ -563,7 +561,7 @@ SQL;
         // Check if the resource template exists, so it is not replaced.
         $label = $data['o:label'] ?? '';
 
-        $resourceTemplate = $this->api->searchOne('resource_templates', ['label' => $label])->getContent();
+        $resourceTemplate = $this->apiRead('resource_templates', ['label' => $label]);
         if ($resourceTemplate) {
             $message = new PsrMessage(
                 'The resource template named "{template}" is already available and is skipped.', // @translate
@@ -764,10 +762,9 @@ SQL;
         $data = json_decode(file_get_contents($filepath), true);
 
         $label = $data['o:label'];
-        try {
-            /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
-            $customVocab = $this->api->read('custom_vocabs', ['label' => $label])->getContent();
-        } catch (NotFoundException $e) {
+        /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
+        $customVocab = $this->apiRead('custom_vocabs', ['label' => $label]);
+        if (!$customVocab) {
             throw new RuntimeException(
                 (string) new PsrMessage(
                     'The custom vocab named "{custom_vocab}" is not available.', // @translate
@@ -873,7 +870,7 @@ SQL;
     public function removeVocabulary(string $prefix): self
     {
         // The vocabulary may have been removed manually before.
-        $resource = $this->api->searchOne('vocabularies', ['prefix' => $prefix])->getContent();
+        $resource = $this->apiRead('vocabularies', ['prefix' => $prefix]);
         if ($resource) {
             try {
                 $this->api->delete('vocabularies', $resource->id());
@@ -892,10 +889,12 @@ SQL;
     public function removeResourceTemplate(string $label): self
     {
         // The resource template may be renamed or removed manually before.
-        try {
-            $resource = $this->api->read('resource_templates', ['label' => $label])->getContent();
-            $this->api->delete('resource_templates', $resource->id());
-        } catch (\Exception $e) {
+        $resource = $this->apiRead('resource_templates', ['label' => $label]);
+        if ($resource) {
+            try {
+                $this->api->delete('resource_templates', $resource->id());
+            } catch (\Exception $e) {
+            }
         }
         return $this;
     }
@@ -909,10 +908,12 @@ SQL;
     public function removeCustomVocab(string $label): self
     {
         // The custom vocab may be renamed or removed manually before.
-        try {
-            $resource = $this->api->read('custom_vocabs', ['label' => $label])->getContent();
-            $this->api->delete('custom_vocabs', $resource->id());
-        } catch (NotFoundException $e) {
+        $resource = $this->apiRead('custom_vocabs', ['label' => $label]);
+        if ($resource) {
+            try {
+                $this->api->delete('custom_vocabs', $resource->id());
+            } catch (\Exception $e) {
+            }
         }
         return $this;
     }
@@ -1094,6 +1095,8 @@ SQL;
      *
      * This method may be used when updating the schema of an entity, in which
      * case the cache may need to be refreshed.
+     *
+     * TODO Clear doctrine caches. See https://github.com/doctrine/orm/issues/11133
      */
     public function clearCaches(): void
     {
@@ -1104,5 +1107,25 @@ SQL;
             apcu_clear_cache();
         }
         @clearstatcache(true);
+    }
+
+    /**
+     * Read a resource from the api.
+     *
+     * This method is like searchOne, that is not available in manager. It
+     * avoids to trigger search events when reading a resource.
+     *
+     * Warning: the data keys should be the ones set in the entity, not the
+     * query keys used to search and mapped in each adapter.
+     *
+     * @return \Omeka\Api\Representation\AbstractEntityRepresentation|\Omeka\Entity\AbstractEntity|null
+     */
+    protected function apiRead(string $resourceName, array $criteria, array $options = [])
+    {
+        try {
+            return $this->api->read($resourceName, $criteria, [], $options)->getContent();
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

@@ -23,6 +23,7 @@ return [
             // Generally sort, but allows to force page, facets, etc.
             'default_query_post' => '',
             'hidden_query_filters' => '',
+            'fulltext_search' => '',
         ],
 
         'autosuggest' => [
@@ -171,6 +172,7 @@ return [
                 ],
                 */
             ],
+            'attribute_form' => false,
             'button_reset' => true,
             'button_submit' => true,
         ],

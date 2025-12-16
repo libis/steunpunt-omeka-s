@@ -14,16 +14,18 @@ use Laminas\I18n\Translator\TranslatorAwareTrait;
  *
  * ```
  * // To get a translator in a controller:
- * $translator = $this->translator();
- * // or:
+ * $translator = $this->getEvent()->getApplication()->getServiceManager()->get(\Laminas\I18n\Translator\TranslatorInterface::class);
+ * // or (deprecated):
  * $translator = $this->getEvent()->getApplication()->getServiceManager()->get('MvcTranslator');
  * // or:
  * $translator = $this->viewHelpers()->get('translate')->getTranslator();
+ * // or:
+ * $translator = $this->translator();
  *
  * // To get translator in a view:
- * $translator = $this->translator();
- * // or:
  * $translator = $this->plugin('translate')->getTranslator();
+ * // or:
+ * $translator = $this->translator();
  *
  * // To set the translator:
  * $psrMessage->setTranslator($translator);
@@ -36,6 +38,10 @@ use Laminas\I18n\Translator\TranslatorAwareTrait;
  * So when the PsrMessage is used in uncommon places (not with messenger or
  * logs), and as long as \Omeka\I18n\Translator doesn't manage PSR-3, the
  * message is interpolated directly, with translation if possible.
+ *
+ * Warning: When used with messenger, a PsrMessage must not contain another
+ * PsrMessage as context. because messages are stored in the session that does
+ * not support closures.
  *
  * @todo Set translator on construct.
  * @todo Move PsrMessage into core.
@@ -201,13 +207,20 @@ class PsrMessage implements \JsonSerializable, PsrInterpolateInterface, Translat
         // Check isTranslatorEnabled here? No: the check should be done outside
         // of translate. Anyway, the default value is true and is never checked.
         if ($this->hasTranslator()) {
-            return $this->isSprintf
-                ? (string) vsprintf($this->translator->translate($this->message, $textDomain, $locale), array_values($this->context))
-                : $this->interpolate($this->translator->translate($this->message, $textDomain, $locale), $this->context);
+            if ($this->isSprintf) {
+                return $this->context
+                    ? (string) vsprintf($this->translator->translate($this->message, $textDomain, $locale), array_values($this->context))
+                    : (string) $this->message;
+            }
+            return $this->interpolate($this->translator->translate($this->message, $textDomain, $locale), $this->context);
+        } else {
+            if ($this->isSprintf) {
+                return $this->context
+                    ? (string) vsprintf($this->message, array_values($this->context))
+                    : (string) $this->message;
+            }
+            return $this->interpolate($this->message, $this->context);
         }
-        return $this->isSprintf
-            ? (string) vsprintf($this->message, array_values($this->context))
-            : $this->interpolate($this->message, $this->context);
     }
 
     public function jsonSerialize(): string

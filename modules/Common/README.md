@@ -12,16 +12,27 @@ features used in various modules: bulk functions, form elements, view helpers,
 one-time tasks for install and settings, etc., so it avoids the developer to
 copy-paste common code between modules.
 
-- View helpers
+- Services, view helpers and controller plugins
 
   - AssetUrl for internal assets
+  - DefaultSite
   - EasyMeta to get ids, terms and labels from properties, classes, templates,
     vocabularies; to get main data types too (literal, resource or uri); to get
     resource api names from any names used in Omeka and modules.
+  - IsHomePage
+  - IsHtml
+  - IsXml
+  - JSend to manage exchanges between a module and js part.
+  - MatchedRouteName
+  - SendEmail to send email with default values, in particular sender.
+  - SpecifyMediaType
 
 - Form elements
 
   - Array Text
+  - Custom Vocab MultiCheckbox
+  - Custom Vocab Radio
+  - Custom Vocab Select
   - Custom Vocabs Select
   - Data Textarea
   - Data Type Select
@@ -75,27 +86,139 @@ copy-paste common code between modules.
   identified with the right media type `application/alto+xml`. The same issue
   occurs with xml mets, tei, json-ld, etc.
 
+- Internal assets
+
+  By default, only external assets can be overridden in themes. This option in
+  the config file allows to by-pass core assets. This is useful mainly for js in
+  admin interface.
+
 
 Installation
 ------------
 
 See general end user documentation for [installing a module].
 
+The module uses an external library [jQuery-Autocomplete], so use the release
+zip to install it, or use and init the source.
+
 * From the zip
 
-Download the last release [Common.zip] from the list of releases, and
-uncompress it in the `modules` directory.
+Download the last release [Common.zip] from the list of releases (the master
+does not contain the dependency), and uncompress it in the `modules` directory.
 
-* From the source and for development
+* From the source and for development:
 
 If the module was installed from the source, rename the name of the folder of
-the module to `Common`.
+the module to `Common`, and go to the root module, and run:
 
-Then install it like any other Omeka module and follow the config instructions.
+```sh
+composer install --no-dev
+```
 
 
 Usage (for developer)
 ---------------------
+
+### Services, controller plugins and view helpers
+
+#### Api Adapter: Simple and complete query builder
+
+Just add the trait `CommonAdapterTrait`, the list of query arguments for all
+common queries and a call to `buildQueryFields()`. Then, all queries will work,
+including queries with empty or multiple values and use of operators `<≤=≠≥>`.
+
+#### Api Adapter: Simple hydrator
+
+Just add the trait `CommonAdapterTrait` and it will automatically manage the
+method `hydrate()` in a generic way, as long as the entity methods and the keys
+used in the api or the form are compatible.
+
+#### AssetUrl
+
+Use helper assetUrl().
+
+#### DefaultSite
+
+Use helper defaultSite(). As argument, you may set id, slug, id_slug or slug_id.
+The default is to return the representation.
+
+#### EasyMeta
+
+This service can be used as helper or plugin. It allows to get ids, terms and
+labels from properties, classes, templates, vocabularies; to get main data types
+too (literal, resource or uri); to get resource api names from any names used in
+Omeka and modules.
+
+To get methods and more details, use the autocompletion of your IDE.
+
+#### IsHomePage
+
+This view helper allows to check if the current page is the home page.
+
+#### IsHtml
+
+This view helper allows to check if a string is html, in particular to know if
+it should be escaped or not.
+
+The check is a basic one: the string should start with a "<", end with a ">" and
+without tags. It may be a partial html. It is not possible to get a more precise
+check before php 8.4.
+
+#### IsXml
+
+This view helper allows to check if a string is xml, in particular to know if
+it should be escaped or not.
+
+The check is a full one: the string should start with a "<", end with a ">" and
+should be parsable via SimpleXml. It may be a partial xml.
+
+#### jSend
+
+The plugin jSend() allows to output a JsonModel formatted as [jSend] to simplify
+exchanges with a third party or with a module that use some ajax, like [Contact Us],
+[Contribute], [Selection], [Two Factor Authentication], etc.
+
+Unlike [jSend], any response can have a status, data, a message and a code.
+Some values are filled automatically from the messenger.
+
+#### Messages
+
+The method `getTranslatedMessages()` allows to get all translated messages as
+array. It can be used for a json output.
+
+The method `log()` allows to convert all messages into logs, for example to
+manage background jobs and keep track of front-end messages of errors of some
+modules.
+
+#### Messenger
+
+This is a fix on the core messenger: A form with any number of levels of
+sub-messages can be managed.
+
+#### MatchedRouteName
+
+Allow to get the matched route name directly.
+
+#### SendEmail
+
+Allow to send an email. All arguments are optional, except the body. The sender
+is the no-reply email of the module [Easy Admin] by default, else the
+adminstrator email defined in main setting.
+
+A quick antispam is included via the keywords set in the file /data/mailer/spam_keywords.php.
+This file can be completed if needed. This feature will be improved or moved in
+a future version.
+
+#### SendFile
+
+Send a file for download, without limit of size or memory, via a stream.
+The content disposition can be set via the parameters of via the query (download=1 for attachment, else inline).
+
+#### SpecifyMediaType
+
+Get the right media type of a file, even if it is a generic zipped, json or xml.
+This helper is used automatically when loading a file via the internal file
+factory.
 
 ### PSR-3
 
@@ -142,9 +265,7 @@ key.
 Because the logs are translatable at user level, with a message and context, the
 message must not be translated when logging.
 
-#### Helpers
-
-- PSR-3 Message
+#### PSR-3 Message
 
 If the message may be reused or for the messenger, the helper `PsrMessage()` can
 be used, with all the values:
@@ -162,25 +283,7 @@ echo $message;
 echo $message->setTranslator($translator);
 ```
 
-- Messages
-
-The method `getTranslatedMessages()` allows to get all translated messages as
-array. It can be used for a json output.
-
-The method `log()` allows to convert all messages into logs, for example to
-manage background jobs and keep track of front-end messages of errors of some
-modules.
-
-- Messenger
-
-A form with any level of sub-messages can be managed.
-
-- Plugin jSend
-
-The plugin jSend() allows to output a JsonModel formatted as [jSend] to simplify
-exchanges with a third party.
-
-### Translator
+#### Translator
 
 The translator to set in PsrMessage() is available through `$this->translator()`
 in controller and view.
@@ -207,7 +310,8 @@ An exception should not be translated early. Nevertheless, if you really need
 it, you can use:
 
 ```php
-# Where `$this->translator` is the MvcTranslator from services, either:
+# Where `$this->translator` is \Laminas\I18n\Translator\TranslatorInterface or
+# MvcTranslator from services, either:
 throw new \RuntimeException($this->translator->translate($message));
 throw new \Exception($message->setTranslator($this->translator)->translate());
 ```
@@ -342,6 +446,12 @@ Copyright
 [PHP-FIG]: http://www.php-fig.org
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/
 [Common.zip]: https://github.com/Daniel-KM/Omeka-S-module-Common/releases
+[jSend]: https://github.com/omniti-labs/jsend
+[Contact Us]: https://gitlab.com/Daniel-KM/Omeka-S-module-ContactUs
+[Contribute]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute
+[Easy Admin]: https://gitlab.com/Daniel-KM/Omeka-S-module-EasyAdmin
+[Selection]: https://gitlab.com/Daniel-KM/Omeka-S-module-Selection
+[Two Factor Authentication]: https://gitlab.com/Daniel-KM/Omeka-S-module-TwoFactAuth
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html

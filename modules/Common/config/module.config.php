@@ -54,6 +54,7 @@ return [
     // The elements of the module Advanced Search that add features are not included.
     'form_elements' => [
         'invokables' => [
+            Form\Element\ArrayQueriesTextarea::class => Form\Element\ArrayQueriesTextarea::class,
             Form\Element\ArrayText::class => Form\Element\ArrayText::class,
             Form\Element\DataTextarea::class => Form\Element\DataTextarea::class,
             Form\Element\GroupTextarea::class => Form\Element\GroupTextarea::class,
@@ -70,15 +71,19 @@ return [
             Form\Element\UrlQuery::class => Form\Element\UrlQuery::class,
         ],
         'factories' => [
-            // This element does not exist in Omeka.
+            // Some elements fix or improve omeka ones: MediaIngesterSelect, MediaRendererSelect,
+            // ThumbnailTypeSelect. But they don't have the same namespace.
+            // SitesPageSelect is not the same than \Omeka\Form\Element\SitePageSelect,
+            // but manage multiple sites.
+            // The only element that is overridden is DataTypeSelect, via the alias.
+            Form\Element\CustomVocabMultiCheckbox::class => Service\Form\Element\CustomVocabMultiCheckboxFactory::class,
+            Form\Element\CustomVocabRadio::class => Service\Form\Element\CustomVocabRadioFactory::class,
+            Form\Element\CustomVocabSelect::class => Service\Form\Element\CustomVocabSelectFactory::class,
             Form\Element\CustomVocabsSelect::class => Service\Form\Element\CustomVocabsSelectFactory::class,
-            // This element does not exist in Omeka.
             Form\Element\DataTypeSelect::class => Service\Form\Element\DataTypeSelectFactory::class,
             Form\Element\MediaIngesterSelect::class => Service\Form\Element\MediaIngesterSelectFactory::class,
             Form\Element\MediaRendererSelect::class => Service\Form\Element\MediaRendererSelectFactory::class,
-            // This element does not exist in Omeka.
             Form\Element\MediaTypeSelect::class => Service\Form\Element\MediaTypeSelectFactory::class,
-            // This element is not the same than \Omeka\Form\Element\SitePageSelect (singular site).
             Form\Element\SitesPageSelect::class => Service\Form\Element\SitesPageSelectFactory::class,
             Form\Element\ThumbnailTypeSelect::class => Service\Form\Element\ThumbnailTypeSelectFactory::class,
             // Optional core elements.
@@ -105,6 +110,7 @@ return [
         ],
         'factories' => [
             'easyMeta' => Service\ControllerPlugin\EasyMetaFactory::class,
+            'sendEmail' => Service\ControllerPlugin\SendEmailFactory::class,
             'specifyMediaType' => Service\ControllerPlugin\SpecifyMediaTypeFactory::class,
             'translator' => Service\ControllerPlugin\TranslatorFactory::class,
         ],
@@ -118,12 +124,18 @@ return [
     'translator' => [
         'translation_file_patterns' => [
             [
-                'type' => 'gettext',
+                'type' => \Laminas\I18n\Translator\Loader\Gettext::class,
                 'base_dir' => dirname(__DIR__) . '/language',
                 'pattern' => '%s.mo',
                 'text_domain' => null,
             ],
         ],
+    ],
+    'js_translate_strings' => [
+        'An error occurred.', // @translate
+        'Cancel', // @translate
+        'Close', // @translate
+        'OK', // @translate
     ],
     'assets' => [
         // Override internals assets. Only for Omeka assets: modules can use another filename.

@@ -161,7 +161,11 @@ SQL;
 
     // Add the default search partial process for internal engine.
     // Add the default multi-fields to internal engine.
-    $searchEngineConfig = require __DIR__ . '/../../data/search_engines/internal.php';
+    if (file_exists(__DIR__ . '/../../data/search_engines/internal.php')) {
+        $searchEngineConfig = require __DIR__ . '/../../data/search_engines/internal.php';
+    } else {
+        $searchEngineConfig = [];
+    }
     $defaultAdapterSettings = $searchEngineConfig['o:settings']['adapter']
         ?? ['default_search_partial_word' => false, 'multifields' => []];
     $qb = $connection->createQueryBuilder();
@@ -384,6 +388,7 @@ if (version_compare($oldVersion, '3.4.15', '<')) {
 DELETE FROM `site_setting`
 WHERE `id` = "advancedsearch_restrict_used_terms";
 SQL;
+    $connection->executeStatement($sql);
 
     $message = new Message(
         'The performance was improved in many places, in particular for large databases.' // @translate
@@ -392,6 +397,56 @@ SQL;
 
     $message = new Message(
         'It is now possible to order results by a list of ids with argument "sort_by=ids".' // @translate
+    );
+    $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.16', '<')) {
+    $message = new Message(
+        'It is now possible to do a standard search with a sub-query, for example to get all items with creators born in 1789.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.18', '<')) {
+    if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.49')) {
+        $message = new Message(
+            'The module %1$s should be upgraded to version %2$s or later.', // @translate
+            'Common', '3.4.49'
+        );
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+    }
+}
+
+if (version_compare($oldVersion, '3.4.19', '<')) {
+    if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.49')) {
+        $message = new Message(
+            'The module %1$s should be upgraded to version %2$s or later.', // @translate
+            'Common', '3.4.49'
+        );
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+    }
+
+    // Repeated because of an issue in previous version.
+    $settings->delete('advancedsearch_restrict_used_terms');
+    $sql = <<<'SQL'
+DELETE FROM `site_setting`
+WHERE `id` = "advancedsearch_restrict_used_terms";
+SQL;
+    $connection->executeStatement($sql);
+}
+
+if (version_compare($oldVersion, '3.4.20', '<')) {
+    if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.49')) {
+        $message = new Message(
+            'The module %1$s should be upgraded to version %2$s or later.', // @translate
+            'Common', '3.4.49'
+        );
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+    }
+
+    $message = new Message(
+        'When full text is managed in alto files, it is now possible to search full text or record only.' // @translate
     );
     $messenger->addSuccess($message);
 }

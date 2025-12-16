@@ -195,7 +195,7 @@ endif;
                 <?php else:?>
                   <?php foreach($fls as $fl):?>
                     <div class="has-text-centered">
-                      <?php $link = "https://resolver.libis.be/".$fl."/stream?quality=LOW";?>   
+                      <?php $link = "https://lib.is/".$fl."/stream?quality=LOW";?>   
                       <a target="_blank" href="<?php echo $viewerlink;?>"><img src="<?php echo $link;?>"></a>
                     </div>
                   <?php endforeach;?>
@@ -217,7 +217,7 @@ endif;
                   <div class="slider-nav" role="toolbar">
                       <?php foreach($fls as $fl):?>
                         <div class="beeld-nav">
-                          <?php $url = "https://resolver.libis.be/".$fl."/stream?quality=LOW";?>
+                          <?php $url = "https://lib.is/".$fl."/stream?quality=LOW";?>
                           <img src="<?php echo $url;?>">
                         </div>
                       <?php endforeach;?>

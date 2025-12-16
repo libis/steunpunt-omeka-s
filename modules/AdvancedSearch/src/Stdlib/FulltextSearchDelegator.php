@@ -3,13 +3,12 @@
 namespace AdvancedSearch\Stdlib;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
 use Omeka\Api\Adapter\AdapterInterface;
 use Omeka\Api\ResourceInterface;
+use PDO;
+use Omeka\Stdlib\FulltextSearch;
 use Omeka\Entity\Item;
 use Omeka\Entity\Media;
-use Omeka\Stdlib\FulltextSearch;
-use PDO;
 
 /**
  * This delegator is skipped in factory when the option is not set.
@@ -22,16 +21,6 @@ class FulltextSearchDelegator extends FulltextSearch
     protected $basePath;
 
     /**
-     * @var \Doctrine\DBAL\Connection
-     */
-    protected $conn;
-
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    protected $em;
-
-    /**
      * @var \Omeka\Stdlib\FulltextSearch
      */
     protected $realFulltextSearch;
@@ -39,13 +28,10 @@ class FulltextSearchDelegator extends FulltextSearch
     public function __construct(
         FulltextSearch $realFulltextSearch,
         Connection $connection,
-        // For compatibility with Omeka S < v4.1.
-        EntityManager $em,
         string $basePath
     ) {
         $this->realFulltextSearch = $realFulltextSearch;
         $this->conn = $connection;
-        $this->em = $em;
         $this->basePath = $basePath;
     }
 
@@ -57,7 +43,7 @@ class FulltextSearchDelegator extends FulltextSearch
      * {@inheritDoc}
      * @see \Omeka\Stdlib\FulltextSearch::save()
      */
-    public function save(ResourceInterface $resource, AdapterInterface $adapter): void
+    public function save(ResourceInterface $resource, AdapterInterface $adapter)
     {
         $this->realFulltextSearch->save($resource, $adapter);
 

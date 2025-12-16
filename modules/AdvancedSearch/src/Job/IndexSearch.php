@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /*
  * Copyright BibLibre, 2016
- * Copyright Daniel Berthereau, 2018-2023
+ * Copyright Daniel Berthereau, 2018-2024
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -30,9 +30,9 @@
 namespace AdvancedSearch\Job;
 
 use AdvancedSearch\Query;
+use Common\Stdlib\PsrMessage;
 use Doctrine\ORM\EntityManager;
 use Omeka\Job\AbstractJob;
-use Omeka\Stdlib\Message;
 
 class IndexSearch extends AbstractJob
 {
@@ -60,20 +60,15 @@ class IndexSearch extends AbstractJob
 
         $apiAdapters = $services->get('Omeka\ApiAdapterManager');
         $api = $services->get('Omeka\ApiManager');
-        $settings = $services->get('Omeka\Settings');
         $this->logger = $services->get('Omeka\Logger');
+        $translator = $services->get('MvcTranslator');
 
         // The reference id is the job id for now.
-        if (class_exists('Log\Stdlib\PsrMessage')) {
-            $referenceIdProcessor = new \Laminas\Log\Processor\ReferenceId();
-            $referenceIdProcessor->setReferenceId('search/index/job_' . $this->job->getId());
-            $this->logger->addProcessor($referenceIdProcessor);
-        }
+        $referenceIdProcessor = new \Laminas\Log\Processor\ReferenceId();
+        $referenceIdProcessor->setReferenceId('search/index/job_' . $this->job->getId());
+        $this->logger->addProcessor($referenceIdProcessor);
 
-        $batchSize = (int) $settings->get('advancedsearch_batch_size');
-        if ($batchSize <= 0) {
-            $batchSize = self::BATCH_SIZE;
-        }
+        $batchSize = self::BATCH_SIZE;
 
         $searchEngineId = $this->getArg('search_engine_id');
         $startResourceId = (int) $this->getArg('start_resource_id');
@@ -86,10 +81,10 @@ class IndexSearch extends AbstractJob
         // Clean resource ids to avoid check later.
         $ids = array_filter(array_map('intval', $resourceIds));
         if (count($resourceIds) !== count($ids)) {
-            $this->logger->notice(new Message(
-                'Search index #%d ("%s"): the list of resource ids contains invalid ids.', // @translate
-                $searchEngine->id(), $searchEngine->name()
-            ));
+            $this->logger->notice(
+                'Search index #{search_engine_id} ("{name}"): the list of resource ids contains invalid ids.', // @translate
+                ['search_engine_id' => $searchEngine->id(), 'name' => $searchEngine->name()]
+            );
             return;
         }
         $resourceIds = $ids;
@@ -107,10 +102,10 @@ class IndexSearch extends AbstractJob
             return $indexer->canIndex($resourceName);
         });
         if (empty($resourceNames)) {
-            $this->logger->notice(new Message(
-                'Search index #%d ("%s"): there is no resource type to index or the indexation is not needed.', // @translate
-                $searchEngine->id(), $searchEngine->name()
-            ));
+            $this->logger->notice(
+                'Search index #{search_engine_id} ("{name}"): there is no resource type to index or the indexation is not needed.', // @translate
+                ['search_engine_id' => $searchEngine->id(), 'name' => $searchEngine->name()]
+            );
             return;
         }
 
@@ -119,22 +114,24 @@ class IndexSearch extends AbstractJob
         $force = $this->getArg('force');
         if ($totalJobs > 1) {
             if (!$force) {
-                $this->logger->err(new Message(
-                    'Search index #%d ("%s"): There are already %d other jobs "Index Search" and the current one is not forced.', // @translate
-                    $searchEngine->id(), $searchEngine->name(), $totalJobs - 1
-                ));
+                $this->logger->err(
+                    'Search index #{search_engine_id} ("{name}"): There are already {total} other jobs "Index Search" and the current one is not forced.', // @translate
+                    ['search_engine_id' => $searchEngine->id(), 'name' => $searchEngine->name(), 'total' => $totalJobs - 1]
+                );
                 return;
             }
-            $this->logger->warn(new Message(
-                'There are already %d other jobs "Index Search". Slowdowns may occur on the site.', // @translate
-                $totalJobs - 1
-            ));
+            $this->logger->warn(
+                'There are already {total} other jobs "Index Search". Slowdowns may occur on the site.', // @translate
+                ['total' => $totalJobs - 1]
+            );
         }
 
         $timeStart = microtime(true);
 
-        $this->logger->notice(new Message('Search index #%d ("%s"): start of indexing', // @translate
-            $searchEngine->id(), $searchEngine->name()));
+        $this->logger->notice(
+            'Search index #{search_engine_id} ("{name}"): start of indexing', // @translate
+            ['search_engine_id' => $searchEngine->id(), 'name' => $searchEngine->name()]
+        );
 
         $rNames = $resourceNames;
         sort($rNames);
@@ -145,10 +142,10 @@ class IndexSearch extends AbstractJob
         if ($fullClearIndex) {
             $indexer->clearIndex();
         } elseif (empty($resourceIds) && $startResourceId > 0) {
-            $this->logger->info(new Message(
+            $this->logger->info(
                 'Search index is not cleared: reindexing starts at resource #%d.', // @translate
-                $startResourceId
-            ));
+                ['resource_id' => $startResourceId]
+            );
         }
 
         $resources = [];
@@ -181,23 +178,30 @@ class IndexSearch extends AbstractJob
             do {
                 if ($this->shouldStop()) {
                     if (empty($resources)) {
-                        $this->logger->warn(new Message('Search index #%d ("%s"): the indexing was stopped. Nothing was indexed.', // @translate
-                            $searchEngine->id(), $searchEngine->name()));
+                        $this->logger->warn(
+                            'Search index #{search_engine_id} ("{name}"): the indexing was stopped. Nothing was indexed.', // @translate
+                            ['search_engine_id' => $searchEngine->id(), 'name' => $searchEngine->name()]
+                        );
                     } else {
                         $totalResults = [];
                         foreach ($resourceNames as $resourceName) {
-                            $totalResults[] = new Message('%s: %d indexed', $resourceName, $totals[$resourceName]); // @translate
+                            $totalResults[] = (new PsrMessage(
+                                '{resource_name}: {count} indexed', // @translate
+                                ['resource_name' => $resourceName, 'count' => $totals[$resourceName]]
+                            ))->setTranslator($translator);
                         }
                         $resource = array_pop($resources);
-                        $this->logger->warn(new Message(
-                            'Search index #%d ("%s"): the indexing was stopped. Last indexed resource: %s #%d; %s. Execution time: %d seconds.', // @translate
-                            $searchEngine->id(),
-                            $searchEngine->name(),
-                            $resource->getResourceName(),
-                            $resource->getId(),
-                            implode('; ', $totalResults),
-                            (int) (microtime(true) - $timeStart
-                        )));
+                        $this->logger->warn(
+                            'Search index #{search_engine_id} ("{name}"): the indexing was stopped. Last indexed resource: {resource_name} #{resource_id}; {results}. Execution time: {duration} seconds.', // @translate
+                            [
+                                'search_engine_id' => $searchEngine->id(),
+                                'name' => $searchEngine->name(),
+                                'resource_name' => $resource->getResourceName(),
+                                'resource_id' => $resource->getId(),
+                                'results' => implode('; ', $totalResults),
+                                'duration' => (int) (microtime(true) - $timeStart),
+                            ]
+                        );
                     }
                     return;
                 }
@@ -220,19 +224,28 @@ class IndexSearch extends AbstractJob
                 ++$searchConfig;
                 $totals[$resourceName] += count($resources);
                 $entityManager->clear();
-            } while (count($resources) == $batchSize);
+            } while (count($resources) === $batchSize);
         }
 
         $totalResults = [];
         foreach ($resourceNames as $resourceName) {
-            $totalResults[] = new Message('%s: %d indexed', $resourceName, $totals[$resourceName]); // @translate
+            $totalResults[] = (new PsrMessage(
+                '{resource_name}: {count} indexed', // @translate
+                ['resource_name' => $resourceName, 'count' => $totals[$resourceName]]
+            ))->setTranslator($translator);
         }
 
         $timeTotal = (int) (microtime(true) - $timeStart);
 
-        $this->logger->info(new Message('Search index #%d ("%s"): end of indexing. %s. Execution time: %s seconds. Failed indexed resources should be checked manually.', // @translate
-            $searchEngine->id(), $searchEngine->name(), implode('; ', $totalResults), $timeTotal
-        ));
+        $this->logger->info(
+            'Search index #{search_engine_id} ("{name}"): end of indexing. {results}. Execution time: {duration} seconds. Failed indexed resources should be checked manually.', // @translate
+            [
+                'search_engine_id' => $searchEngine->id(),
+                'name' => $searchEngine->name(),
+                'results' => implode('; ', $totalResults),
+                'duration' => $timeTotal,
+            ]
+        );
     }
 
     /**

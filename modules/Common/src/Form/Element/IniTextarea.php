@@ -120,7 +120,7 @@ class IniTextarea extends Textarea implements InputProviderInterface
                         'callbackOptions' => [
                             // A bug may occur on php 8+ when the callback is
                             // called with a string key that is different from
-                            // function arguement name (see validateIni below).
+                            // function argument name (see validateIni below).
                             // See https://www.php.net/manual/fr/function.call-user-func-array.php#125953
                             'contextKey' => $this->getName(),
                         ],
@@ -149,7 +149,7 @@ class IniTextarea extends Textarea implements InputProviderInterface
     {
         if (is_string($array)) {
             return $array;
-        } elseif (is_null($array)) {
+        } elseif ($array === null) {
             return '';
         }
 
@@ -182,7 +182,7 @@ class IniTextarea extends Textarea implements InputProviderInterface
     {
         if (is_array($string)) {
             return $string;
-        } elseif (is_null($string)) {
+        } elseif ($string === null) {
             return [];
         }
 

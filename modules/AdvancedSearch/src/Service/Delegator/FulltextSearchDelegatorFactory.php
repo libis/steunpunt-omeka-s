@@ -22,8 +22,6 @@ class FulltextSearchDelegatorFactory implements DelegatorFactoryInterface
         return new FulltextSearchDelegator(
             $callback(),
             $services->get('Omeka\Connection'),
-            // For compatibility with Omeka S < v4.1.
-            $services->get('Omeka\EntityManager'),
             $basePath
         );
     }

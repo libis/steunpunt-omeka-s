@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright Daniel Berthereau, 2019-2023
+ * Copyright Daniel Berthereau, 2019-2024
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -234,7 +234,16 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
             $name = (string) $name;
             switch ($name) {
                 case 'q':
-                    $query->setQuery($request['q']);
+                    $query->setQuery($value);
+                    continue 2;
+
+                case 'rft':
+                    // Two values: record only or all (record and full text).
+                    // There is only one full text search index in internal
+                    // querier, but inversely a specific index for Solr, so it
+                    // is managed via a specific filter via the adapter.
+                    // TODO Add a specific index for full text in the internal database, so it will be a normal filter.
+                    $query->setRecordOrFullText($value);
                     continue 2;
 
                 // Special fields of the main form and internal adapter are
@@ -428,9 +437,10 @@ abstract class AbstractFormAdapter implements FormAdapterInterface
                         // TODO Don't check form, but settings['filters'] with field = name and type.
                         // TODO Simplify these checks (or support multi-values anywhere).
                         $valueArray = $flatArray($value);
-                        if ($this->form
-                            && $this->form->has($name)
-                            && ($element = $this->form->get($name)) instanceof \Laminas\Form\Element\Text
+                        $form = $this->getForm();
+                        if ($form
+                            && $form->has($name)
+                            && ($element = $form->get($name)) instanceof \Laminas\Form\Element\Text
                         ) {
                             if ($element instanceof \AdvancedSearch\Form\Element\TextExact
                                 || $element instanceof \AdvancedSearch\Form\Element\MultiText

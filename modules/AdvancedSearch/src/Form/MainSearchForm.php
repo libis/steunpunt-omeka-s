@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright Daniel Berthereau 2018-2023
+ * Copyright Daniel Berthereau 2018-2024
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -30,6 +30,8 @@
 namespace AdvancedSearch\Form;
 
 use AdvancedSearch\Form\Element as AdvancedSearchElement;
+use Common\Form\Element as CommonElement;
+use Common\Stdlib\EasyMeta;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\Expr\Join;
 use Laminas\Form\Element;
@@ -45,7 +47,7 @@ use Omeka\View\Helper\Setting;
 class MainSearchForm extends Form
 {
     /**
-     * @var \AdvancedSearch\View\Helper\EasyMeta
+     * @var \Common\Stdlib\EasyMeta
      */
     protected $easyMeta;
 
@@ -147,6 +149,8 @@ class MainSearchForm extends Form
                 'attributes' => [
                     'id' => 'q',
                     'data-type-field' => 'q',
+                    'placeholder' => 'Search',
+                    'aria-label' => 'Search',
                 ] + $this->elementAttributes,
             ])
         ;
@@ -168,6 +172,10 @@ class MainSearchForm extends Form
                     ->setAttribute('data-autosuggest-param-name', $this->formSettings['autosuggest']['url_param_name']);
             }
         }
+
+        // Add the button for record or full text search.
+        $rft = $this->formSettings['search']['fulltext_search'] ?? null;
+        $this->appendRecordOrFullText($rft);
 
         foreach ($this->formSettings['form']['filters'] ?? [] as $filter) {
             if (empty($filter['field'])) {
@@ -295,6 +303,69 @@ class MainSearchForm extends Form
     }
 
     /**
+     * Add a simple filter to limit search to record or not.
+     */
+    protected function appendRecordOrFullText(?string $rft): self
+    {
+        switch ($rft) {
+            case 'fulltext_checkbox':
+                $element = new Element\Checkbox('rft');
+                $element
+                    ->setLabel('Search full text') // @translate
+                    ->setOptions([
+                        'unchecked_value' => 'record',
+                        'checked_value' => 'all',
+                    ])
+                    ->setAttribute('id', 'rft')
+                    ->setAttribute('form', 'form-search')
+                ;
+                return $this->add($element);
+            case 'record_checkbox':
+                $element = new Element\Checkbox('rft');
+                $element
+                    ->setLabel('Record only') // @translate
+                    ->setOptions([
+                        'unchecked_value' => 'all',
+                        'checked_value' => 'record',
+                    ])
+                    ->setAttribute('id', 'rft')
+                    ->setAttribute('form', 'form-search')
+                ;
+                return $this->add($element);
+            case 'fulltext_radio':
+                $element = new CommonElement\OptionalRadio('rft');
+                $element
+                    // The empty label allows to have a fieldset wrapping radio.
+                    ->setLabel(' ')
+                    ->setValueOptions([
+                        'all' => 'Full text', // @ŧranslate
+                        'record' => 'Record only', // @ŧranslate
+                    ])
+                    ->setAttribute('id', 'rft')
+                    ->setAttribute('form', 'form-search')
+                    ->setValue('all')
+                ;
+                return $this->add($element);
+            case 'record_radio':
+                $element = new CommonElement\OptionalRadio('rft');
+                $element
+                    // The empty label allows to have a fieldset wrapping radio.
+                    ->setLabel(' ')
+                    ->setValueOptions([
+                        'record' => 'Record only', // @ŧranslate
+                        'all' => 'Full text', // @ŧranslate
+                    ])
+                    ->setAttribute('id', 'rft')
+                    ->setAttribute('form', 'form-search')
+                    ->setValue('record')
+                ;
+                return $this->add($element);
+            default:
+                return $this;
+        }
+    }
+
+    /**
      * Add a default input element, represented as a text input.
      */
     protected function searchElement(array $filter): ?ElementInterface
@@ -406,7 +477,7 @@ class MainSearchForm extends Form
     protected function searchMultiCheckbox(array $filter): ?ElementInterface
     {
         $valueOptions = $this->prepareValueOptions($filter);
-        $element = new AdvancedSearchElement\OptionalMultiCheckbox($filter['field']);
+        $element = new CommonElement\OptionalMultiCheckbox($filter['field']);
         $element
             ->setLabel($filter['label'])
             ->setValueOptions($valueOptions)
@@ -456,7 +527,7 @@ class MainSearchForm extends Form
     protected function searchRadio(array $filter): ?ElementInterface
     {
         $valueOptions = $this->prepareValueOptions($filter);
-        $element = new AdvancedSearchElement\OptionalRadio($filter['field']);
+        $element = new CommonElement\OptionalRadio($filter['field']);
         $element
             ->setLabel($filter['label'])
             ->setValueOptions($valueOptions)
@@ -478,7 +549,7 @@ class MainSearchForm extends Form
         $attributes['data-placeholder'] ??= ' ';
         $attributes['data-field-type'] = $fieldType;
 
-        $element = new AdvancedSearchElement\OptionalSelect($filter['field']);
+        $element = new CommonElement\OptionalSelect($filter['field']);
         $element
             ->setLabel($filter['label'])
             ->setOptions([
@@ -512,8 +583,8 @@ class MainSearchForm extends Form
     protected function searchResourceType(array $filter): ?ElementInterface
     {
         $element = $filter['type'] === 'MultiCheckbox'
-            ? AdvancedSearchElement\OptionalMultiCheckbox('resource_type')
-            : AdvancedSearchElement\OptionalSelect('resource_type');
+            ? CommonElement\OptionalMultiCheckbox('resource_type')
+            : CommonElement\OptionalSelect('resource_type');
         $element
             ->setOptions([
                 'label' => $filter['label'], // @translate
@@ -579,8 +650,8 @@ class MainSearchForm extends Form
             ->add([
                 'name' => 'id',
                 'type' => $filter['type'] === 'MultiCheckbox'
-                    ? AdvancedSearchElement\OptionalMultiCheckbox::class
-                    : AdvancedSearchElement\OptionalSelect::class,
+                    ? CommonElement\OptionalMultiCheckbox::class
+                    : CommonElement\OptionalSelect::class,
                 'options' => [
                     'label' => $filter['label'], // @translate
                     'value_options' => $this->getOwnerOptions(),
@@ -609,8 +680,8 @@ class MainSearchForm extends Form
             ->add([
                 'name' => 'id',
                 'type' => $filter['type'] === 'MultiCheckbox'
-                    ? AdvancedSearchElement\OptionalMultiCheckbox::class
-                    : AdvancedSearchElement\OptionalSelect::class,
+                    ? CommonElement\OptionalMultiCheckbox::class
+                    : CommonElement\OptionalSelect::class,
                 'options' => [
                     'label' => $filter['label'], // @translate
                     'value_options' => $this->getSiteOptions(),
@@ -672,7 +743,7 @@ class MainSearchForm extends Form
                 }
             }
             natcasesort($result);
-            $element = new AdvancedSearchElement\OptionalSelect;
+            $element = new CommonElement\OptionalSelect;
             $element
                 ->setOptions([
                     'label' => $filter['label'], // @translate
@@ -737,7 +808,7 @@ class MainSearchForm extends Form
                     $fieldset
                         ->add([
                             'name' => 'id',
-                            'type' => AdvancedSearchElement\OptionalSelect::class,
+                            'type' => CommonElement\OptionalSelect::class,
                             'options' => [
                                 'label' => $filter['label'], // @translate
                                 'value_options' => $values,
@@ -776,8 +847,8 @@ class MainSearchForm extends Form
             ->add([
                 'name' => 'id',
                 'type' => $filter['type'] === 'MultiCheckbox'
-                    ? AdvancedSearchElement\OptionalMultiCheckbox::class
-                    : AdvancedSearchElement\OptionalSelect::class,
+                    ? CommonElement\OptionalMultiCheckbox::class
+                    : CommonElement\OptionalSelect::class,
                 'options' => [
                     'label' => $filter['label'], // @translate
                     'value_options' => $this->getItemSetsOptions($filter['type'] !== 'MultiCheckbox'),
@@ -810,8 +881,8 @@ class MainSearchForm extends Form
             ->add([
                 'name' => 'id',
                 'type' => $filter['type'] === 'MultiCheckbox'
-                    ? AdvancedSearchElement\OptionalMultiCheckbox::class
-                    : AdvancedSearchElement\OptionalSelect::class,
+                    ? CommonElement\OptionalMultiCheckbox::class
+                    : CommonElement\OptionalSelect::class,
                 'options' => [
                     'label' => $filter['label'], // @translate
                     'value_options' => $this->getItemSetsTreeOptions($filter['type'] !== 'MultiCheckbox'),
@@ -852,8 +923,8 @@ class MainSearchForm extends Form
             ->add([
                 'name' => 'id',
                 'type' => $filter['type'] === 'Radio'
-                    ? AdvancedSearchElement\OptionalRadio::class
-                    : AdvancedSearchElement\OptionalSelect::class,
+                    ? CommonElement\OptionalRadio::class
+                    : CommonElement\OptionalSelect::class,
                 'options' => [
                     'label' => $filter['label'], // @translate
                     'value_options' => $valueOptions,
@@ -953,7 +1024,7 @@ class MainSearchForm extends Form
         $multifields = $searchEngine->settingAdapter('multifields', []);
         $fields = [];
         $fields[$field] = $metadataFieldsToNames[$field]
-            ?? $this->getPropertyTerm($field)
+            ?? $this->easyMeta->propertyTerm($field)
             ?? $multifields[$field]['fields']
             ?? $field;
 
@@ -963,7 +1034,7 @@ class MainSearchForm extends Form
         if (!is_array($fields)) {
             $fields = [$fields];
         }
-        $propertyIds = array_intersect_key($this->getPropertyIds(), array_flip($fields));
+        $propertyIds = $this->easyMeta->propertyIds($fields);
         if (!$propertyIds) {
             return [];
         }
@@ -1058,29 +1129,13 @@ class MainSearchForm extends Form
         return $adapter ? $adapter->getAvailableFields() : [];
     }
 
-    /**
-     * Get a property term or id.
-     */
-    protected function getPropertyTerm($termOrId): ?string
-    {
-        return $this->easyMeta->propertyTerms($termOrId);
-    }
-
-    /**
-     * Get all property ids by term.
-     */
-    protected function getPropertyIds(): array
-    {
-        return $this->easyMeta->propertyIds();
-    }
-
     public function setBasePath(string $basePath): Form
     {
         $this->basePath = $basePath;
         return $this;
     }
 
-    public function setEasyMeta($easyMeta): Form
+    public function setEasyMeta(EasyMeta $easyMeta): Form
     {
         $this->easyMeta = $easyMeta;
         return $this;

@@ -33,12 +33,16 @@ trait SearchFiltersTrait
                 'nres' => $translate('is not resource with ID'), // @translate
                 // 'res' => $translate('is'), // @translate
                 // 'nres' => $translate('is not'), // @translate
+                'resq' => $translate('is resource matching query'), // @translate
+                'nresq' => $translate('is not resource matching query'), // @translate
                 'lex' => $translate('is a linked resource'), // @translate
                 'nlex' => $translate('is not a linked resource'), // @translate
                 'lres' => $translate('is linked with resource with ID'), // @translate
                 'nlres' => $translate('is not linked with resource with ID'), // @translate
                 'lres' => $translate('is linked with'), // @translate
                 'nlres' => $translate('is not linked with'), // @translate
+                'lkq' => $translate('is linked with query'), // @translate
+                'nlkq' => $translate('is not linked with query'), // @translate
                 'tp' => $translate('has main type'), // @translate
                 'ntp' => $translate('has not main type'), // @translate
                 'tpl' => $translate('has type literal-like'), // @translate

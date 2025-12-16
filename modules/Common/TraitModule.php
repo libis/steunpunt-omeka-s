@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /*
- * Copyright Daniel Berthereau, 2018-2024
+ * Copyright Daniel Berthereau, 2018-2025
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -28,13 +28,17 @@
 
 namespace Common;
 
+require_once __DIR__ . '/src/Api/Adapter/CommonAdapterTrait.php';
+
 use Common\Stdlib\PsrMessage;
 use Laminas\EventManager\Event;
+use Laminas\I18n\Translator\TranslatorInterface;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Module\Exception\ModuleCannotInstallException;
 use Omeka\Module\Manager as ModuleManager;
+use Omeka\Settings\AbstractTargetSettings;
 use Omeka\Settings\SettingsInterface;
 
 /**
@@ -82,9 +86,13 @@ trait TraitModule
             $localConfig = $localConfig[$space] ?? false;
         }
 
-        return $localConfig === false
-            ? null
-            : ($localConfig[$settingsType] ?? []);
+        if ($localConfig === false) {
+            return null;
+        }
+
+        return $settingsType
+            ? $localConfig[$settingsType] ?? []
+            : $localConfig;
     }
 
     public function install(ServiceLocatorInterface $services): void
@@ -100,7 +108,7 @@ trait TraitModule
         $this->initTranslations();
 
         /**@var \Laminas\Mvc\I18n\Translator $translator */
-        $translator = $services->get('MvcTranslator');
+        $translator = $services->get(TranslatorInterface::class);
 
         $this->preInstall();
         if (!$this->checkDependencies()) {
@@ -226,7 +234,7 @@ trait TraitModule
 
         $this->initDataToPopulate($settings, 'config');
         $data = $this->prepareDataToPopulate($settings, 'config');
-        if (is_null($data)) {
+        if ($data === null) {
             return null;
         }
 
@@ -291,6 +299,7 @@ trait TraitModule
         $services = $this->getServiceLocator();
         /** @var \Omeka\Mvc\Status $status */
         $status = $services->get('Omeka\Status');
+        // Does not manage the public user form of module Guest.
         if ($status->isAdminRequest()) {
             /** @var \Laminas\Router\Http\RouteMatch $routeMatch */
             $routeMatch = $status->getRouteMatch();
@@ -313,7 +322,7 @@ trait TraitModule
 
     protected function postInstall(): void
     {
-        // To be overridden. Automatically run on uninstall.
+        // To be overridden. Automatically run on install.
         $this->postInstallAuto();
     }
 
@@ -383,7 +392,7 @@ trait TraitModule
         // Include translations early for translatable settings and messages.
         $conf = $this->getConfig();
         if (!isset($conf['translator']['translation_file_patterns'])
-            || is_array($conf['translator']['translation_file_patterns'])
+            || !is_array($conf['translator']['translation_file_patterns'])
         ) {
             return $this;
         }
@@ -394,7 +403,7 @@ trait TraitModule
          * @var \Laminas\I18n\Translator\TranslatorInterface $translator
          * @var \Laminas\I18n\Translator\Translator $delegatedTranslator
          */
-        $translator = $services->get(\Laminas\I18n\Translator\TranslatorInterface::class);
+        $translator = $services->get(TranslatorInterface::class);
         $delegatedTranslator = $translator->getDelegatedTranslator();
         foreach ($conf['translator']['translation_file_patterns'] as $translationFilePattern) {
             $delegatedTranslator->addTranslationFilePattern(
@@ -494,23 +503,6 @@ trait TraitModule
     }
 
     /**
-     * @deprecated Not really useful. Will be removed in a future version.
-     */
-    protected function getServiceSettings(string $settingsType): \Omeka\Settings\AbstractSettings
-    {
-        $settingsTypes = [
-            // 'config' => 'Omeka\Settings',
-            'settings' => 'Omeka\Settings',
-            'site_settings' => 'Omeka\Settings\Site',
-            'user_settings' => 'Omeka\Settings\User',
-        ];
-        if (!isset($settingsTypes[$settingsType])) {
-            return null;
-        }
-        return $this->getServiceLocator()->get($settingsTypes[$settingsType]);
-    }
-
-    /**
      * Set, delete or update settings of the config of a module.
      *
      * @param string $process
@@ -559,12 +551,12 @@ trait TraitModule
         $api = $services->get('Omeka\ApiManager');
         $ids = $api->search('sites', [], ['returnScalar' => 'id'])->getContent();
         foreach ($ids as $id) {
-            $settings->setTargetId($id);
             $this->manageAnySettings(
                 $settings,
                 $settingsType,
                 $process,
-                $values[$id] ?? []
+                $values[$id] ?? [],
+                (int) $id
             );
         }
         return $this;
@@ -591,12 +583,12 @@ trait TraitModule
         $api = $services->get('Omeka\ApiManager');
         $ids = $api->search('users', [], ['returnScalar' => 'id'])->getContent();
         foreach ($ids as $id) {
-            $settings->setTargetId($id);
             $this->manageAnySettings(
                 $settings,
                 $settingsType,
                 $process,
-                $values[$id] ?? []
+                $values[$id] ?? [],
+                (int) $id
             );
         }
         return $this;
@@ -611,16 +603,52 @@ trait TraitModule
      * @param string $settingsType
      * @param string $process "install", "uninstall", "update".
      * @param array $values
+     * @param int|null $targetId
      * @return $this;
      */
-    protected function manageAnySettings(SettingsInterface $settings, string $settingsType, string $process, array $values = []): self
-    {
+    protected function manageAnySettings(
+        SettingsInterface $settings,
+        string $settingsType,
+        string $process,
+        array $values = [],
+        ?int $targetId = null
+    ): self {
         $defaultSettings = $this->getModuleConfig($settingsType);
         if (!$defaultSettings) {
             return $this;
         }
 
-        $translator = $this->getServiceLocator()->get('MvcTranslator');
+        $translator = $this->getServiceLocator()->get(TranslatorInterface::class);
+
+        // This check avoids to force the target id with setTargetId() for next
+        // processing, so it keeps the target id managed by omeka.
+        if ($targetId && $settings instanceof AbstractTargetSettings) {
+            foreach ($defaultSettings as $name => $value) {
+                switch ($process) {
+                    case 'install':
+                        $settings->set(
+                            $name,
+                            $this->isSettingTranslatable($settingsType, $name) ? $translator->translate($value) : $value,
+                            $targetId
+                        );
+                        break;
+                    case 'uninstall':
+                        $settings->delete($name, $targetId);
+                        break;
+                    case 'update':
+                        if (array_key_exists($name, $values)) {
+                            $settings->set(
+                                $name,
+                                $this->isSettingTranslatable($settingsType, $name) ? $translator->translate($values[$name]) : $values[$name],
+                                $targetId
+                            );
+                        }
+                        break;
+                }
+            }
+
+            return $this;
+        }
 
         foreach ($defaultSettings as $name => $value) {
             switch ($process) {
@@ -659,6 +687,7 @@ trait TraitModule
         global $globalNext;
 
         $services = $this->getServiceLocator();
+        $formElementManager = $services->get('FormElementManager');
 
         // TODO Check fieldsets in the config of the module.
         $settingFieldsets = [
@@ -667,7 +696,9 @@ trait TraitModule
             'site_settings' => static::NAMESPACE . '\Form\SiteSettingsFieldset',
             'user_settings' => static::NAMESPACE . '\Form\UserSettingsFieldset',
         ];
-        if (!isset($settingFieldsets[$settingsType])) {
+        if (!isset($settingFieldsets[$settingsType])
+            || !$formElementManager->has($settingFieldsets[$settingsType])
+        ) {
             return null;
         }
 
@@ -691,7 +722,7 @@ trait TraitModule
             case 'user_settings':
                 /** @var \Laminas\Router\Http\RouteMatch $routeMatch */
                 $routeMatch = $services->get('Application')->getMvcEvent()->getRouteMatch();
-                $id = $routeMatch->getParam('id');
+                $id = (int) $routeMatch->getParam('id');
                 break;
             default:
                 return null;
@@ -709,8 +740,8 @@ trait TraitModule
             $data = [];
         } else {
             $this->initDataToPopulate($settings, $settingsType, $id);
-            $data = $this->prepareDataToPopulate($settings, $settingsType);
-            if (is_null($data)) {
+            $data = $this->prepareDataToPopulate($settings, $settingsType, $id);
+            if ($data === null) {
                 return null;
             }
         }
@@ -721,7 +752,7 @@ trait TraitModule
          * @var \Laminas\Form\Fieldset $fieldset
          * @var \Laminas\Form\Form $form
          */
-        $fieldset = $services->get('FormElementManager')->get($settingFieldsets[$settingsType]);
+        $fieldset = $formElementManager->get($settingFieldsets[$settingsType]);
         $fieldset->setName($space);
         $form = $event->getTarget();
 
@@ -827,12 +858,12 @@ trait TraitModule
      *
      * @param SettingsInterface $settings
      * @param string $settingsType
-     * @param int $id Site id or user id.
+     * @param int|null $id Site id or user id.
      * @param bool True if processed.
      *
      * @todo Allow to set default options for arrays (see module Reference).
      */
-    protected function initDataToPopulate(SettingsInterface $settings, string $settingsType, $id = null): bool
+    protected function initDataToPopulate(SettingsInterface $settings, string $settingsType, ?int $id = null): bool
     {
         // This method is not in the interface, but is set for config, site and
         // user settings.
@@ -859,7 +890,7 @@ trait TraitModule
             $stmt = $connection->executeQuery($sql);
         }
 
-        $translator = $services->get('MvcTranslator');
+        $translator = $services->get(TranslatorInterface::class);
 
         $currentSettings = $stmt->fetchAllKeyValue();
         // Skip settings that are arrays, because the fields "multi-checkbox"
@@ -890,9 +921,10 @@ trait TraitModule
      *
      * @param SettingsInterface $settings
      * @param string $settingsType
+     * @param int|null $targetId
      * @return array|null
      */
-    protected function prepareDataToPopulate(SettingsInterface $settings, string $settingsType): ?array
+    protected function prepareDataToPopulate(SettingsInterface $settings, string $settingsType, ?int $targetId = null): ?array
     {
         // TODO Explain this feature.
         // Use isset() instead of empty() to give the possibility to display a
@@ -903,6 +935,17 @@ trait TraitModule
         }
 
         $data = [];
+
+        // This check avoids to force the target id with setTargetId() for next
+        // processing, so it keeps the target id managed by omeka.
+        if ($targetId && $settings instanceof AbstractTargetSettings) {
+            foreach ($defaultSettings as $name => $value) {
+                $val = $settings->get($name, is_array($value) ? [] : null, $targetId);
+                $data[$name] = $val;
+            }
+            return $data;
+        }
+
         foreach ($defaultSettings as $name => $value) {
             $val = $settings->get($name, is_array($value) ? [] : null);
             $data[$name] = $val;
@@ -913,7 +956,9 @@ trait TraitModule
     /**
      * Check if a setting is translatable.
      *
-     * The method can be overridden to match settings names.
+     * The method should be overridden to match settings names.
+     *
+     * @todo Manage the comment "// @translate" in config automatically.
      */
     protected function isSettingTranslatable(string $settingsType, string $name): bool
     {
@@ -970,7 +1015,7 @@ trait TraitModule
         } elseif (!$exception) {
             return false;
         }
-        $translator = $services->get('MvcTranslator');
+        $translator = $services->get(TranslatorInterface::class);
         if ($version) {
             $message = new PsrMessage(
                 'This module requires the module "{module}", version {version} or above.', // @translate
@@ -1088,7 +1133,8 @@ trait TraitModule
         $managedModule = $moduleManager->getModule($module);
         $moduleManager->deactivate($managedModule);
 
-        $translator = $services->get('MvcTranslator');
+        $translator = $services->get(TranslatorInterface::class);
+        $this->ensurePsrMessage();
         $message = new PsrMessage(
             'The module "{module}" was automatically deactivated because the dependencies are unavailable.', // @translate
             ['module' => $module]
@@ -1104,8 +1150,8 @@ trait TraitModule
     /**
      * Check or create the destination folder.
      *
-     * @param string $dirPath Absolute path.
-     * @return string|null
+     * @param string $dirPath Absolute path of the directory to check.
+     * @return string|null The dirpath if valid, else null.
      */
     protected function checkDestinationDir(string $dirPath): ?string
     {
@@ -1155,5 +1201,18 @@ trait TraitModule
             }
         }
         return rmdir($dirPath);
+    }
+
+    /**
+     * PsrMessage may not exist during install or update.
+     */
+    protected function ensurePsrMessage(): self
+    {
+        if (!class_exists('Common\Stdlib\PsrMessage', false)) {
+            require_once __DIR__ . '/src/Stdlib/PsrInterpolateInterface.php';
+            require_once __DIR__ . '/src/Stdlib/PsrInterpolateTrait.php';
+            require_once __DIR__ . '/src/Stdlib/PsrMessage.php';
+        }
+        return $this;
     }
 }

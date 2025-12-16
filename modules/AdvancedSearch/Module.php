@@ -6,7 +6,7 @@
  * Improve search with new fields, auto-suggest, filters, facets, specific pages, etc.
  *
  * @copyright BibLibre, 2016-2017
- * @copyright Daniel Berthereau, 2017-2023
+ * @copyright Daniel Berthereau, 2017-2024
  * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
  *
  * This software is governed by the CeCILL license under French law and abiding
@@ -34,24 +34,29 @@
  */
 namespace AdvancedSearch;
 
-if (!class_exists(\Generic\AbstractModule::class)) {
-    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
-        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
-        : __DIR__ . '/src/Generic/AbstractModule.php';
+if (!class_exists(\Common\TraitModule::class)) {
+    require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
 use AdvancedSearch\Api\Representation\SearchEngineRepresentation;
-use Generic\AbstractModule;
+use Common\Stdlib\PsrMessage;
+use Common\TraitModule;
+use Omeka\Module\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;
 use Omeka\Entity\Resource;
-use Omeka\Stdlib\Message;
 
 class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
+
+    use TraitModule;
+
+    protected $dependencies = [
+        'Common',
+    ];
 
     /**
      * @var bool
@@ -89,19 +94,19 @@ class Module extends AbstractModule
     protected function preInstall(): void
     {
         $services = $this->getServiceLocator();
+        $translate = $services->get('ControllerPluginManager')->get('translate');
 
-        /** @var \Omeka\Module\Manager $moduleManager */
-        $moduleManager = $services->get('Omeka\ModuleManager');
-        $module = $moduleManager->getModule('Search');
-        if ($module && !in_array($module->getState(), [
-            \Omeka\Module\Manager::STATE_NOT_INSTALLED,
-            \Omeka\Module\Manager::STATE_NOT_FOUND ,
-            \Omeka\Module\Manager::STATE_INVALID_MODULE,
-            \Omeka\Module\Manager::STATE_INVALID_INI ,
-            \Omeka\Module\Manager::STATE_INVALID_OMEKA_VERSION,
-        ])) {
+        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.49')) {
+            $message = new \Omeka\Stdlib\Message(
+                $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+                'Common', '3.4.49'
+            );
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+        }
+
+        if ($this->isModuleActive('Search')) {
             throw new \Omeka\Module\Exception\ModuleCannotInstallException(
-                'This module is not compatible with mocule "Search". Disable or uninstall it first. To upgrade from it, update it to version 3.5.23.3 or greater and downgrade this module to version 3.4.14.' // @translate
+                $translate('This module is not compatible with mocule "Search". Disable or uninstall it first. To upgrade from it, update it to version 3.5.23.3 or greater and downgrade this module to version 3.4.14.') // @translate
             );
         }
     }
@@ -127,15 +132,15 @@ class Module extends AbstractModule
         ])) {
             $version = $module->getIni('version');
             if (version_compare($version, '3.5.45', '<')) {
-                $message = new Message(
-                    'The module %1$s should be upgraded to version %2$s or later.', // @translate
-                    'SearchSolr', '3.5.45'
+                $message = new PsrMessage(
+                    'The module {module} should be upgraded to version {version} or later.', // @translate
+                    ['module' => 'SearchSolr', 'version' => '3.5.45']
                 );
                 $messenger->addWarning($message);
             } elseif ($module->getState() !== \Omeka\Module\Manager::STATE_ACTIVE) {
-                $message = new Message(
-                    'The module %s can be reenabled.', // @translate
-                    'SearchSolr'
+                $message = new PsrMessage(
+                    'The module {module} can be reenabled.', // @translate
+                    ['module' => 'SearchSolr']
                 );
                 $messenger->addNotice($message);
             }
@@ -204,6 +209,7 @@ class Module extends AbstractModule
             'Omeka\Controller\Admin\Item',
             'Omeka\Controller\Admin\ItemSet',
             'Omeka\Controller\Admin\Media',
+            'Omeka\Controller\Admin\Query',
             'Omeka\Controller\Site\Item',
             'Omeka\Controller\Site\ItemSet',
             'Omeka\Controller\Site\Media',
@@ -214,7 +220,7 @@ class Module extends AbstractModule
             $sharedEventManager->attach(
                 $controller,
                 'view.advanced_search',
-                [$this, 'displayAdvancedSearch']
+                [$this, 'handleViewAdvancedSearch']
             );
         }
         $controllers = [
@@ -223,11 +229,11 @@ class Module extends AbstractModule
             'Omeka\Controller\Site\Media',
         ];
         foreach ($controllers as $controller) {
-            // Specify fields to add to the advanced search form.
+            // Specify fields to filter from the advanced search form.
             $sharedEventManager->attach(
                 $controller,
                 'view.advanced_search',
-                [$this, 'displayAdvancedSearchPost'],
+                [$this, 'handleViewAdvancedSearchPost'],
                 -100
             );
         }
@@ -629,27 +635,36 @@ class Module extends AbstractModule
      *
      * @param Event $event
      */
-    public function displayAdvancedSearch(Event $event): void
+    public function handleViewAdvancedSearch(Event $event): void
     {
-        // The advanced search form can be used anywhere, so load it in all cases.
         $view = $event->getTarget();
-        $assetUrl = $view->plugin('assetUrl');
-        $view->headScript()
-            ->appendFile($assetUrl('js/search.js', 'AdvancedSearch'), 'text/javascript', ['defer' => 'defer']);
-        if ($view->status()->isAdminRequest()) {
-            // For the main search field in the left sidebar in admin.
-            $view->headLink()
-                ->appendStylesheet($assetUrl('css/advanced-search-admin.css', 'AdvancedSearch'));
-            $view->headScript()
-                ->appendFile($assetUrl('js/advanced-search-admin.js', 'AdvancedSearch'), 'text/javascript', ['defer' => 'defer']);
-        } else {
-            $view->headLink()
+
+        $plugins = $view->getHelperPluginManager();
+        $status = $plugins->get('status');
+        $assetUrl = $plugins->get('assetUrl');
+        $headLink = $plugins->get('headLink');
+        $headScript = $plugins->get('headScript');
+
+        // Include chosen-select in sites.
+        $isSite = $status->isSiteRequest();
+        if ($isSite) {
+            $headLink
                 ->prependStylesheet($assetUrl('vendor/chosen-js/chosen.min.css', 'Omeka'));
-            $view->headScript()
+            $headScript
                 ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer']);
         }
 
-        // Adapted from the advanced-search/properties.phtml template.
+        $headLink
+            ->appendStylesheet($assetUrl('css/advanced-search-form.css', 'AdvancedSearch'));
+        $headScript
+            ->appendFile($assetUrl('js/advanced-search-form.js', 'AdvancedSearch'), 'text/javascript', ['defer' => 'defer']);
+
+        $this->handlePartialsAdvancedSearch($event);
+    }
+
+    public function handlePartialsAdvancedSearch(Event $event): void
+    {
+        // Adapted from application/view/common/advanced-search.phtml.
 
         $query = $event->getParam('query', []);
 
@@ -664,7 +679,7 @@ class Module extends AbstractModule
         $query['datetime'] ??= '';
         $partials[] = 'common/advanced-search/date-time';
 
-        $partials[] = 'common/advanced-search/visibility';
+        // Visibility filter was included in Omeka S v4.0.
 
         if ($resourceType === 'item') {
             $query['has_media'] ??= '';
@@ -683,20 +698,29 @@ class Module extends AbstractModule
             $partials[] = 'common/advanced-search/media-type';
         }
 
+        $partials = array_unique($partials);
+
         $event->setParam('query', $query);
         $event->setParam('partials', $partials);
     }
 
     /**
-     * Display the advanced search form via partial.
+     * Update partials (search fields) to the advanced search form.
      *
      * @param Event $event
      */
-    public function displayAdvancedSearchPost(Event $event): void
+    public function handleViewAdvancedSearchPost(Event $event): void
     {
+        $config = $this->getServiceLocator()->get('Config');
+        $defaultSearchFields = $config['advancedsearch']['search_fields'];
+
         $view = $event->getTarget();
         $partials = $event->getParam('partials', []);
-        $defaultSearchFields = $this->getDefaultSearchFields();
+
+        $partials = array_unique($partials);
+
+        // Don't add new partials, only remove existing ones: by default, they
+        // are forbidden partials for sites.
         $searchFields = $view->siteSetting('advancedsearch_search_fields', $defaultSearchFields) ?: [];
         foreach ($partials as $key => $partial) {
             if (isset($defaultSearchFields[$partial]) && !in_array($partial, $searchFields)) {
@@ -705,12 +729,6 @@ class Module extends AbstractModule
         }
 
         $event->setParam('partials', $partials);
-    }
-
-    protected function getDefaultSearchFields()
-    {
-        $config = $this->getServiceLocator()->get('Config');
-        return $config['advancedsearch']['search_fields'];
     }
 
     /**
@@ -825,14 +843,14 @@ class Module extends AbstractModule
                 try {
                     $indexer->indexResources($resources);
                 } catch (\Exception $e) {
-                    $logger->err(new Message(
-                        'Unable to batch index metadata for search engine "%1$s": %2$s', // @translate
-                        $searchEngine->name(), $e->getMessage()
-                    ));
+                    $logger->err(
+                        'Unable to batch index metadata for search engine "{name}": {message}', // @translate
+                        ['name' => $searchEngine->name(), 'message' => $e->getMessage()]
+                    );
                     $messenger = $services->get('ControllerPluginManager')->get('messenger');
-                    $messenger->addWarning(new Message(
-                        'Unable to batch update the search engine "%s": see log.', // @translate
-                        $searchEngine->name()
+                    $messenger->addWarning(new PsrMessage(
+                        'Unable to batch update the search engine "{name}": see log.', // @translate
+                        ['name' => $searchEngine->name()]
                     ));
                 }
             }
@@ -878,13 +896,13 @@ class Module extends AbstractModule
                     $jobDispatcher->dispatch(\AdvancedSearch\Job\IndexSearch::class, $jobArgs, $strategy);
                     $first = false;
                 } catch (\Exception $e) {
-                    $logger->err(new Message(
-                        'Unable to launch index metadata for search engine "%1$s": %2$s', // @translate
-                        $searchEngine->name(), $e->getMessage()
-                    ));
-                    $messenger->addWarning(new Message(
-                        'Unable to launch indexing for the search engine "%s": see log.', // @translate
-                        $searchEngine->name()
+                    $logger->err(
+                        'Unable to launch index metadata for search engine "{name}": {message}', // @translate
+                        ['name' => $searchEngine->name(), 'message' => $e->getMessage()]
+                    );
+                    $messenger->addWarning(new PsrMessage(
+                        'Unable to launch indexing for the search engine "{name}": see log.', // @translate
+                        ['name' => $searchEngine->name()]
                     ));
                 }
             }
@@ -980,14 +998,14 @@ class Module extends AbstractModule
         } catch (\Exception $e) {
             $services = $this->getServiceLocator();
             $logger = $services->get('Omeka\Logger');
-            $logger->err(new Message(
-                'Unable to delete the search index for resource #%1$d in search engine "%2$s": %3$s', // @translate
-                $id, $searchEngine->name(), $e->getMessage()
-            ));
+            $logger->err(
+                'Unable to delete the search index for resource #{resource_id} in search engine "{name}": {message}', // @translate
+                ['resource_id' => $id, 'name' => $searchEngine->name(), 'message' => $e->getMessage()]
+            );
             $messenger = $services->get('ControllerPluginManager')->get('messenger');
-            $messenger->addWarning(new Message(
-                'Unable to delete the search index for the deleted resource #%1$d in search engine "%2$s": see log.', // @translate
-                $id, $searchEngine->name()
+            $messenger->addWarning(new PsrMessage(
+                'Unable to delete the search index for the deleted resource #{resource_id} in search engine "{name}": see log.', // @translate
+                ['resource_id' => $id, 'name' => $searchEngine->name()]
             ));
         }
     }
@@ -1006,14 +1024,14 @@ class Module extends AbstractModule
         } catch (\Exception $e) {
             $services = $this->getServiceLocator();
             $logger = $services->get('Omeka\Logger');
-            $logger->err(new Message(
-                'Unable to index metadata of resource #%1$d for search in search engine "%2$s": %3$s', // @translate
-                $resource->getId(), $searchEngine->name(), $e->getMessage()
-            ));
+            $logger->err(
+                'Unable to index metadata of resource #{resource_id} for search in search engine "{name}": {message}', // @translate
+                ['resource_id' => $resource->getId(), 'name' => $searchEngine->name(), 'message' => $e->getMessage()]
+            );
             $messenger = $services->get('ControllerPluginManager')->get('messenger');
-            $messenger->addWarning(new Message(
-                'Unable to update the search index for resource #%1$d in search engine "%2$s": see log.', // @translate
-                $resource->getId(), $searchEngine->name()
+            $messenger->addWarning(new PsrMessage(
+                'Unable to update the search index for resource #{resource_id} in search engine "{name}": see log.', // @translate
+                ['resource_id' => $resource->getId(), 'name' => $searchEngine->name()]
             ));
         }
     }
@@ -1197,11 +1215,13 @@ SQL;
                 json_encode($searchEngineConfig['o:settings'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             ]);
             $searchEngineId = $connection->fetchOne($sqlSearchEngineId);
-            $message = new Message(
-                'The internal search engine (sql) can be edited in the %1$ssearch manager%2$s.', // @translate
-                // Don't use the url helper, the route is not available during install.
-                sprintf('<a href="%s">', $urlHelper('admin') . '/search-manager/engine/' . $searchEngineId . '/edit'),
-                '</a>'
+            $message = new PsrMessage(
+                'The internal search engine (sql) can be edited in the {link_url}search manager{link_end}.', // @translate
+                [
+                    // Don't use the url helper, the route is not available during install.
+                    'link_url' => sprintf('<a href="%s">', $urlHelper('admin') . '/search-manager/engine/' . $searchEngineId . '/edit'),
+                    'link_end' => '</a>',
+                ]
             );
             $message->setEscapeHtml(false);
             $messenger->addSuccess($message);
@@ -1230,11 +1250,13 @@ SQL;
                 json_encode($suggesterSettings, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             ]);
             $suggesterId = (int) $connection->fetchOne($sqlSuggesterId);
-            $message = new Message(
-                'The %1$sinternal suggester%2$s (sql) will be available after indexation.', // @translate
-                // Don't use the url helper, the route is not available during install.
-                sprintf('<a href="%s">', $urlHelper('admin') . '/search-manager/suggester/' . $suggesterId . '/edit'),
-                '</a>'
+            $message = new PsrMessage(
+                'The {link_url}internal suggester{link_end} (sql) will be available after indexation.', // @translate
+                [
+                    // Don't use the url helper, the route is not available during install.
+                    'link_url' => sprintf('<a href="%s">', $urlHelper('admin') . '/search-manager/suggester/' . $suggesterId . '/edit'),
+                    'link_end' => '</a>',
+                ]
             );
             $message->setEscapeHtml(false);
             $messenger->addSuccess($message);
@@ -1265,17 +1287,19 @@ SQL;
             ]);
 
             $searchConfigId = $connection->fetchOne($sqlSearchConfigId);
-            $message = new Message(
-                'The default search config can be %1$sedited%2$s and configured in the %3$smain settings%2$s for admin search and in each site settings for public search.', // @translate
-                // Don't use the url helper, the route is not available during install.
-                sprintf('<a href="%s">', $urlHelper('admin') . '/search-manager/config/' . $searchConfigId . '/edit'),
-                '</a>',
-                sprintf('<a href="%s">', $urlHelper('admin') . '/setting#advancedsearch_main_config')
+            $message = new PsrMessage(
+                'The default search config can be {link_url}edited{link_end} and configured in the {link_url_2}main settings{link_end} for admin search and in each site settings for public search.', // @translate
+                [
+                    // Don't use the url helper, the route is not available during install.
+                    'link_url' => sprintf('<a href="%s">', $urlHelper('admin') . '/search-manager/config/' . $searchConfigId . '/edit'),
+                    'link_end' => '</a>',
+                    'link_url_2' => sprintf('<a href="%s">', $urlHelper('admin') . '/setting#advancedsearch_main_config'),
+                ]
             );
             $message->setEscapeHtml(false);
             $messenger->addSuccess($message);
         }
 
-        return $searchConfigId;
+        return (int) $searchConfigId;
     }
 }

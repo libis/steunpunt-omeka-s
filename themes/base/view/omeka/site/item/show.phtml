@@ -23,14 +23,21 @@ endif;
         <li><a href="<?php echo $site->url()."/item/browse?resource_template_id=2";?>"><?php echo $translate("Nieuws");?></a></li>
         <?php else:?>
           <li><a href="<?php echo $site->url()."/page/collectie";?>"><?php echo $translate("Collectie");?></a></li>
+          <?php 
+            if($lang=='nl'):
+              $obectslug = '/objecten';
+            else: 
+              $obectslug = '/objects';   
+            endif;
+          ?>
           <?php if(isset($_SERVER['HTTP_REFERER'])):?>
             <?php if(strpos($_SERVER['HTTP_REFERER'],'objecten?') !== false):?>
               <li><a href="<?php echo $_SERVER['HTTP_REFERER'];?>"><?php echo $translate("Objecten");?></a></li>
             <?php else:?> 
-              <li><a href="<?php echo $site->url();?>/objecten"><?php echo $translate("Objecten");?></a></li>
+              <li><a href="<?php echo $site->url().$obectslug;?>"><?php echo $translate("Objecten");?></a></li>
             <?php endif;?>
           <?php else:?> 
-            <li><a href="<?php echo $site->url();?>/objecten"><?php echo $translate("Objecten");?></a></li>  
+            <li><a href="<?php echo $site->url().$obectslug;?>"><?php echo $translate("Objecten");?></a></li>  
           <?php endif;?>  
         <?php endif;?>
         <?php if($type == 'Nieuws'):?>

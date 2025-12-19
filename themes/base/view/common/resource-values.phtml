@@ -342,32 +342,26 @@ if($lang == 'nl'){
                     echo $value;
                   endforeach;  
                   ?>  
-                <?php elseif($propertyData['alternate_label'] == 'Vervaardiger'):?>                  
-                  <?php if(strpos($value->asHtml(), '$$') !== false):?>                   
+                <?php elseif($propertyData['alternate_label'] == 'Vervaardiger'):?>                   
                     <?php 
-                    $text = explode('$$',$value->asHtml());
-                    if($text[1]):
+                      $text = explode('$$',$value->asHtml());                    
                       $cre_r = array();$medval = "";
                       foreach($values['dcterms:creator']['values'] as $cre):
                         if(str_contains($text[0],$cre->asHtml())):
                         $medval = $cre->asHtml();
                         endif;
                       endforeach;
-                      ?>
-                      <?php if($medval):?>                    
-                        <a href="<?php echo $search_url.'?q=&facet[dcterms_creator_ss][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
-                        <?php if(sizeof($text) == 3):?>
-                          <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
-                        <?php elseif(sizeof($text) == 2  && $text[1]):?>
-                          <a target="_blank" href="<?php echo $text[1]; ?>"><i class="fas fa-info-circle"></i></a>
-                        <?php endif;?>  
-                      <?php endif;?>  
+                    ?>
+                    <?php if($medval):?>                    
+                      <a href="<?php echo $search_url.'?q=&facet[dcterms_creator_ss][0]='.$medval; ?>"><?php echo $text[0]; ?></a>
                     <?php else:?>
                       <?php echo $text[0]; ?>
-                    <?php endif;?>  
-                  <?php else:?>
-                    <?php echo $value->asHtml(); ?>
-                  <?php endif;?>                  
+                    <?php endif;?>
+                    <?php if(sizeof($text) == 3):?>
+                        <a target="_blank" href="<?php echo $text[1].$text[2]; ?>"><i class="fas fa-info-circle"></i></a>
+                    <?php elseif(sizeof($text) == 2  && $text[1]):?>
+                        <a target="_blank" href="<?php echo $text[1]; ?>"><i class="fas fa-info-circle"></i></a>
+                    <?php endif;?>            
                 <?php elseif (strpos($value->asHtml(), 'http') !== false && strpos($value->asHtml(), 'uri-value-link') === false):?>
                   <a target="_blank" href="<?php echo $value->asHtml(); ?>"><?php echo $value->asHtml(); ?></a>
                 <?php else:?>

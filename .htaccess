@@ -5,6 +5,8 @@ php_value mail.force_extra_parameters "-Finfo"
 
 RewriteEngine On
 
+RewriteRule ^files/(large|original)/(.+)$ /files/medium/$2 [R=301,L]
+
 # The following rule tells Apache that if the requested filename
 # exists, simply serve it.
 RewriteCond %{REQUEST_FILENAME} -f

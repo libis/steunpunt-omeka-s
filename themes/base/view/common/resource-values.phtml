@@ -26,6 +26,7 @@ if($lang == 'nl'){
     else:
       continue;
     endif;
+    
   ?>  
   <?php if(!in_array($propertyData['property']->label(),$not) && !in_array($propertyData['alternate_label'],$notalt)):?>
     <?php if($comment != "extra" && $comment != ""):?>
@@ -270,27 +271,34 @@ if($lang == 'nl'){
                   <?php else:?>
                     <?php echo $value->asHtml(); ?>
                   <?php endif;?>    
-                <?php elseif($propertyData['alternate_label'] == 'Wetenschappelijke naam'):?>
-                  <?php if(strpos($value->asHtml(), '$$') !== false):?>
-                    <?php $text = explode('$$',$value.'');?>
-                    <?php                    
-                    $text[0] = str_replace("((","(",$text[0]);
-                    $text[0] = str_replace("))",")",$text[0]);
-                    $text[0] = str_replace("()","",$text[0]);
-                    if(str_contains($text[0],"(")):
-                      $name = explode("(",$text[0]);
-                      $name[0] = "<span style='font-style:italic'>".$name[0]."</span>";
-                      $only_name = $name[0];
-                    else:  
-                      $name = explode(",",$text[0]);
-                      $name[0] = "<span style='font-style:italic'>".$name[0]."</span>";
-                      $only_name = $name[0];
-                    endif;  
+                <?php elseif($propertyData['alternate_label'] == 'Wetenschappelijke naam'):
+                    $currentterm = $property->property()->term();
                     
-                    echo '<a href="'.$search_url.'?q=&filter[0][join]=and&filter[0][field]=dwc_scientificName_txt&filter[0][type]=in&filter[0][value]='.strip_tags($only_name).'">'.$text[0].'</a>';
-                    ?>
-                    <?php if($text[1]):?>
-                      <?php if(str_contains($text[1],'min-')):?>
+                    if($currentterm == "abcd:fullScientificName"): 
+                      $search_field = "abcd_fullScientificName_txt";
+                    else:
+                      //($currentterm == "dwc:scientificName")
+                      $search_field = "dwc_scientificName_txt";  
+                    endif; 
+                    
+                    if(strpos($value->asHtml(), '$$') !== false):
+                      $text = explode('$$',$value.'');
+                      $text[0] = str_replace("((","(",$text[0]);
+                      $text[0] = str_replace("))",")",$text[0]);
+                      $text[0] = str_replace("()","",$text[0]);
+                      if(str_contains($text[0],"(")):
+                        $name = explode("(",$text[0]);
+                        $name[0] = "<span style='font-style:italic'>".$name[0]."</span>";
+                        $only_name = $name[0];
+                      else:  
+                        $name = explode(",",$text[0]);
+                        $name[0] = "<span style='font-style:italic'>".$name[0]."</span>";
+                        $only_name = $name[0];
+                      endif;  
+                    
+                      echo '<a href="'.$search_url.'?q=&filter[0][join]=and&filter[0][field]='.$search_field.'&filter[0][type]=in&filter[0][value]='.strip_tags($only_name).'">'.$text[0].'</a>';
+                      if($text[1]):
+                      if(str_contains($text[1],'min-')):?>
                         <?php $text[1] = "https://www.mindat.org/".trim($text[1]).".html";?>
                          <a target="_blank" href="<?php echo $text[1]; ?>"><i class="fas fa-info-circle"></i></a>
                       <?php else:?>   

@@ -274,7 +274,7 @@ if($lang == 'nl'){
                 <?php elseif($propertyData['alternate_label'] == 'Wetenschappelijke naam'):
                     $currentterm = $property->property()->term();
                     
-                    if($currentterm == "abcd:fullScientificName"): 
+                    if($currentterm == "efg:ScientificNameString"): 
                       $search_field = "abcd_fullScientificName_txt";
                     else:
                       //($currentterm == "dwc:scientificName")

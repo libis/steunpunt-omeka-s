@@ -275,10 +275,10 @@ if($lang == 'nl'){
                     $currentterm = $property->property()->term();
                     
                     if($currentterm == "efg:ScientificNameString"): 
-                      $search_field = "abcd_fullScientificName_txt";
+                      $search_field = "abcd_fullScientificName_ss";
                     else:
                       //($currentterm == "dwc:scientificName")
-                      $search_field = "dwc_scientificName_txt";  
+                      $search_field = "dwc_scientificName_ss";  
                     endif; 
                     
                     if(strpos($value->asHtml(), '$$') !== false):

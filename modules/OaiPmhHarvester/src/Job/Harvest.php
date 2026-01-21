@@ -947,9 +947,12 @@ class Harvest extends AbstractJob
 
             $texts = explode('||',$texts);
             foreach($texts as $text):
+
               if (!mb_strlen($text)) {
                   continue;
               }
+
+              $text = trim($text);
 
               if($text == "$$"):
                 continue;
@@ -995,7 +998,7 @@ class Harvest extends AbstractJob
                         $language = "nl";
                       endif;  
 
-                      $val['@value'] = $text;
+                      $val['@value'] = trim($text);
                       $val['@language'] = $language;
                       break;
               }

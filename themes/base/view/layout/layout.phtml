@@ -85,12 +85,12 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
                   <div class="navbar-item">
                     <?php
                       echo $site->publicNav()->menu()->renderMenu(null, [
-                          'maxDepth' => $this->themeSetting('nav_depth') - 1
+                          'maxDepth' => $this->themeSetting('nav_depth')
                       ]);
                     ?>
                   </div>
                   <div class="navbar-item">
-                    <div style="color:#fff;">
+                    <div>
                       <?php $currenturl =  "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";?>
                       <?php if($site->slug() == "nl"):?>
                         <?php 
@@ -220,7 +220,7 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
            <?php echo $this->partial('common/search-form'); ?>
            <?php
              echo $site->publicNav()->menu()->renderMenu(null, [
-                 'maxDepth' => $this->themeSetting('nav_depth') - 1
+                 'maxDepth' => $this->themeSetting('nav_depth')
              ]);
            ?>
            <div style="color:#fff;">

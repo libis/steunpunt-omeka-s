@@ -11065,7 +11065,74 @@ p:last-of-type {
   height: 100%;
   font-size: 0.9rem;
   font-weight: 400;
+
+  > ul {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0.75rem;
+      background: #fff;
+      border: 0.5px solid #e0e0e0;
+      border-radius: 6px;
+      min-width: 160px;
+      padding: 6px 0;
+      list-style: none;
+      margin: 0;
+      z-index: 200;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: opacity 0.15s, visibility 0.15s;
+
+      li {
+        height: auto;
+        padding: 0;
+        display: block;
+      }
+
+      a {
+        display: block;
+        padding: 8px 16px;
+        font-weight: 400;
+
+        &:hover {
+          background: #f5f5f5;
+        }
+      }
+    }
+
+    // Show on hover AND on keyboard focus (no JS needed)
+    &:hover,
+    &:focus-within {
+      > ul {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+
+    // Chevron indicator for items with a submenu
+    &:has(> ul) > a::after {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-right: 1.5px solid #888;
+      border-bottom: 1.5px solid #888;
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.2s;
+      margin-left: 4px;
+    }
+
+    &:hover:has(> ul),
+    &:focus-within:has(> ul) {
+      > a::after {
+        transform: rotate(-135deg) translateY(-2px);
+      }
+    }
 }
+
+
 
 @media screen and (min-width: 1024px) {
   .navbar .navigation li {

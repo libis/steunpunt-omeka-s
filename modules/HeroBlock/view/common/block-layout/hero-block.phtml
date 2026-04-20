@@ -23,9 +23,6 @@
       <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="container">
         <div class="navbar-brand">
-          <!--<a class="navbar-item site-title" href="<?php echo $block->page()->site()->url(); ?>">
-            <?php echo $escape($siteTitle); ?>
-          </a>-->
           <a class="navbar-item" href="https://kuleuven.be">
             <?php if ($this->themeSetting('logo')): ?>
                 <img src="<?php echo $this->themeSettingAssetUrl('logo'); ?>" alt="<?php echo $escape($siteTitle); ?>" />
@@ -40,9 +37,7 @@
           </a>
         </div>
         <div class="navbar-menu">
-          <div class="navbar-start">
-
-          </div>
+          <div class="navbar-start"></div>
           <div class="navbar-end">
             <div class="navbar-item">
               <?php

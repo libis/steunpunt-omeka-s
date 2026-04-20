@@ -71,12 +71,83 @@ figcaption{
         display: flex;
       }
 
-      a{
-        color: #333333;
+      a{        
         font-weight: bold;
         font-family: $family-secondary;
       }
+
+      > ul {
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0.75rem;
+        border: 0.5px solid rgba($primary,0.4);
+        min-width: 160px;
+        padding: 0;
+        list-style: none;
+        margin: 0;
+        z-index: 200;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: opacity 0.15s, visibility 0.15s;
+
+        li {
+          height: auto;
+          padding: 0;
+          display: block;
+        }
+
+        a {
+          display: block;
+          padding: 8px 16px;
+
+          &:hover {
+            background: rgba($primary,0.2);
+            color: white !important;
+          }
+        }
+      }
+
+      // Show on hover AND on keyboard focus (no JS needed)
+      &:hover,
+      &:focus-within {
+        > ul {
+          visibility: visible;
+          opacity: 1;
+          pointer-events: auto;
+        }
+      }
+
+      // Chevron indicator for items with a submenu
+      &:has(> ul) > a::after {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid #cac8c3;
+        border-bottom: 2px solid #cac8c3;
+        transform: rotate(45deg) translateY(-2px);
+        transition: transform 0.2s;
+        margin-left: 5px;
+      }
+
+      &:hover:has(> ul),
+      &:focus-within:has(> ul) {
+        > a::after {
+          transform: rotate(-135deg) translateY(-2px);
+        }
+      }
     }
+  }
+
+  .navigation > li:has(> ul)::after {
+    content: '';
+    position: absolute;
+    bottom: -12px; // matches your dropdown's top offset
+    left: 0;
+    right: 0;
+    height: 12px;  // covers the gap
   }
 
   .site-title{
@@ -137,18 +208,20 @@ figcaption{
     .navigation{
       padding-top: 1rem;
       padding-bottom: 1rem;
-  
+      font-size: 1.2rem;
+
       li{
         padding-top: 0.5rem;
-        font-family: $family-secondary;
-        font-style: italic;
-        font-size: 1.2rem;
+        font-family: $family-secondary;        
+        font-weight: bold;
   
         ul{
           padding-top: 0;
-          padding-left: 1rem;
+          padding-left: 1.5rem;
+          font-size: 1rem;
         }
       }
+      
       a{
         color:white;
       }
@@ -269,20 +342,16 @@ figcaption{
 //hero
 .hero-overlay{
   background: rgba($primary,0.1);
-  //background: rgba($text,0.3);
   transition: all 400ms ease-out;
-
-  &:hover{
-    //background: rgba($primary,0.4);
-  }
+}
+.hero.is-primary .navbar-item, .hero.is-primary .navbar-link {
+  color: rgba(255,255,255,0.8);
 }
 .hero.is-primary a.navbar-item:hover{
   background: none;
 }
 .hero-head{
   .navbar{
-    //border-bottom: 1px solid $primary;
-
     .navigation{
       li{
         a{
@@ -302,7 +371,6 @@ figcaption{
       padding: 0.5rem 0 0 0;
     }
   }
-
 
   .hero-box{
     padding: 1rem;
@@ -380,10 +448,6 @@ figcaption{
 
   .card-bg{
     transition: all 400ms ease-out;
-  }
-
-  .card-footer{
-    //border-bottom: 2px solid rgba($primary,0.4);
   }
 
   .card-content{

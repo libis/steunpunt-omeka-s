@@ -271,6 +271,10 @@ if (strpos($url, 'page/home') !== false || $url == "http://www.blendeff.be/" || 
     $(".scroll-to-top-button").on("click", function() {
         $("body, html").animate({ scrollTop: 0 }, 800);
     });
+
+    $('body').on('contextmenu', 'img', function(e){ 
+      return false; 
+    });
   });
   </script>
 

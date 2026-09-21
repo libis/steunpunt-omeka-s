@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /api/
+Disallow: /api/*
+Disallow: /s/nl/objecten
+Disallow: /s/en/objects
+Disallow: /s/nl/objecten*
+Disallow: /s/en/objects*

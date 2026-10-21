@@ -9,7 +9,16 @@
               <?php endif;?>
               <?php echo $block->dataValue('text');?>
               <?php if($block->dataValue('link')):?>
-                  <a class="button is-primary" href="<?php echo $block->dataValue('link');?>"><?php echo $block->dataValue('label');?></a>
+                <div class="links-wrapper columns is-multiline">
+                  <div class="first-button btn-section column is-narrow">
+                    <a class="button is-primary" href="<?php echo $block->dataValue('link');?>"><?php echo $block->dataValue('label');?></a>
+                  </div>
+                  <?php if($block->dataValue('link2')):?>
+                    <div class="second-button btn-section column is-narrow">
+                      <a class="button is-primary" href="<?php echo $block->dataValue('link2');?>"><?php echo $block->dataValue('label2');?></a> 
+                    </div>
+                  <?php endif;?>
+                </div>
               <?php endif;?>
             </div>
           </div>
@@ -57,7 +66,16 @@
               <?php endif;?>
               <?php echo $block->dataValue('text');?>
               <?php if($block->dataValue('link')):?>
-                  <a class="button is-primary" href="<?php echo $block->dataValue('link');?>"><?php echo $block->dataValue('label');?></a>
+                <div class="links-wrapper columns is-multiline">
+                  <div class="first-button btn-section column is-narrow ">
+                    <a class="button is-primary" href="<?php echo $block->dataValue('link');?>"><?php echo $block->dataValue('label');?></a>
+                  </div>
+                  <?php if($block->dataValue('link2')):?>
+                    <div class="second-button btn-section column is-narrow">
+                      <a class="button is-primary" href="<?php echo $block->dataValue('link2');?>"><?php echo $block->dataValue('label2');?></a> 
+                    </div>
+                  <?php endif;?>
+                </div>
               <?php endif;?>
             </div>
           </div>
